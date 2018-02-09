@@ -14,12 +14,13 @@ private static final long serialVersionUID = 532349543479150419L;
 
 MBRecord() {}
 
+@Override
 Record
 getObject() {
 	return new MBRecord();
 }
 
-/** 
+/**
  * Creates a new MB Record with the given data
  * @param mailbox The host containing the mailbox for the domain.
  */
@@ -34,6 +35,7 @@ getMailbox() {
 	return getSingleName();
 }
 
+@Override
 public Name
 getAdditionalName() {
 	return getSingleName();

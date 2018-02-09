@@ -12,7 +12,7 @@ import java.text.*;
  * @author Brian Wellington
  */
 
-public class Name implements Comparable, Serializable {
+public class Name implements Comparable<Name>, Serializable {
 
 private static final long serialVersionUID = -7257019940971525644L;
 
@@ -593,7 +593,7 @@ subdomain(Name domain) {
 
 private static String
 byteString(byte [] array, int pos) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	int len = array[pos++];
 	for (int i = pos; i < pos + len; i++) {
 		int b = array[i] & 0xFF;
@@ -625,7 +625,7 @@ toString(boolean omitFinalDot) {
 		return "@";
 	else if (labels == 1 && name[offset(0)] == 0)
 		return ".";
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 0, pos = offset(0); i < labels; i++) {
 		int len = name[pos];
 		if (len > MAXLABEL)
@@ -647,6 +647,7 @@ toString(boolean omitFinalDot) {
  * Convert a Name to a String
  * @return The representation of this name as a (printable) String.
  */
+@Override
 public String
 toString() {
 	return toString(false);
@@ -794,6 +795,7 @@ equals(byte [] b, int bpos) {
 /**
  * Are these two Names equivalent?
  */
+@Override
 public boolean
 equals(Object arg) {
 	if (arg == this)
@@ -815,6 +817,7 @@ equals(Object arg) {
 /**
  * Computes a hashcode based on the value
  */
+@Override
 public int
 hashCode() {
 	if (hashcode != 0)
@@ -836,9 +839,7 @@ hashCode() {
  * @throws ClassCastException if the argument is not a Name.
  */
 public int
-compareTo(Object o) {
-	Name arg = (Name) o;
-
+compareTo(Name arg) {
 	if (this == arg)
 		return (0);
 

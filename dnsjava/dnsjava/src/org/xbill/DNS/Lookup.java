@@ -28,7 +28,7 @@ public final class Lookup {
 
 private static Resolver defaultResolver;
 private static Name [] defaultSearchPath;
-private static Map defaultCaches;
+private static Map<Integer, Cache> defaultCaches;
 private static int defaultNdots;
 
 private Resolver resolver;
@@ -44,7 +44,7 @@ private int iterations;
 private boolean foundAlias;
 private boolean done;
 private boolean doneCurrent;
-private List aliases;
+private List<Name> aliases;
 private Record [] answers;
 private int result;
 private String error;
@@ -89,7 +89,7 @@ refreshDefault() {
 		throw new RuntimeException("Failed to initialize resolver");
 	}
 	defaultSearchPath = ResolverConfig.getCurrentConfig().searchPath();
-	defaultCaches = new HashMap();
+	defaultCaches = new HashMap<Integer, Cache>();
 	defaultNdots = ResolverConfig.getCurrentConfig().ndots();
 }
 
@@ -124,7 +124,7 @@ setDefaultResolver(Resolver resolver) {
 public static synchronized Cache
 getDefaultCache(int dclass) {
 	DClass.check(dclass);
-	Cache c = (Cache) defaultCaches.get(Mnemonic.toInteger(dclass));
+	Cache c = defaultCaches.get(Mnemonic.toInteger(dclass));
 	if (c == null) {
 		c = new Cache(dclass);
 		defaultCaches.put(Mnemonic.toInteger(dclass), c);
@@ -407,7 +407,7 @@ follow(Name name, Name oldname) {
 		return;
 	}
 	if (aliases == null)
-		aliases = new ArrayList();
+		aliases = new ArrayList<Name>();
 	aliases.add(oldname);
 	lookup(name);
 }
@@ -416,8 +416,8 @@ private void
 processResponse(Name name, SetResponse response) {
 	if (response.isSuccessful()) {
 		RRset [] rrsets = response.answers();
-		List l = new ArrayList();
-		Iterator it;
+		List<Record> l = new ArrayList<Record>();
+		Iterator<Record> it;
 		int i;
 
 		for (i = 0; i < rrsets.length; i++) {
@@ -427,7 +427,7 @@ processResponse(Name name, SetResponse response) {
 		}
 
 		result = SUCCESSFUL;
-		answers = (Record []) l.toArray(new Record[l.size()]);
+		answers = l.toArray(new Record[l.size()]);
 		done = true;
 	} else if (response.isNXDOMAIN()) {
 		nxdomain = true;
@@ -588,7 +588,7 @@ private void
 checkDone() {
 	if (done && result != -1)
 		return;
-	StringBuffer sb = new StringBuffer("Lookup of " + name + " ");
+	StringBuilder sb = new StringBuilder("Lookup of " + name + " ");
 	if (dclass != DClass.IN)
 		sb.append(DClass.string(dclass) + " ");
 	sb.append(Type.string(type) + " isn't done");
@@ -618,7 +618,7 @@ getAliases() {
 	checkDone();
 	if (aliases == null)
 		return noAliases;
-	return (Name []) aliases.toArray(new Name[aliases.size()]);
+	return aliases.toArray(new Name[aliases.size()]);
 }
 
 /**

@@ -4,6 +4,7 @@ package org.xbill.DNS;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * A DNS Zone.  This encapsulates all data related to a Zone, and provides
@@ -22,7 +23,7 @@ public static final int PRIMARY = 1;
 /** A secondary zone */
 public static final int SECONDARY = 2;
 
-private Map data;
+private Map<Name, Object> data;//XXX
 private Name origin;
 private Object originNode;
 private int dclass = DClass.IN;
@@ -30,8 +31,8 @@ private RRset NS;
 private SOARecord SOA;
 private boolean hasWild;
 
-class ZoneIterator implements Iterator {
-	private Iterator zentries;
+class ZoneIterator implements Iterator<RRset> {
+	private Iterator<Entry<Name, Object>> zentries;
 	private RRset [] current;
 	private int count;
 	private boolean wantLastSOA;
@@ -59,7 +60,7 @@ class ZoneIterator implements Iterator {
 		return (current != null || wantLastSOA);
 	}
 
-	public Object
+	public RRset
 	next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -68,11 +69,11 @@ class ZoneIterator implements Iterator {
 			wantLastSOA = false;
 			return oneRRset(originNode, Type.SOA);
 		}
-		Object set = current[count++];
+		RRset set = current[count++];
 		if (count == current.length) {
 			current = null;
 			while (zentries.hasNext()) {
-				Map.Entry entry = (Map.Entry) zentries.next();
+				Entry<Name, Object> entry = zentries.next();
 				if (entry.getKey().equals(origin))
 					continue;
 				RRset [] sets = allRRsets(entry.getValue());
@@ -102,7 +103,7 @@ validate() throws IOException {
 	if (rrset == null || rrset.size() != 1)
 		throw new IOException(origin +
 				      ": exactly 1 SOA must be specified");
-	Iterator it = rrset.rrs();
+	Iterator<Record> it = rrset.rrs();
 	SOA = (SOARecord) it.next();
 
 	NS = oneRRset(originNode, Type.NS);
@@ -132,7 +133,7 @@ maybeAddRecord(Record record) throws IOException {
  */
 public
 Zone(Name zone, String file) throws IOException {
-	data = new TreeMap();
+	data = new TreeMap<Name, Object>();
 
 	if (zone == null)
 		throw new IllegalArgumentException("no zone name specified");
@@ -153,7 +154,7 @@ Zone(Name zone, String file) throws IOException {
  */
 public
 Zone(Name zone, Record [] records) throws IOException {
-	data = new TreeMap();
+	data = new TreeMap<Name, Object>();
 
 	if (zone == null)
 		throw new IllegalArgumentException("no zone name specified");
@@ -165,11 +166,11 @@ Zone(Name zone, Record [] records) throws IOException {
 
 private void
 fromXFR(ZoneTransferIn xfrin) throws IOException, ZoneTransferException {
-	data = new TreeMap();
+	data = new TreeMap<Name, Object>();
 
 	origin = xfrin.getName();
-	List records = xfrin.run();
-	for (Iterator it = records.iterator(); it.hasNext(); ) {
+	List<?> records = xfrin.run();	//XXX
+	for (Iterator<?> it = records.iterator(); it.hasNext(); ) {
 		Record record = (Record) it.next();
 		maybeAddRecord(record);
 	}
@@ -235,8 +236,8 @@ private synchronized static RRset []
 allRRsets(Object types) {
 	final RRset[] r;
 	if (types instanceof List) {
-		List typelist = (List) types;
-		r = (RRset []) typelist.toArray(new RRset[typelist.size()]);
+		List<?> typelist = (List<?>) types;
+		r = typelist.toArray(new RRset[typelist.size()]);
 	} else {
 		RRset set = (RRset) types;
 		r = new RRset [] {set};
@@ -249,7 +250,7 @@ oneRRset(Object types, int type) {
 	if (type == Type.ANY)
 		throw new IllegalArgumentException("oneRRset(ANY)");
 	if (types instanceof List) {
-		List list = (List) types;
+		List<?> list = (List<?>) types;
 		for (int i = 0; i < list.size(); i++) {
 			RRset set = (RRset) list.get(i);
 			if (set.getType() == type)
@@ -282,9 +283,10 @@ addRRset(Name name, RRset rrset) {
 	}
 	int rtype = rrset.getType();
 	if (types instanceof List) {
-		List list = (List) types;
+		@SuppressWarnings("unchecked")
+		List<RRset> list = (List<RRset>) types;
 		for (int i = 0; i < list.size(); i++) {
-			RRset set = (RRset) list.get(i);
+			RRset set = list.get(i);
 			if (set.getType() == rtype) {
 				list.set(i, rrset);
 				return;
@@ -296,7 +298,7 @@ addRRset(Name name, RRset rrset) {
 		if (set.getType() == rtype)
 			data.put(name, rrset);
 		else {
-			LinkedList list = new LinkedList();
+			LinkedList<RRset> list = new LinkedList<RRset>();
 			list.add(set);
 			list.add(rrset);
 			data.put(name, list);
@@ -311,9 +313,10 @@ removeRRset(Name name, int type) {
 		return;
 	}
 	if (types instanceof List) {
-		List list = (List) types;
+		@SuppressWarnings("unchecked")
+		List<RRset> list = (List<RRset>) types;
 		for (int i = 0; i < list.size(); i++) {
-			RRset set = (RRset) list.get(i);
+			RRset set = list.get(i);
 			if (set.getType() == type) {
 				list.remove(i);
 				if (list.size() == 0)
@@ -505,7 +508,7 @@ removeRecord(Record r) {
 /**
  * Returns an Iterator over the RRsets in the zone.
  */
-public Iterator
+public Iterator<RRset>
 iterator() {
 	return new ZoneIterator(false);
 }
@@ -515,17 +518,17 @@ iterator() {
  * construct an AXFR response.  This is identical to {@link #iterator} except
  * that the SOA is returned at the end as well as the beginning.
  */
-public Iterator
+public Iterator<RRset>
 AXFR() {
 	return new ZoneIterator(true);
 }
 
 private static void
-nodeToString(StringBuffer sb, Object node) {
+nodeToString(StringBuilder sb, Object node) {
 	RRset [] sets = allRRsets(node);
 	for (int i = 0; i < sets.length; i++) {
 		RRset rrset = sets[i];
-		Iterator it = rrset.rrs();
+		Iterator<Record> it = rrset.rrs();
 		while (it.hasNext())
 			sb.append(it.next() + "\n");
 		it = rrset.sigs();
@@ -539,11 +542,11 @@ nodeToString(StringBuffer sb, Object node) {
  */
 public synchronized String
 toMasterFile() {
-	Iterator zentries = data.entrySet().iterator();
-	StringBuffer sb = new StringBuffer();
+	Iterator<Entry<Name, Object>> zentries = data.entrySet().iterator();
+	StringBuilder sb = new StringBuilder();
 	nodeToString(sb, originNode);
 	while (zentries.hasNext()) {
-		Map.Entry entry = (Map.Entry) zentries.next();
+		Entry<Name, Object> entry = zentries.next();
 		if (!origin.equals(entry.getKey()))
 			nodeToString(sb, entry.getValue());
 	}
@@ -553,6 +556,7 @@ toMasterFile() {
 /**
  * Returns the contents of the Zone as a string (in master file format).
  */
+@Override
 public String
 toString() {
 	return toMasterFile();

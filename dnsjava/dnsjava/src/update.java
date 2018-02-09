@@ -33,8 +33,8 @@ newMessage() {
 
 public
 update(InputStream in) {
-	List inputs = new LinkedList();
-	List istreams = new LinkedList();
+	List<BufferedReader> inputs = new LinkedList();
+	List<InputStream> istreams = new LinkedList();
 
 	query = newMessage();
 
@@ -49,8 +49,8 @@ update(InputStream in) {
 			String line = null;
 			do {
 				InputStream is;
-				is = (InputStream)istreams.get(0);
-				br = (BufferedReader)inputs.get(0);
+				is = istreams.get(0);
+				br = inputs.get(0);
 
 				if (is == System.in)
 					System.out.print("> ");
@@ -184,10 +184,10 @@ update(InputStream in) {
 			{
 				if (log != null)
 					log.close();
-				Iterator it = inputs.iterator();
+				Iterator<BufferedReader> it = inputs.iterator();
 				while (it.hasNext()) {
 					BufferedReader tbr;
-					tbr = (BufferedReader) it.next();
+					tbr = it.next();
 					tbr.close();
 				}
 				System.exit(0);
@@ -438,7 +438,7 @@ doQuery(Tokenizer st) throws IOException {
 }
 
 void
-doFile(Tokenizer st, List inputs, List istreams) throws IOException {
+doFile(Tokenizer st, List<BufferedReader> inputs, List<InputStream> istreams) throws IOException {
 	String s = st.getString();
 	InputStream is;
 	try {
@@ -513,7 +513,7 @@ doAssert(Tokenizer st) throws IOException {
 	else if ((section = Section.value(field)) >= 0) {
 		int count = response.getHeader().getCount(section);
 		if (count != Integer.parseInt(expected)) {
-			value = new Integer(count).toString();
+			value = Integer.toString(count);
 			flag = false;
 		}
 	}

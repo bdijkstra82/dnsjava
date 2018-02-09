@@ -16,6 +16,7 @@ private static final long serialVersionUID = -5780785764284221342L;
 
 TXTRecord() {}
 
+@Override
 Record
 getObject() {
 	return new TXTRecord();
@@ -27,7 +28,7 @@ getObject() {
  * @throws IllegalArgumentException One of the strings has invalid escapes
  */
 public
-TXTRecord(Name name, int dclass, long ttl, List strings) {
+TXTRecord(Name name, int dclass, long ttl, List<String> strings) {
 	super(name, Type.TXT, dclass, ttl, strings);
 }
 

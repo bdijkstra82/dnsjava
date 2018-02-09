@@ -15,7 +15,7 @@ import java.util.*;
  * implementation of EDNS is mostly complete at level 0.
  *
  * @see Message
- * @see Resolver 
+ * @see Resolver
  *
  * @author Brian Wellington
  */
@@ -24,10 +24,11 @@ public class OPTRecord extends Record {
 
 private static final long serialVersionUID = -6254521894809367938L;
 
-private List options;
+private List<EDNSOption> options;
 
 OPTRecord() {}
 
+@Override
 Record
 getObject() {
 	return new OPTRecord();
@@ -36,7 +37,7 @@ getObject() {
 /**
  * Creates an OPT Record.  This is normally called by SimpleResolver, but can
  * also be called by a server.
- * @param payloadSize The size of a packet that can be reassembled on the 
+ * @param payloadSize The size of a packet that can be reassembled on the
  * sending host.
  * @param xrcode The value of the extended rcode field.  This is the upper
  * 16 bits of the full rcode.
@@ -48,7 +49,7 @@ getObject() {
  * @see ExtendedFlags
  */
 public
-OPTRecord(int payloadSize, int xrcode, int version, int flags, List options) {
+OPTRecord(int payloadSize, int xrcode, int version, int flags, List<? extends EDNSOption> options) {
 	super(Name.root, Type.OPT, payloadSize, 0);
 	checkU16("payloadSize", payloadSize);
 	checkU8("xrcode", xrcode);
@@ -56,14 +57,14 @@ OPTRecord(int payloadSize, int xrcode, int version, int flags, List options) {
 	checkU16("flags", flags);
 	ttl = ((long)xrcode << 24) + ((long)version << 16) + flags;
 	if (options != null) {
-		this.options = new ArrayList(options);
+		this.options = new ArrayList<EDNSOption>(options);
 	}
 }
 
 /**
  * Creates an OPT Record with no data.  This is normally called by
  * SimpleResolver, but can also be called by a server.
- * @param payloadSize The size of a packet that can be reassembled on the 
+ * @param payloadSize The size of a packet that can be reassembled on the
  * sending host.
  * @param xrcode The value of the extended rcode field.  This is the upper
  * 16 bits of the full rcode.
@@ -86,25 +87,28 @@ OPTRecord(int payloadSize, int xrcode, int version) {
 	this(payloadSize, xrcode, version, 0, null);
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	if (in.remaining() > 0)
-		options = new ArrayList();
+		options = new ArrayList<EDNSOption>();
 	while (in.remaining() > 0) {
 		EDNSOption option = EDNSOption.fromWire(in);
 		options.add(option);
 	}
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	throw st.exception("no text format defined for OPT");
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	if (options != null) {
 		sb.append(options);
 		sb.append(" ");
@@ -147,13 +151,14 @@ getFlags() {
 	return (int)(ttl & 0xFFFF);
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	if (options == null)
 		return;
-	Iterator it = options.iterator();
+	Iterator<EDNSOption> it = options.iterator();
 	while (it.hasNext()) {
-		EDNSOption option = (EDNSOption) it.next();
+		EDNSOption option = it.next();
 		option.toWire(out);
 	}
 }
@@ -161,10 +166,10 @@ rrToWire(DNSOutput out, Compression c, boolean canonical) {
 /**
  * Gets all options in the OPTRecord.  This returns a list of EDNSOptions.
  */
-public List
+public List<EDNSOption>
 getOptions() {
 	if (options == null)
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	return Collections.unmodifiableList(options);
 }
 
@@ -172,16 +177,16 @@ getOptions() {
  * Gets all options in the OPTRecord with a specific code.  This returns a list
  * of EDNSOptions.
  */
-public List
+public List<EDNSOption>
 getOptions(int code) {
 	if (options == null)
-		return Collections.EMPTY_LIST;
-	List list = Collections.EMPTY_LIST;
-	for (Iterator it = options.iterator(); it.hasNext(); ) {
-		EDNSOption opt = (EDNSOption) it.next();
+		return Collections.emptyList();
+	List<EDNSOption> list = Collections.emptyList();
+	for (Iterator<EDNSOption> it = options.iterator(); it.hasNext(); ) {
+		EDNSOption opt = it.next();
 		if (opt.getCode() == code) {
 			if (list == Collections.EMPTY_LIST)
-				list = new ArrayList();
+				list = new ArrayList<EDNSOption>();
 			list.add(opt);
 		}
 	}
@@ -195,6 +200,7 @@ getOptions(int code) {
  * @param arg The record to compare to
  * @return true if the records are equal, false otherwise.
  */
+@Override
 public boolean
 equals(final Object arg) {
 	return super.equals(arg) && ttl == ((OPTRecord) arg).ttl;

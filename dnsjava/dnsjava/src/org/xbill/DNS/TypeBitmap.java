@@ -15,11 +15,11 @@ final class TypeBitmap implements Serializable {
 
 private static final long serialVersionUID = -125354057735389003L;
 
-private TreeSet types;
+private TreeSet<Integer> types;
 
 private
 TypeBitmap() {
-	types = new TreeSet();
+	types = new TreeSet<Integer>();
 }
 
 public
@@ -27,7 +27,7 @@ TypeBitmap(int [] array) {
 	this();
 	for (int i = 0; i < array.length; i++) {
 		Type.check(array[i]);
-		types.add(new Integer(array[i]));
+		types.add(Integer.valueOf(array[i]));
 	}
 }
 
@@ -79,16 +79,17 @@ public int []
 toArray() {
 	int [] array = new int[types.size()];
 	int n = 0;
-	for (Iterator it = types.iterator(); it.hasNext(); )
-		array[n++] = ((Integer)it.next()).intValue();
+	for (Iterator<Integer> it = types.iterator(); it.hasNext(); )
+		array[n++] = it.next().intValue();
 	return array;
 }
 
+@Override
 public String
 toString() {
-	StringBuffer sb = new StringBuffer();
-	for (Iterator it = types.iterator(); it.hasNext(); ) {
-		int t = ((Integer)it.next()).intValue();
+	StringBuilder sb = new StringBuilder();
+	for (Iterator<Integer> it = types.iterator(); it.hasNext(); ) {
+		int t = it.next().intValue();
 		sb.append(Type.string(t));
 		if (it.hasNext())
 			sb.append(' ');
@@ -97,14 +98,14 @@ toString() {
 }
 
 private static void
-mapToWire(DNSOutput out, TreeSet map, int mapbase) {
-	int arraymax = (((Integer)map.last()).intValue()) & 0xFF;
+mapToWire(DNSOutput out, TreeSet<Integer> map, int mapbase) {
+	int arraymax = (map.last().intValue()) & 0xFF;
 	int arraylength = (arraymax / 8) + 1;
 	int [] array = new int[arraylength];
 	out.writeU8(mapbase);
 	out.writeU8(arraylength);
-	for (Iterator it = map.iterator(); it.hasNext(); ) {
-		int typecode = ((Integer)it.next()).intValue();
+	for (Iterator<Integer> it = map.iterator(); it.hasNext(); ) {
+		int typecode = it.next().intValue();
 		array[(typecode & 0xFF) / 8] |= (1 << ( 7 - typecode % 8));
 	}
 	for (int j = 0; j < arraylength; j++)
@@ -117,10 +118,10 @@ toWire(DNSOutput out) {
 		return;
 
 	int mapbase = -1;
-	TreeSet map = new TreeSet();
+	TreeSet<Integer> map = new TreeSet<Integer>();
 
-	for (Iterator it = types.iterator(); it.hasNext(); ) {
-		int t = ((Integer)it.next()).intValue();
+	for (Iterator<Integer> it = types.iterator(); it.hasNext(); ) {
+		int t = it.next().intValue();
 		int base = t >> 8;
 		if (base != mapbase) {
 			if (map.size() > 0) {
@@ -129,7 +130,7 @@ toWire(DNSOutput out) {
 			}
 			mapbase = base;
 		}
-			map.add(new Integer(t));
+			map.add(Integer.valueOf(t));
 	}
 	mapToWire(out, map, mapbase);
 }

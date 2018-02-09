@@ -70,7 +70,7 @@ ResolverConfig() {
 }
 
 private static void
-addServer(String server, List list) {
+addServer(String server, List<String> list) {
 	if (list.contains(server))
 		return;
 	if (Options.check("verbose"))
@@ -79,7 +79,7 @@ addServer(String server, List list) {
 }
 
 private static void
-addSearch(String search, List list) {
+addSearch(String search, List<Name> list) {
 	Name name;
 	if (Options.check("verbose"))
 		System.out.println("adding search " + search);
@@ -111,11 +111,11 @@ parseNdots(String token) {
 }
 
 private void
-configureFromLists(List lserver, List lsearch) {
+configureFromLists(List<String> lserver, List<Name> lsearch) {
 	if (servers == null && lserver.size() > 0)
-		servers = (String []) lserver.toArray(new String[0]);
+		servers = lserver.toArray(new String[0]);
 	if (searchlist == null && lsearch.size() > 0)
-		searchlist = (Name []) lsearch.toArray(new Name[0]);
+		searchlist = lsearch.toArray(new Name[0]);
 }
 
 private void
@@ -132,8 +132,8 @@ configureNdots(int lndots) {
 private boolean
 findProperty() {
 	String prop;
-	List lserver = new ArrayList(0);
-	List lsearch = new ArrayList(0);
+	List<String> lserver = new ArrayList<String>(0);
+	List<Name> lsearch = new ArrayList<Name>(0);
 	StringTokenizer st;
 
 	prop = System.getProperty("dns.server");
@@ -157,18 +157,19 @@ findProperty() {
  * Uses the undocumented Sun DNS implementation to determine the configuration.
  * This doesn't work or even compile with all JVMs (gcj, for example).
  */
+@SuppressWarnings("unchecked")
 private boolean
 findSunJVM() {
-	List lserver = new ArrayList(0);
-	List lserver_tmp;
-	List lsearch = new ArrayList(0);
-	List lsearch_tmp;
+	List<String> lserver = new ArrayList<String>(0);
+	List<String> lserver_tmp;
+	List<Name> lsearch = new ArrayList<Name>(0);
+	List<String> lsearch_tmp;
 
 	try {
-		Class [] noClasses = new Class[0];
+		Class<?> [] noClasses = new Class[0];
 		Object [] noObjects = new Object[0];
 		String resConfName = "sun.net.dns.ResolverConfiguration";
-		Class resConfClass = Class.forName(resConfName);
+		Class<?> resConfClass = Class.forName(resConfName);
 		Object resConf;
 
 		// ResolverConfiguration resConf = ResolverConfiguration.open();
@@ -178,12 +179,12 @@ findSunJVM() {
 		// lserver_tmp = resConf.nameservers();
 		Method nameservers = resConfClass.getMethod("nameservers",
 							    noClasses);
-		lserver_tmp = (List) nameservers.invoke(resConf, noObjects);
+		lserver_tmp = (List<String>) nameservers.invoke(resConf, noObjects);
 
 		// lsearch_tmp = resConf.searchlist();
 		Method searchlist = resConfClass.getMethod("searchlist",
 							    noClasses);
-		lsearch_tmp = (List) searchlist.invoke(resConf, noObjects);
+		lsearch_tmp = (List<String>) searchlist.invoke(resConf, noObjects);
 	}
 	catch (Exception e) {
 		return false;
@@ -193,15 +194,15 @@ findSunJVM() {
 		return false;
 
 	if (lserver_tmp.size() > 0) {
-		Iterator it = lserver_tmp.iterator();
+		Iterator<String> it = lserver_tmp.iterator();
 		while (it.hasNext())
-			addServer((String) it.next(), lserver);
+			addServer(it.next(), lserver);
 	}
 
 	if (lsearch_tmp.size() > 0) {
-		Iterator it = lsearch_tmp.iterator();
+		Iterator<String> it = lsearch_tmp.iterator();
 		while (it.hasNext())
-			addSearch((String) it.next(), lsearch);
+			addSearch(it.next(), lsearch);
 	}
 	configureFromLists(lserver, lsearch);
 	return true;
@@ -223,8 +224,8 @@ findResolvConf(String file) {
 	}
 	InputStreamReader isr = new InputStreamReader(in);
 	BufferedReader br = new BufferedReader(isr);
-	List lserver = new ArrayList(0);
-	List lsearch = new ArrayList(0);
+	List<String> lserver = new ArrayList<String>(0);
+	List<Name> lsearch = new ArrayList<Name>(0);
 	int lndots = -1;
 	try {
 		String line;
@@ -300,8 +301,8 @@ findWin(InputStream in, Locale locale) {
 
 	BufferedReader br = new BufferedReader(new InputStreamReader(in));
 	try {
-		List lserver = new ArrayList();
-		List lsearch = new ArrayList();
+		List<String> lserver = new ArrayList<String>();
+		List<Name> lsearch = new ArrayList<Name>();
 		String line = null;
 		boolean readingServers = false;
 		boolean readingSearches = false;
@@ -433,14 +434,14 @@ findAndroid() {
 	// we use those.
 	final String re1 = "^\\d+(\\.\\d+){3}$";
 	final String re2 = "^[0-9a-f]+(:[0-9a-f]*)+:[0-9a-f]+$";
-	ArrayList lserver = new ArrayList();
-	ArrayList lsearch = new ArrayList();
+	ArrayList<String> lserver = new ArrayList<String>();
+	ArrayList<Name> lsearch = new ArrayList<Name>();
 	try {
-		Class SystemProperties =
+		Class<?> SystemProperties =
 		    Class.forName("android.os.SystemProperties");
 		Method method =
 		    SystemProperties.getMethod("get",
-					       new Class[] { String.class });
+					       new Class<?>[] { String.class });
 		final String [] netdns = new String [] {"net.dns1", "net.dns2",
 						        "net.dns3", "net.dns4"};
 		for (int i = 0; i < netdns.length; i++) {

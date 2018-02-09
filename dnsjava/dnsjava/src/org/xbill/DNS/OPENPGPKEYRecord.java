@@ -7,7 +7,7 @@ import org.xbill.DNS.utils.base64;
 /**
  * OPENPGPKEY Record - Stores an OpenPGP certificate associated with a name.
  * RFC 7929.
- * 
+ *
  * @author Brian Wellington
  * @author Valentin Hauner
  *
@@ -20,6 +20,7 @@ private byte [] cert;
 
 OPENPGPKEYRecord() {}
 
+@Override
 Record
 getObject() {
 	return new OPENPGPKEYRecord();
@@ -27,7 +28,7 @@ getObject() {
 
 /**
  * Creates an OPENPGPKEY Record from the given data
- * 
+ *
  * @param cert Binary data representing the certificate
  */
 public
@@ -37,11 +38,13 @@ OPENPGPKEYRecord(Name name, int dclass, long ttl, byte [] cert)
 	this.cert = cert;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	cert = in.readByteArray();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	cert = st.getBase64();
@@ -50,9 +53,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 /**
  * Converts rdata to a String
  */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	if (cert != null) {
 		if (Options.check("multiline")) {
 			sb.append("(\n");
@@ -73,6 +77,7 @@ getCert()
 	return cert;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeByteArray(cert);

@@ -14,7 +14,7 @@ import org.xbill.DNS.utils.*;
  * @author Brian Wellington
  */
 
-public abstract class Record implements Cloneable, Comparable, Serializable {
+public abstract class Record implements Cloneable, Comparable<Record>, Serializable {
 
 private static final long serialVersionUID = 2694906050116005466L;
 
@@ -298,9 +298,10 @@ rdataToString() {
 /**
  * Converts a Record into a String representation
  */
+@Override
 public String
 toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(name);
 	if (sb.length() < 8)
 		sb.append("\t");
@@ -361,7 +362,7 @@ byteArrayFromString(String s) throws TextParseException {
 		byte b = array[i];
 		if (escaped) {
 			if (b >= '0' && b <= '9' && digits < 3) {
-				digits++; 
+				digits++;
 				intval *= 10;
 				intval += (b - '0');
 				if (intval > 255)
@@ -399,7 +400,7 @@ byteArrayFromString(String s) throws TextParseException {
  */
 protected static String
 byteArrayToString(byte [] array, boolean quote) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	if (quote)
 		sb.append('"');
 	for (int i = 0; i < array.length; i++) {
@@ -423,7 +424,7 @@ byteArrayToString(byte [] array, boolean quote) {
  */
 protected static String
 unknownToString(byte [] data) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append("\\# ");
 	sb.append(data.length);
 	sb.append(" ");
@@ -571,6 +572,7 @@ sameRRset(Record rec) {
  * @param arg The record to compare to
  * @return true if the records are equal, false otherwise.
  */
+@Override
 public boolean
 equals(Object arg) {
 	if (arg == null || !(arg instanceof Record))
@@ -586,6 +588,7 @@ equals(Object arg) {
 /**
  * Generates a hash code based on the Record's data.
  */
+@Override
 public int
 hashCode() {
 	byte [] array = toWireCanonical(true);
@@ -647,9 +650,7 @@ setTTL(long ttl) {
  * @throws ClassCastException if the argument is not a Record.
  */
 public int
-compareTo(Object o) {
-	Record arg = (Record) o;
-
+compareTo(Record arg) {
 	if (this == arg)
 		return (0);
 
@@ -688,7 +689,7 @@ getAdditionalName() {
 static int
 checkU8(String field, int val) {
 	if (val < 0 || val > 0xFF)
-		throw new IllegalArgumentException("\"" + field + "\" " + val + 
+		throw new IllegalArgumentException("\"" + field + "\" " + val +
 						   " must be an unsigned 8 " +
 						   "bit value");
 	return val;
@@ -698,7 +699,7 @@ checkU8(String field, int val) {
 static int
 checkU16(String field, int val) {
 	if (val < 0 || val > 0xFFFF)
-		throw new IllegalArgumentException("\"" + field + "\" " + val + 
+		throw new IllegalArgumentException("\"" + field + "\" " + val +
 						   " must be an unsigned 16 " +
 						   "bit value");
 	return val;
@@ -708,7 +709,7 @@ checkU16(String field, int val) {
 static long
 checkU32(String field, long val) {
 	if (val < 0 || val > 0xFFFFFFFFL)
-		throw new IllegalArgumentException("\"" + field + "\" " + val + 
+		throw new IllegalArgumentException("\"" + field + "\" " + val +
 						   " must be an unsigned 32 " +
 						   "bit value");
 	return val;

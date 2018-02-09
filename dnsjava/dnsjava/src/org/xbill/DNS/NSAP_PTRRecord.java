@@ -15,12 +15,13 @@ private static final long serialVersionUID = 2386284746382064904L;
 
 NSAP_PTRRecord() {}
 
+@Override
 Record
 getObject() {
 	return new NSAP_PTRRecord();
 }
 
-/** 
+/**
  * Creates a new NSAP_PTR Record with the given data
  * @param target The name of the host with this address
  */

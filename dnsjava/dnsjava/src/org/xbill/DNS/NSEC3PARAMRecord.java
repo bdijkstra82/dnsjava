@@ -13,7 +13,7 @@ import org.xbill.DNS.utils.base16;
  * in a zone. Zones signed using NSEC3 must include this record at the zone apex
  * to inform authoritative servers that NSEC3 is being used with the given
  * parameters.
- * 
+ *
  * @author Brian Wellington
  * @author David Blacka
  */
@@ -29,13 +29,14 @@ private byte salt[];
 
 NSEC3PARAMRecord() {}
 
+@Override
 Record getObject() {
 	return new NSEC3PARAMRecord();
 }
 
 /**
  * Creates an NSEC3PARAM record from the given data.
- * 
+ *
  * @param name The ownername of the NSEC3PARAM record (generally the zone name).
  * @param dclass The class.
  * @param ttl The TTL.
@@ -44,7 +45,7 @@ Record getObject() {
  * @param iterations The number of hash iterations.
  * @param salt The salt to use (may be null).
  */
-public NSEC3PARAMRecord(Name name, int dclass, long ttl, int hashAlg, 
+public NSEC3PARAMRecord(Name name, int dclass, long ttl, int hashAlg,
 			int flags, int iterations, byte [] salt)
 {
 	super(name, Type.NSEC3PARAM, dclass, ttl);
@@ -63,6 +64,7 @@ public NSEC3PARAMRecord(Name name, int dclass, long ttl, int hashAlg,
 	}
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	hashAlg = in.readU8();
@@ -76,6 +78,7 @@ rrFromWire(DNSInput in) throws IOException {
 		salt = null;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU8(hashAlg);
@@ -89,6 +92,7 @@ rrToWire(DNSOutput out, Compression c, boolean canonical) {
 		out.writeU8(0);
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException
 {
@@ -108,9 +112,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(hashAlg);
 	sb.append(' ');
 	sb.append(flags);
@@ -136,7 +141,7 @@ public int
 getFlags() {
 	return flags;
 }
-  
+
 /** Returns the number of iterations */
 public int
 getIterations() {

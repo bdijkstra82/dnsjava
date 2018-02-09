@@ -255,7 +255,7 @@ getFlagsByte() {
 /** Converts the header's flags into a String */
 public String
 printFlags() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < 16; i++)
 		if (validFlag(i) && getFlag(i)) {
@@ -267,7 +267,7 @@ printFlags() {
 
 String
 toStringWithRcode(int newrcode) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	sb.append(";; ->>HEADER<<- ");
 	sb.append("opcode: " + Opcode.string(getOpcode()));
@@ -283,12 +283,14 @@ toStringWithRcode(int newrcode) {
 }
 
 /** Converts the header into a String */
+@Override
 public String
 toString() {
 	return toStringWithRcode(getRcode());
 }
 
 /* Creates a new Header identical to the current one */
+@Override
 public Object
 clone() {
 	Header h = new Header();

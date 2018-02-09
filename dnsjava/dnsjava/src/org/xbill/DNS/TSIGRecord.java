@@ -28,8 +28,9 @@ private int originalID;
 private int error;
 private byte [] other;
 
-TSIGRecord() {} 
+TSIGRecord() {}
 
+@Override
 Record
 getObject() {
 	return new TSIGRecord();
@@ -65,6 +66,7 @@ TSIGRecord(Name name, int dclass, long ttl, Name alg, Date timeSigned,
 	this.other = other;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	alg = new Name(in);
@@ -88,15 +90,17 @@ rrFromWire(DNSInput in) throws IOException {
 		other = null;
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	throw st.exception("no text format defined for TSIG");
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(alg);
 	sb.append(" ");
 	if (Options.check("multiline"))
@@ -192,6 +196,7 @@ getOther() {
 	return other;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	alg.toWire(out, null, canonical);

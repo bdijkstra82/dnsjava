@@ -27,7 +27,7 @@ private long currentTTL;
 private boolean needSOATTL;
 
 private Generator generator;
-private List generators;
+private List<Generator> generators;
 private boolean noExpandGenerate;
 
 Master(File file, Name origin, long initialTTL) throws IOException {
@@ -237,7 +237,7 @@ startGenerate() throws IOException {
 				  currentType, currentDClass, currentTTL,
 				  rdataSpec, origin);
 	if (generators == null)
-		generators = new ArrayList(1);
+		generators = new ArrayList<Generator>(1);
 	generators.add(generator);
 }
 
@@ -411,16 +411,17 @@ expandGenerate(boolean wantExpand) {
  * is, the parsed contents of $GENERATE statements.
  * @see Generator
  */
-public Iterator
+public Iterator<Generator>
 generators() {
-	final Iterator r;
+	final Iterator<Generator> r;
 	if (generators != null)
 		r = Collections.unmodifiableList(generators).iterator();
 	else
-		r = Collections.EMPTY_LIST.iterator();
+		r = Collections.emptyIterator();
 	return r;
 }
 
+@Override
 protected void
 finalize() {
 	if (st != null)

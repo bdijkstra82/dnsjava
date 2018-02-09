@@ -38,8 +38,9 @@ private int algorithmType;
 private Object gateway;
 private byte [] key;
 
-IPSECKEYRecord() {} 
+IPSECKEYRecord() {}
 
+@Override
 Record
 getObject() {
 	return new IPSECKEYRecord();
@@ -95,6 +96,7 @@ IPSECKEYRecord(Name name, int dclass, long ttl, int precedence,
 	this.key = key;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	precedence = in.readU8();
@@ -120,6 +122,7 @@ rrFromWire(DNSInput in) throws IOException {
 		key = in.readByteArray();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	precedence = st.getUInt8();
@@ -147,9 +150,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 	key = st.getBase64(false);
 }
 
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(precedence);
 	sb.append(" ");
 	sb.append(gatewayType);
@@ -206,6 +210,7 @@ getKey() {
 	return key;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU8(precedence);

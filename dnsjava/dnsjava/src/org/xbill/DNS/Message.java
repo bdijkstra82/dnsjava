@@ -23,7 +23,7 @@ public class Message implements Cloneable {
 public static final int MAXLENGTH = 65535;
 
 private Header header;
-private List [] sections;
+private List<Record> [] sections;
 private int size;
 private TSIG tsigkey;
 private TSIGRecord querytsig;
@@ -54,9 +54,10 @@ static final int TSIG_FAILED = 4;
 private static Record [] emptyRecordArray = new Record[0];
 private static RRset [] emptyRRsetArray = new RRset[0];
 
+@SuppressWarnings("unchecked")
 private
 Message(Header header) {
-	sections = new List[4];
+	sections = (List<Record>[]) new List<?>[4];
 	this.header = header;
 }
 
@@ -104,7 +105,7 @@ Message(DNSInput in) throws IOException {
 		for (int i = 0; i < 4; i++) {
 			int count = header.getCount(i);
 			if (count > 0)
-				sections[i] = new ArrayList(count);
+				sections[i] = new ArrayList<Record>(count);
 			for (int j = 0; j < count; j++) {
 				int pos = in.current();
 				Record rec = Record.fromWire(in, i, isUpdate);
@@ -171,7 +172,7 @@ getHeader() {
 public void
 addRecord(Record r, int section) {
 	if (sections[section] == null)
-		sections[section] = new LinkedList();
+		sections[section] = new LinkedList<Record>();
 	header.incCount(section);
 	sections[section].add(r);
 }
@@ -238,7 +239,7 @@ findRRset(Name name, int type, int section) {
 	if (sections[section] == null)
 		return false;
 	for (int i = 0; i < sections[section].size(); i++) {
-		Record r = (Record) sections[section].get(i);
+		Record r = sections[section].get(i);
 		if (r.getType() == type && name.equals(r.getName()))
 			return true;
 	}
@@ -265,10 +266,10 @@ findRRset(Name name, int type) {
  */
 public Record
 getQuestion() {
-	List l = sections[Section.QUESTION];
+	List<Record> l = sections[Section.QUESTION];
 	if (l == null || l.size() == 0)
 		return null;
-	return (Record) l.get(0);
+	return l.get(0);
 }
 
 /**
@@ -282,8 +283,8 @@ getTSIG() {
 	int count = header.getCount(Section.ADDITIONAL);
 	if (count == 0)
 		return null;
-	List l = sections[Section.ADDITIONAL];
-	Record rec = (Record) l.get(count - 1);
+	List<Record> l = sections[Section.ADDITIONAL];
+	Record rec = l.get(count - 1);
 	if (rec.type != Type.TSIG)
 		return null;
 	return (TSIGRecord) rec;
@@ -346,8 +347,8 @@ public Record []
 getSectionArray(int section) {
 	if (sections[section] == null)
 		return emptyRecordArray;
-	List l = sections[section];
-	return (Record []) l.toArray(new Record[l.size()]);
+	List<Record> l = sections[section];
+	return l.toArray(new Record[l.size()]);
 }
 
 private static boolean
@@ -367,15 +368,15 @@ public RRset []
 getSectionRRsets(int section) {
 	if (sections[section] == null)
 		return emptyRRsetArray;
-	List sets = new LinkedList();
+	List<RRset> sets = new LinkedList<RRset>();
 	Record [] recs = getSectionArray(section);
-	Set hash = new HashSet();
+	Set<Name> hash = new HashSet<Name>();
 	for (int i = 0; i < recs.length; i++) {
 		Name name = recs[i].getName();
 		boolean newset = true;
 		if (hash.contains(name)) {
 			for (int j = sets.size() - 1; j >= 0; j--) {
-				RRset set = (RRset) sets.get(j);
+				RRset set = sets.get(j);
 				if (set.getType() == recs[i].getRRsetType() &&
 				    set.getDClass() == recs[i].getDClass() &&
 				    set.getName().equals(name))
@@ -392,7 +393,7 @@ getSectionRRsets(int section) {
 			hash.add(name);
 		}
 	}
-	return (RRset []) sets.toArray(new RRset[sets.size()]);
+	return sets.toArray(new RRset[sets.size()]);
 }
 
 void
@@ -403,7 +404,7 @@ toWire(DNSOutput out) {
 		if (sections[i] == null)
 			continue;
 		for (int j = 0; j < sections[i].size(); j++) {
-			Record rec = (Record)sections[i].get(j);
+			Record rec = sections[i].get(j);
 			rec.toWire(out, i, c);
 		}
 	}
@@ -421,7 +422,7 @@ sectionToWire(DNSOutput out, int section, Compression c,
 	Record lastrec = null;
 
 	for (int i = 0; i < n; i++) {
-		Record rec = (Record)sections[section].get(i);
+		Record rec = sections[section].get(i);
 		if (section == Section.ADDITIONAL && rec instanceof OPTRecord) {
 			skipped++;
 			continue;
@@ -565,7 +566,7 @@ sectionToString(int i) {
 	if (i > 3)
 		return null;
 
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	Record [] records = getSectionArray(i);
 	for (int j = 0; j < records.length; j++) {
@@ -585,9 +586,10 @@ sectionToString(int i) {
 /**
  * Converts the Message to a String.
  */
+@Override
 public String
 toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	OPTRecord opt = getOPT();
 	if (opt != null)
 		sb.append(header.toStringWithRcode(getRcode()) + "\n");
@@ -619,12 +621,13 @@ toString() {
  * @see TSIGRecord
  * @see OPTRecord
  */
+@Override
 public Object
 clone() {
 	Message m = new Message();
 	for (int i = 0; i < sections.length; i++) {
 		if (sections[i] != null)
-			m.sections[i] = new LinkedList(sections[i]);
+			m.sections[i] = new LinkedList<Record>(sections[i]);
 	}
 	m.header = (Header) header.clone();
 	m.size = size;

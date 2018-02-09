@@ -19,6 +19,7 @@ private long serial, refresh, retry, expire, minimum;
 
 SOARecord() {}
 
+@Override
 Record
 getObject() {
 	return new SOARecord();
@@ -50,6 +51,7 @@ SOARecord(Name name, int dclass, long ttl, Name host, Name admin,
 	this.minimum = checkU32("minimum", minimum);
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	host = new Name(in);
@@ -61,6 +63,7 @@ rrFromWire(DNSInput in) throws IOException {
 	minimum = in.readU32();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	host = st.getName(origin);
@@ -73,9 +76,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Convert to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(host);
 	sb.append(" ");
 	sb.append(admin);
@@ -108,46 +112,47 @@ rrToString() {
 
 /** Returns the primary name server */
 public Name
-getHost() {  
+getHost() {
 	return host;
-}       
+}
 
 /** Returns the zone administrator's address */
 public Name
-getAdmin() {  
+getAdmin() {
 	return admin;
-}       
+}
 
 /** Returns the zone's serial number */
 public long
-getSerial() {  
+getSerial() {
 	return serial;
-}       
+}
 
 /** Returns the zone refresh interval */
 public long
-getRefresh() {  
+getRefresh() {
 	return refresh;
-}       
+}
 
 /** Returns the zone retry interval */
 public long
-getRetry() {  
+getRetry() {
 	return retry;
-}       
+}
 
 /** Returns the time until a secondary expires a zone */
 public long
-getExpire() {  
+getExpire() {
 	return expire;
-}       
+}
 
 /** Returns the minimum TTL for records in the zone */
 public long
-getMinimum() {  
+getMinimum() {
 	return minimum;
-}       
+}
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	host.toWire(out, c, canonical);

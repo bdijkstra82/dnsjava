@@ -138,7 +138,7 @@ setIgnoreTruncation(boolean flag) {
 }
 
 public void
-setEDNS(int level, int payloadSize, int flags, List options) {
+setEDNS(int level, int payloadSize, int flags, List<? extends EDNSOption> options) {
 	if (level != 0 && level != -1)
 		throw new IllegalArgumentException("invalid EDNS level - " +
 						   "must be 0 or -1");
@@ -338,14 +338,14 @@ sendAXFR(Message query) throws IOException {
 	catch (ZoneTransferException e) {
 		throw new WireParseException(e.getMessage());
 	}
-	List records = xfrin.getAXFR();
+	List<Record> records = xfrin.getAXFR();
 	Message response = new Message(query.getHeader().getID());
 	response.getHeader().setFlag(Flags.AA);
 	response.getHeader().setFlag(Flags.QR);
 	response.addRecord(query.getQuestion(), Section.QUESTION);
-	Iterator it = records.iterator();
+	Iterator<Record> it = records.iterator();
 	while (it.hasNext())
-		response.addRecord((Record)it.next(), Section.ANSWER);
+		response.addRecord(it.next(), Section.ANSWER);
 	return response;
 }
 

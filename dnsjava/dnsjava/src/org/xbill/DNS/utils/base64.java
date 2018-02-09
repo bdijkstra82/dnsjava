@@ -36,7 +36,7 @@ toString(byte [] b) {
 			else
 				s[j] = -1;
 		}
-		
+
 		t[0] = (short) (s[0] >> 2);
 		if (s[1] == -1)
 			t[1] = (short) (((s[0] & 0x3) << 4));
@@ -69,7 +69,7 @@ toString(byte [] b) {
 public static String
 formatString(byte [] b, int lineLength, String prefix, boolean addClose) {
 	String s = toString(b);
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 0; i < s.length(); i += lineLength) {
 		sb.append (prefix);
 		if (i + lineLength >= s.length()) {

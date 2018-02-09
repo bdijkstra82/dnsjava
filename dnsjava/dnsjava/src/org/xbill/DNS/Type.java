@@ -208,13 +208,13 @@ public static final int DLV		= 32769;
 
 
 private static class TypeMnemonic extends Mnemonic {
-	private HashMap objects;
+	private HashMap<Integer, Record> objects;
 
 	public
 	TypeMnemonic() {
 		super("Type", CASE_UPPER);
 		setPrefix("TYPE");
-		objects = new HashMap();
+		objects = new HashMap<Integer, Record>();
 	}
 
 	public void
@@ -222,7 +222,8 @@ private static class TypeMnemonic extends Mnemonic {
 		super.add(val, str);
 		objects.put(Mnemonic.toInteger(val), proto);
 	}
-	
+
+	@Override
 	public void
 	check(int val) {
 		Type.check(val);
@@ -231,7 +232,7 @@ private static class TypeMnemonic extends Mnemonic {
 	public Record
 	getProto(int val) {
 		check(val);
-		return (Record) objects.get(toInteger(val));
+		return objects.get(toInteger(val));
 	}
 }
 

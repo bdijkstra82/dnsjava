@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 class Mnemonic {
 
-private static Integer cachedInts[] = new Integer[64];
+private static Integer cachedInts[] = new Integer[64];//XXX
 
 static {
 	for (int i = 0; i < cachedInts.length; i++) {
@@ -30,8 +30,8 @@ static final int CASE_UPPER = 2;
 /* Strings will be stored/searched for in lowercase. */
 static final int CASE_LOWER = 3;
 
-private HashMap strings;
-private HashMap values;
+private HashMap<String, Integer> strings;
+private HashMap<Integer, String> values;
 private String description;
 private int wordcase;
 private String prefix;
@@ -49,8 +49,8 @@ public
 Mnemonic(String description, int wordcase) {
 	this.description = description;
 	this.wordcase = wordcase;
-	strings = new HashMap();
-	values = new HashMap();
+	strings = new HashMap<String, Integer>();
+	values = new HashMap<Integer, String>();
 	max = Integer.MAX_VALUE;
 }
 
@@ -85,7 +85,7 @@ toInteger(int val) {
 	if (val >= 0 && val < cachedInts.length)
 		return (cachedInts[val]);
 	return new Integer(val);
-}       
+}
 
 /**
  * Checks that a numeric value is within the range [0..max]
@@ -172,7 +172,7 @@ addAll(Mnemonic source) {
 public String
 getText(int val) {
 	check(val);
-	String str = (String) values.get(toInteger(val));
+	String str = values.get(toInteger(val));
 	if (str != null)
 		return str;
 	str = Integer.toString(val);
@@ -189,7 +189,7 @@ getText(int val) {
 public int
 getValue(String str) {
 	str = sanitize(str);
-	Integer value = (Integer) strings.get(str);
+	Integer value = strings.get(str);
 	if (value != null) {
 		return value.intValue();
 	}

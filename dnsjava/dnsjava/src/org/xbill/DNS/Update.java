@@ -74,7 +74,7 @@ present(Name name, int type) {
 /**
  * Parses a record from the string, and inserts a prerequisite that the
  * record exists.  Due to the way value-dependent prequisites work, the
- * condition that must be met is that the set of all records with the same 
+ * condition that must be met is that the set of all records with the same
  * and type in the update message must be identical to the set of all records
  * with that name and type on the server.
  * @throws IOException The record could not be parsed.
@@ -87,7 +87,7 @@ present(Name name, int type, String record) throws IOException {
 /**
  * Parses a record from the tokenizer, and inserts a prerequisite that the
  * record exists.  Due to the way value-dependent prequisites work, the
- * condition that must be met is that the set of all records with the same 
+ * condition that must be met is that the set of all records with the same
  * and type in the update message must be identical to the set of all records
  * with that name and type on the server.
  * @throws IOException The record could not be parsed.
@@ -170,8 +170,8 @@ add(Record [] records) {
  */
 public void
 add(RRset rrset) {
-	for (Iterator it = rrset.rrs(); it.hasNext(); )
-		add((Record) it.next());
+	for (Iterator<Record> it = rrset.rrs(); it.hasNext(); )
+		add(it.next());
 }
 
 /**
@@ -237,8 +237,8 @@ delete(Record [] records) {
  */
 public void
 delete(RRset rrset) {
-	for (Iterator it = rrset.rrs(); it.hasNext(); )
-		delete((Record) it.next());
+	for (Iterator<Record> it = rrset.rrs(); it.hasNext(); )
+		delete(it.next());
 }
 
 /**
@@ -293,8 +293,8 @@ replace(Record [] records) {
 public void
 replace(RRset rrset) {
 	delete(rrset.getName(), rrset.getType());
-	for (Iterator it = rrset.rrs(); it.hasNext(); )
-		add((Record) it.next());
+	for (Iterator<Record> it = rrset.rrs(); it.hasNext(); )
+		add(it.next());
 }
 
 }

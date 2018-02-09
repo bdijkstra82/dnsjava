@@ -7,7 +7,7 @@ import java.util.*;
 import org.xbill.DNS.utils.*;
 
 /**
- * The base class for SIG/RRSIG records, which have identical formats 
+ * The base class for SIG/RRSIG records, which have identical formats
  *
  * @author Brian Wellington
  */
@@ -48,6 +48,7 @@ SIGBase(Name name, int type, int dclass, long ttl, int covered, int alg,
 	this.signature = signature;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	covered = in.readU16();
@@ -61,6 +62,7 @@ rrFromWire(DNSInput in) throws IOException {
 	signature = in.readByteArray();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	String typeString = st.getString();
@@ -81,9 +83,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Converts the RRSIG/SIG Record to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append (Type.string(covered));
 	sb.append (" ");
 	sb.append (alg);
@@ -177,6 +180,7 @@ setSignature(byte [] signature) {
 	this.signature = signature;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU16(covered);

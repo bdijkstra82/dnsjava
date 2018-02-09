@@ -9,7 +9,7 @@ import java.util.*;
  * Next name - this record contains the following name in an ordered list
  * of names in the zone, and a set of types for which records exist for
  * this name.  The presence of this record in a response signifies a
- * failed query for data in a DNSSEC-signed zone. 
+ * failed query for data in a DNSSEC-signed zone.
  *
  * @author Brian Wellington
  */
@@ -23,6 +23,7 @@ private BitSet bitmap;
 
 NXTRecord() {}
 
+@Override
 Record
 getObject() {
 	return new NXTRecord();
@@ -40,6 +41,7 @@ NXTRecord(Name name, int dclass, long ttl, Name next, BitSet bitmap) {
 	this.bitmap = bitmap;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	next = new Name(in);
@@ -53,6 +55,7 @@ rrFromWire(DNSInput in) throws IOException {
 	}
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	next = st.getName(origin);
@@ -70,9 +73,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(next);
 	int length = bitmap.length();
 	for (short i = 0; i < length; i++)
@@ -95,6 +99,7 @@ getBitmap() {
 	return bitmap;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	next.toWire(out, null, canonical);

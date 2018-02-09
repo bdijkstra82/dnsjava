@@ -19,6 +19,7 @@ private byte [] address;
 
 AAAARecord() {}
 
+@Override
 Record
 getObject() {
 	return new AAAARecord();
@@ -36,17 +37,20 @@ AAAARecord(Name name, int dclass, long ttl, InetAddress address) {
 	this.address = address.getAddress();
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	address = in.readByteArray(16);
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	address = st.getAddressBytes(Address.IPv6);
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
 	InetAddress addr;
@@ -57,7 +61,7 @@ rrToString() {
 	}
 	if (addr.getAddress().length == 4) {
 		// Deal with Java's broken handling of mapped IPv4 addresses.
-		StringBuffer sb = new StringBuffer("0:0:0:0:0:ffff:");
+		StringBuilder sb = new StringBuilder("0:0:0:0:0:ffff:");
 		int high = ((address[12] & 0xFF) << 8) + (address[13] & 0xFF);
 		int low = ((address[14] & 0xFF) << 8) + (address[15] & 0xFF);
 		sb.append(Integer.toHexString(high));
@@ -84,6 +88,7 @@ getAddress() {
 	return r;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeByteArray(address);

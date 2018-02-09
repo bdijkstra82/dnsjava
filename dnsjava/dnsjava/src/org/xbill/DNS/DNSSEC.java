@@ -144,14 +144,14 @@ digestRRset(RRSIGRecord rrsig, RRset rrset) {
 	int size = rrset.size();
 	Record [] records = new Record[size];
 
-	Iterator it = rrset.rrs();
+	Iterator<Record> it = rrset.rrs();
 	Name name = rrset.getName();
 	Name wild = null;
 	int sigLabels = rrsig.getLabels() + 1; // Add the root label back.
 	if (name.labels() > sigLabels)
 		wild = name.wild(name.labels() - sigLabels);
 	while (it.hasNext())
-		records[--size] = (Record) it.next();
+		records[--size] = it.next();
 	Arrays.sort(records);
 
 	DNSOutput header = new DNSOutput();

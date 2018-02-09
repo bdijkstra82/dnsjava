@@ -9,7 +9,7 @@ import java.io.*;
  * Uniform Resource Identifier (URI) DNS Resource Record
  *
  * @author Anthony Kirby
- * @see <a href="http://tools.ietf.org/html/draft-faltstrom-uri">http://tools.ietf.org/html/draft-faltstrom-uri</a> 
+ * @see <a href="http://tools.ietf.org/html/draft-faltstrom-uri">http://tools.ietf.org/html/draft-faltstrom-uri</a>
  */
 
 public class URIRecord extends Record {
@@ -23,6 +23,7 @@ URIRecord() {
 	target = new byte[]{};
 }
 
+@Override
 Record
 getObject() {
 	return new URIRecord();
@@ -51,6 +52,7 @@ URIRecord(Name name, int dclass, long ttl, int priority,
 	}
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	priority = in.readU16();
@@ -58,6 +60,7 @@ rrFromWire(DNSInput in) throws IOException {
 	target = in.readByteArray();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	priority = st.getUInt16();
@@ -71,9 +74,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(priority + " ");
 	sb.append(weight + " ");
 	sb.append(byteArrayToString(target, true));
@@ -98,6 +102,7 @@ getTarget() {
 	return byteArrayToString(target, false);
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU16(priority);

@@ -3,6 +3,7 @@
 package org.xbill.DNS;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.security.GeneralSecurityException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.SecretKey;
@@ -45,10 +46,10 @@ public static final Name HMAC_SHA384 = Name.fromConstantString("hmac-sha384.");
 /** The domain name representing the HMAC-SHA512 algorithm. */
 public static final Name HMAC_SHA512 = Name.fromConstantString("hmac-sha512.");
 
-private static Map algMap;
+private static Map<Name, String> algMap;
 
 static {
-	Map out = new HashMap();
+	Map<Name, String> out = new HashMap<Name, String>();
 	out.put(HMAC_MD5, "HmacMD5");
 	out.put(HMAC_SHA1, "HmacSHA1");
 	out.put(HMAC_SHA224, "HmacSHA224");
@@ -61,18 +62,18 @@ static {
 public static Name
 algorithmToName(String alg)
 {
-	Iterator it = algMap.entrySet().iterator();
+	Iterator<Entry<Name, String>> it = algMap.entrySet().iterator();
 	while (it.hasNext()) {
-		Map.Entry entry = (Map.Entry) it.next();
-		if (alg.equalsIgnoreCase((String)entry.getValue()))
-			return (Name) entry.getKey();
+		Entry<Name, String> entry = it.next();
+		if (alg.equalsIgnoreCase(entry.getValue()))
+			return entry.getKey();
 	}
 	throw new IllegalArgumentException("Unknown algorithm");
 }
 public static String
 nameToAlgorithm(Name name)
 {
-	String alg = (String) algMap.get(name);
+	String alg = algMap.get(name);
 	if (alg != null)
 		return alg;
 	throw new IllegalArgumentException("Unknown algorithm");

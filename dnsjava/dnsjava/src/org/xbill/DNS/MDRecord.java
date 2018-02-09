@@ -15,12 +15,13 @@ private static final long serialVersionUID = 5268878603762942202L;
 
 MDRecord() {}
 
+@Override
 Record
 getObject() {
 	return new MDRecord();
 }
 
-/** 
+/**
  * Creates a new MD Record with the given data
  * @param mailAgent The mail agent that delivers mail for the domain.
  */
@@ -35,6 +36,7 @@ getMailAgent() {
 	return getSingleName();
 }
 
+@Override
 public Name
 getAdditionalName() {
 	return getSingleName();

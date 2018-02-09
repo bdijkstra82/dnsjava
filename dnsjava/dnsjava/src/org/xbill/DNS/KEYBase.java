@@ -8,7 +8,7 @@ import java.security.PublicKey;
 import org.xbill.DNS.utils.*;
 
 /**
- * The base class for KEY/DNSKEY records, which have identical formats 
+ * The base class for KEY/DNSKEY records, which have identical formats
  *
  * @author Brian Wellington
  */
@@ -36,6 +36,7 @@ KEYBase(Name name, int type, int dclass, long ttl, int flags, int proto,
 	this.key = key;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	flags = in.readU16();
@@ -46,9 +47,10 @@ rrFromWire(DNSInput in) throws IOException {
 }
 
 /** Converts the DNSKEY/KEY Record to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(flags);
 	sb.append(" ");
 	sb.append(proto);
@@ -120,7 +122,7 @@ getFootprint() {
 		foot = (d1 << 8) + d2;
 	}
 	else {
-		int i; 
+		int i;
 		for (i = 0; i < rdata.length - 1; i += 2) {
 			int d1 = rdata[i] & 0xFF;
 			int d2 = rdata[i + 1] & 0xFF;
@@ -149,6 +151,7 @@ getPublicKey() throws DNSSEC.DNSSECException {
 	return publicKey;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU16(flags);

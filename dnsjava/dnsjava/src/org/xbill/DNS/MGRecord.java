@@ -14,12 +14,13 @@ private static final long serialVersionUID = -3980055550863644582L;
 
 MGRecord() {}
 
+@Override
 Record
 getObject() {
 	return new MGRecord();
 }
 
-/** 
+/**
  * Creates a new MG Record with the given data
  * @param mailbox The mailbox that is a member of the group specified by the
  * domain.

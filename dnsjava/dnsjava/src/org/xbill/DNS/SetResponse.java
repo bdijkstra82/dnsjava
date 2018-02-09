@@ -104,8 +104,8 @@ ofType(int type) {
 void
 addRRset(RRset rrset) {
 	if (data == null)
-		data = new ArrayList();
-	List l = (List) data;
+		data = new ArrayList<Object>();
+	List<Object> l = (List<Object>) data;
 	l.add(rrset);
 }
 
@@ -156,8 +156,8 @@ public RRset []
 answers() {
 	if (type != SUCCESSFUL)
 		return null;
-	List l = (List) data;
-	return (RRset []) l.toArray(new RRset[l.size()]);
+	List<?> l = (List<?>) data;
+	return l.toArray(new RRset[l.size()]);
 }
 
 /**
@@ -185,6 +185,7 @@ getNS() {
 }
 
 /** Prints the value of the SetResponse */
+@Override
 public String
 toString() {
 	switch (type) {

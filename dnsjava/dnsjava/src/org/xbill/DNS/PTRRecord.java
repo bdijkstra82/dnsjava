@@ -15,12 +15,13 @@ private static final long serialVersionUID = -8321636610425434192L;
 
 PTRRecord() {}
 
+@Override
 Record
 getObject() {
 	return new PTRRecord();
 }
 
-/** 
+/**
  * Creates a new PTR Record with the given data
  * @param target The name of the machine with this address
  */

@@ -52,9 +52,10 @@ public static class Element {
 		     prefixLength);
 	}
 
+	@Override
 	public String
 	toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (negative)
 			sb.append("!");
 		sb.append(family);
@@ -68,6 +69,7 @@ public static class Element {
 		return sb.toString();
 	}
 
+	@Override
 	public boolean
 	equals(Object arg) {
 		if (arg == null || !(arg instanceof Element))
@@ -79,6 +81,7 @@ public static class Element {
 			address.equals(elt.address));
 	}
 
+	@Override
 	public int
 	hashCode() {
 		return address.hashCode() + prefixLength + (negative ? 1 : 0);
@@ -87,10 +90,11 @@ public static class Element {
 
 private static final long serialVersionUID = -1348173791712935864L;
 
-private List elements;
+private List<Element> elements;
 
-APLRecord() {} 
+APLRecord() {}
 
+@Override
 Record
 getObject() {
 	return new APLRecord();
@@ -111,10 +115,10 @@ validatePrefixLength(int family, int prefixLength) {
  * @param elements The list of APL elements.
  */
 public
-APLRecord(Name name, int dclass, long ttl, List elements) {
+APLRecord(Name name, int dclass, long ttl, List<? extends Element> elements) {
 	super(name, Type.APL, dclass, ttl);
-	this.elements = new ArrayList(elements.size());
-	for (Iterator it = elements.iterator(); it.hasNext(); ) {
+	this.elements = new ArrayList<Element>(elements.size());
+	for (Iterator<? extends Element> it = elements.iterator(); it.hasNext(); ) {
 		Object o = it.next();
 		if (!(o instanceof Element)) {
 			throw new IllegalArgumentException("illegal element");
@@ -141,9 +145,10 @@ parseAddress(byte [] in, int length) throws WireParseException {
 	return out;
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
-	elements = new ArrayList(1);
+	elements = new ArrayList<Element>(1);
 	while (in.remaining() != 0) {
 		int family = in.readU16();
 		int prefix = in.readU8();
@@ -170,9 +175,10 @@ rrFromWire(DNSInput in) throws IOException {
 	}
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	elements = new ArrayList(1);
+	elements = new ArrayList<Element>(1);
 	while (true) {
 		Tokenizer.Token t = st.get();
 		if (!t.isString())
@@ -230,11 +236,12 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 	st.unget();
 }
 
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
-	for (Iterator it = elements.iterator(); it.hasNext(); ) {
-		Element element = (Element) it.next();
+	StringBuilder sb = new StringBuilder();
+	for (Iterator<Element> it = elements.iterator(); it.hasNext(); ) {
+		Element element = it.next();
 		sb.append(element);
 		if (it.hasNext())
 			sb.append(" ");
@@ -243,9 +250,9 @@ rrToString() {
 }
 
 /** Returns the list of APL elements. */
-public List
+public List<Element>
 getElements() {
-	return elements;
+	return elements;//XXX modifiable
 }
 
 private static int
@@ -257,10 +264,11 @@ addressLength(byte [] addr) {
 	return 0;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
-	for (Iterator it = elements.iterator(); it.hasNext(); ) {
-		Element element = (Element) it.next();
+	for (Iterator<Element> it = elements.iterator(); it.hasNext(); ) {
+		Element element = it.next();
 		int length = 0;
 		byte [] data;
 		if (element.family == Address.IPv4 ||

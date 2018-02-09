@@ -5,6 +5,7 @@ package org.xbill.DNS;
 import java.io.*;
 import java.util.*;
 
+
 /**
  * A cache of DNS records.  The cache obeys TTLs, so items are purged after
  * their validity period is complete.  Negative answers are cached, to
@@ -67,9 +68,10 @@ private static class CacheRRset extends RRset implements Element {
 		return credibility - cred;
 	}
 
+	@Override
 	public String
 	toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());
 		sb.append(" cl = ");
 		sb.append(credibility);
@@ -112,9 +114,10 @@ private static class NegativeElement implements Element {
 		return credibility - cred;
 	}
 
+	@Override
 	public String
 	toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (type == 0)
 			sb.append("NXDOMAIN " + name);
 		else
@@ -125,7 +128,7 @@ private static class NegativeElement implements Element {
 	}
 }
 
-private static class CacheMap extends LinkedHashMap {
+private static class CacheMap extends LinkedHashMap<Name, Object> {
 	private int maxsize = -1;
 
 	CacheMap(int maxsize) {
@@ -148,12 +151,13 @@ private static class CacheMap extends LinkedHashMap {
 		this.maxsize = maxsize;
 	}
 
-	protected boolean removeEldestEntry(Map.Entry eldest) {
+	@Override
+	protected boolean removeEldestEntry(Map.Entry<Name, Object> eldest) {
 		return maxsize >= 0 && size() > maxsize;
 	}
 }
 
-private CacheMap data;
+private CacheMap data;//XXX
 private int maxncache = -1;
 private int maxcache = -1;
 private int dclass;
@@ -207,9 +211,9 @@ private synchronized static Element []
 allElements(Object types) {
 	final Element[] r;
 	if (types instanceof List) {
-		List typelist = (List) types;
+		List<?> typelist = (List<?>) types;
 		int size = typelist.size();
-		r = (Element []) typelist.toArray(new Element[size]);
+		r = typelist.toArray(new Element[size]);
 	} else {
 		Element set = (Element) types;
 		r = new Element[] {set};
@@ -224,7 +228,7 @@ oneElement(Name name, Object types, int type, int minCred) {
 	if (type == Type.ANY)
 		throw new IllegalArgumentException("oneElement(ANY)");
 	if (types instanceof List) {
-		List list = (List) types;
+		List<?> list = (List<?>) types;
 		for (int i = 0; i < list.size(); i++) {
 			Element set = (Element) list.get(i);
 			if (set.getType() == type) {
@@ -265,9 +269,10 @@ addElement(Name name, Element element) {
 	}
 	int type = element.getType();
 	if (types instanceof List) {
-		List list = (List) types;
+		@SuppressWarnings("unchecked")
+		List<Element> list = (List<Element>) types;
 		for (int i = 0; i < list.size(); i++) {
-			Element elt = (Element) list.get(i);
+			Element elt = list.get(i);
 			if (elt.getType() == type) {
 				list.set(i, element);
 				return;
@@ -279,7 +284,7 @@ addElement(Name name, Element element) {
 		if (elt.getType() == type)
 			data.put(name, element);
 		else {
-			LinkedList list = new LinkedList();
+			LinkedList<Element> list = new LinkedList<Element>();
 			list.add(elt);
 			list.add(element);
 			data.put(name, list);
@@ -294,9 +299,10 @@ removeElement(Name name, int type) {
 		return;
 	}
 	if (types instanceof List) {
-		List list = (List) types;
+		@SuppressWarnings("unchecked")
+		List<Element> list = (List<Element>) types;
 		for (int i = 0; i < list.size(); i++) {
-			Element elt = (Element) list.get(i);
+			Element elt = list.get(i);
 			if (elt.getType() == type) {
 				list.remove(i);
 				if (list.size() == 0)
@@ -573,14 +579,14 @@ getCred(int section, boolean isAuth) {
 }
 
 private static void
-markAdditional(RRset rrset, Set names) {
+markAdditional(RRset rrset, Set<Name> names) {
 	Record first = rrset.first();
 	if (first.getAdditionalName() == null)
 		return;
 
-	Iterator it = rrset.rrs();
+	Iterator<Record> it = rrset.rrs();
 	while (it.hasNext()) {
-		Record r = (Record) it.next();
+		Record r = it.next();
 		Name name = r.getAdditionalName();
 		if (name != null)
 			names.add(name);
@@ -609,7 +615,7 @@ addMessage(Message in) {
 	RRset [] answers, auth, addl;
 	SetResponse response = null;
 	boolean verbose = Options.check("verbosecache");
-	HashSet additionalNames;
+	HashSet<Name> additionalNames;
 
 	if ((rcode != Rcode.NOERROR && rcode != Rcode.NXDOMAIN) ||
 	    question == null)
@@ -621,7 +627,7 @@ addMessage(Message in) {
 
 	curname = qname;
 
-	additionalNames = new HashSet();
+	additionalNames = new HashSet<Name>();
 
 	answers = in.getSectionRRsets(Section.ANSWER);
 	for (int i = 0; i < answers.length; i++) {
@@ -833,11 +839,12 @@ getDClass() {
 /**
  * Returns the contents of the Cache as a string.
  */
+@Override
 public String
 toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	synchronized (this) {
-		Iterator it = data.values().iterator();
+		Iterator<Object> it = data.values().iterator();
 		while (it.hasNext()) {
 			Element [] elements = allElements(it.next());
 			for (int i = 0; i < elements.length; i++) {

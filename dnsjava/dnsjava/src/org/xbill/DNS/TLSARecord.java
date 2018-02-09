@@ -60,6 +60,7 @@ private byte [] certificateAssociationData;
 
 TLSARecord() {}
 
+@Override
 Record
 getObject() {
 	return new TLSARecord();
@@ -68,15 +69,15 @@ getObject() {
 /**
  * Creates an TLSA Record from the given data
  * @param certificateUsage The provided association that will be used to
- * match the certificate presented in the TLS handshake. 
+ * match the certificate presented in the TLS handshake.
  * @param selector The part of the TLS certificate presented by the server
- * that will be matched against the association data. 
+ * that will be matched against the association data.
  * @param matchingType How the certificate association is presented.
  * @param certificateAssociationData The "certificate association data" to be
  * matched.
  */
 public
-TLSARecord(Name name, int dclass, long ttl, 
+TLSARecord(Name name, int dclass, long ttl,
 	   int certificateUsage, int selector, int matchingType,
 	   byte [] certificateAssociationData)
 {
@@ -90,6 +91,7 @@ TLSARecord(Name name, int dclass, long ttl,
 						0xFFFF);
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	certificateUsage = in.readU8();
@@ -98,6 +100,7 @@ rrFromWire(DNSInput in) throws IOException {
 	certificateAssociationData = in.readByteArray();
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	certificateUsage = st.getUInt8();
@@ -107,9 +110,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(certificateUsage);
 	sb.append(" ");
 	sb.append(selector);
@@ -121,6 +125,7 @@ rrToString() {
 	return sb.toString();
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU8(certificateUsage);

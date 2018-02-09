@@ -15,12 +15,13 @@ private static final long serialVersionUID = -6670449036843028169L;
 
 MFRecord() {}
 
+@Override
 Record
 getObject() {
 	return new MFRecord();
 }
 
-/** 
+/**
  * Creates a new MF Record with the given data
  * @param mailAgent The mail agent that forwards mail for the domain.
  */
@@ -35,6 +36,7 @@ getMailAgent() {
 	return getSingleName();
 }
 
+@Override
 public Name
 getAdditionalName() {
 	return getSingleName();

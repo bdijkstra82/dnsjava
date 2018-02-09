@@ -12,9 +12,9 @@ import org.xbill.DNS.utils.*;
  * ordered list of hashed names in the zone, and a set of types for which
  * records exist for this name. The presence of this record in a response
  * signifies a negative response from a DNSSEC-signed zone.
- * 
+ *
  * This replaces the NSEC and NXT records, when used.
- * 
+ *
  * @author Brian Wellington
  * @author David Blacka
  */
@@ -57,13 +57,14 @@ private static final base32 b32 = new base32(base32.Alphabet.BASE32HEX,
 
 NSEC3Record() {}
 
+@Override
 Record getObject() {
 	return new NSEC3Record();
 }
 
 /**
  * Creates an NSEC3 record from the given data.
- * 
+ *
  * @param name The ownername of the NSEC3 record (base32'd hash plus zonename).
  * @param dclass The class.
  * @param ttl The TTL.
@@ -100,6 +101,7 @@ public NSEC3Record(Name name, int dclass, long ttl, int hashAlg,
 	this.types = new TypeBitmap(types);
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	hashAlg = in.readU8();
@@ -117,6 +119,7 @@ rrFromWire(DNSInput in) throws IOException {
 	types = new TypeBitmap(in);
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU8(hashAlg);
@@ -134,6 +137,7 @@ rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	types.toWire(out);
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	hashAlg = st.getUInt8();
@@ -155,9 +159,10 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 }
 
 /** Converts rdata to a String */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(hashAlg);
 	sb.append(' ');
 	sb.append(flags);

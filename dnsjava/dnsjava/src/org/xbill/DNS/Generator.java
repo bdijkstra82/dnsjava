@@ -97,7 +97,7 @@ private static String
 substitute(String spec, long n) throws IOException {
 	boolean escaped = false;
 	byte [] str = spec.getBytes();
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < str.length; i++) {
 		char c = (char)(str[i] & 0xFF);
@@ -229,7 +229,7 @@ nextRecord() throws IOException {
  */
 public Record []
 expand() throws IOException {
-	List list = new ArrayList();
+	List<Record> list = new ArrayList<Record>();
 	for (long i = start; i < end; i += step) {
 		String namestr = substitute(namePattern, current);
 		Name name = Name.fromString(namestr, origin);
@@ -237,16 +237,17 @@ expand() throws IOException {
 		list.add(Record.fromString(name, type, dclass, ttl,
 					   rdata, origin));
 	}
-	return (Record []) list.toArray(new Record[list.size()]);
+	return list.toArray(new Record[list.size()]);
 }
 
 /**
  * Converts the generate specification to a string containing the corresponding
  * $GENERATE statement.
  */
+@Override
 public String
 toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append("$GENERATE ");
 	sb.append(start + "-" + end);
 	if (step > 1)

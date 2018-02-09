@@ -21,9 +21,12 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An incoming DNS Zone Transfer.  To use this class, first initialize an
@@ -78,15 +81,15 @@ public static class Delta {
 	public long end;
 
 	/** A list of records added between the start and end versions */
-	public List adds;
+	public List<Record> adds;
 
 	/** A list of records deleted between the start and end versions */
-	public List deletes;
+	public List<Record> deletes;
 
 	private
 	Delta() {
-		adds = new ArrayList();
-		deletes = new ArrayList();
+		adds = new ArrayList<Record>();
+		deletes = new ArrayList<Record>();
 	}
 }
 
@@ -125,15 +128,15 @@ public static interface ZoneTransferHandler {
 }
 
 private static class BasicHandler implements ZoneTransferHandler {
-	private List axfr;
-	private List ixfr;
+	private List<Record> axfr;
+	private List<Delta> ixfr;
 
 	public void startAXFR() {
-		axfr = new ArrayList();
+		axfr = new ArrayList<Record>();
 	}
 
 	public void startIXFR() {
-		ixfr = new ArrayList();
+		ixfr = new ArrayList<Delta>();
 	}
 
 	public void startIXFRDeletes(Record soa) {
@@ -144,15 +147,15 @@ private static class BasicHandler implements ZoneTransferHandler {
 	}
 
 	public void startIXFRAdds(Record soa) {
-		Delta delta = (Delta) ixfr.get(ixfr.size() - 1);
+		Delta delta = ixfr.get(ixfr.size() - 1);
 		delta.adds.add(soa);
 		delta.end = getSOASerial(soa);
 	}
 
 	public void handleRecord(Record r) {
-		List list;
+		List<Record> list;
 		if (ixfr != null) {
-			Delta delta = (Delta) ixfr.get(ixfr.size() - 1);
+			Delta delta = ixfr.get(ixfr.size() - 1);
 			if (delta.adds.size() > 0)
 				list = delta.adds;
 			else
@@ -602,7 +605,7 @@ run(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
  * @throws ZoneTransferException The zone transfer failed to due a problem
  * with the zone transfer itself.
  */
-public List
+public List<?>
 run() throws IOException, ZoneTransferException {
 	BasicHandler handler = new BasicHandler();
 	run(handler);
@@ -635,7 +638,7 @@ isAXFR() {
  * @throws IllegalArgumentException The transfer used the callback interface,
  * so the response was not stored.
  */
-public List
+public List<Record>
 getAXFR() {
 	BasicHandler handler = getBasicHandler();
 	return handler.axfr;
@@ -656,7 +659,7 @@ isIXFR() {
  * @throws IllegalArgumentException The transfer used the callback interface,
  * so the response was not stored.
  */
-public List
+public List<Delta>
 getIXFR() {
 	BasicHandler handler = getBasicHandler();
 	return handler.ixfr;

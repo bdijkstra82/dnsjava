@@ -580,6 +580,7 @@ private int [] services;
 
 WKSRecord() {}
 
+@Override
 Record
 getObject() {
 	return new WKSRecord();
@@ -608,26 +609,28 @@ WKSRecord(Name name, int dclass, long ttl, InetAddress address, int protocol,
 	Arrays.sort(this.services);
 }
 
+@Override
 void
 rrFromWire(DNSInput in) throws IOException {
 	address = in.readByteArray(4);
 	protocol = in.readU8();
 	byte [] array = in.readByteArray();
-	List list = new ArrayList();
+	List<Integer> list = new ArrayList<Integer>();
 	for (int i = 0; i < array.length; i++) {
 		for (int j = 0; j < 8; j++) {
 			int octet = array[i] & 0xFF;
 			if ((octet & (1 << (7 - j))) != 0) {
-				list.add(new Integer(i * 8 + j));
+				list.add(Integer.valueOf(i * 8 + j));
 			}
 		}
 	}
 	services = new int[list.size()];
 	for (int i = 0; i < list.size(); i++) {
-		services[i] = ((Integer) list.get(i)).intValue();
+		services[i] = list.get(i).intValue();
 	}
 }
 
+@Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	String s = st.getString();
@@ -641,7 +644,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 		throw st.exception("Invalid IP protocol: " + s);
 	}
 
-	List list = new ArrayList();
+	List<Integer> list = new ArrayList<Integer>();
 	while (true) {
 		Tokenizer.Token t = st.get();
 		if (!t.isString())
@@ -651,21 +654,22 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 			throw st.exception("Invalid TCP/UDP service: " +
 					   t.value);
 		}
-		list.add(new Integer(service));
+		list.add(Integer.valueOf(service));
 	}
 	st.unget();
 	services = new int[list.size()];
 	for (int i = 0; i < list.size(); i++) {
-		services[i] = ((Integer) list.get(i)).intValue();
+		services[i] = list.get(i).intValue();
 	}
 }
 
 /**
  * Converts rdata to a String
  */
+@Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(Address.toDottedQuad(address));
 	sb.append(" ");
 	sb.append(protocol);
@@ -703,6 +707,7 @@ getServices() {
 	return services;
 }
 
+@Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeByteArray(address);

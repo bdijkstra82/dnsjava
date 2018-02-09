@@ -7,7 +7,7 @@ import org.xbill.DNS.utils.base16;
 
 /**
  * An EDNSOption with no internal structure.
- * 
+ *
  * @author Ming Zhou &lt;mizhou@bnivideo.com&gt;, Beaumaris Networks
  * @author Brian Wellington
  */
@@ -23,23 +23,26 @@ GenericEDNSOption(int code) {
  * Construct a generic EDNS option.
  * @param data The contents of the option.
  */
-public 
+public
 GenericEDNSOption(int code, byte [] data) {
 	super(code);
 	this.data = Record.checkByteArrayLength("option data", data, 0xFFFF);
 }
 
-void 
+@Override
+void
 optionFromWire(DNSInput in) throws IOException {
 	data = in.readByteArray();
 }
 
-void 
+@Override
+void
 optionToWire(DNSOutput out) {
 	out.writeByteArray(data);
 }
 
-String 
+@Override
+String
 optionToString() {
 	return "<" + base16.toString(data) + ">";
 }
