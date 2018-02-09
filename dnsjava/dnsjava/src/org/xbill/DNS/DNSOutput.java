@@ -42,7 +42,7 @@ current() {
 	return pos;
 }
 
-private void
+private static void
 check(long val, int bits) {
 	long max = 1;
 	max <<= bits;

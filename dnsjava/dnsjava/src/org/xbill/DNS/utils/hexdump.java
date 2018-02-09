@@ -39,7 +39,7 @@ dump(String description, byte [] b, int offset, int length) {
 			for (int j = 0; j < prefixlen / 8 ; j++)
 				sb.append('\t');
 		}
-		int value = (int)(b[i + offset]) & 0xFF;
+		int value = (b[i + offset]) & 0xFF;
 		sb.append(hex[(value >> 4)]);
 		sb.append(hex[(value & 0xF)]);
 		sb.append(' ');

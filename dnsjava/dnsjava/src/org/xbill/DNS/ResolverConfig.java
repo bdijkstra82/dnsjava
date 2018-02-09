@@ -69,7 +69,7 @@ ResolverConfig() {
 	}
 }
 
-private void
+private static void
 addServer(String server, List list) {
 	if (list.contains(server))
 		return;
@@ -78,7 +78,7 @@ addServer(String server, List list) {
 	list.add(server);
 }
 
-private void
+private static void
 addSearch(String search, List list) {
 	Name name;
 	if (Options.check("verbose"))
@@ -94,7 +94,7 @@ addSearch(String search, List list) {
 	list.add(name);
 }
 
-private int
+private static int
 parseNdots(String token) {
 	token = token.substring(6);
 	try {
@@ -317,7 +317,7 @@ findWin(InputStream in, Locale locale) {
 				readingServers = false;
 				readingSearches = false;
 			}
-			
+
 			if (line.indexOf(host_name) != -1) {
 				while (st.hasMoreTokens())
 					s = st.nextToken();
@@ -358,7 +358,7 @@ findWin(InputStream in, Locale locale) {
 				readingServers = true;
 			}
 		}
-		
+
 		configureFromLists(lserver, lsearch);
 	}
 	catch (IOException e) {
@@ -377,7 +377,7 @@ findWin(InputStream in) {
 	if (servers == null) {
 		try {
 			b.reset();
-		} 
+		}
 		catch (IOException e) {
 			return;
 		}

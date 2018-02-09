@@ -71,15 +71,17 @@ rrToString() {
 /** Returns the address */
 public InetAddress
 getAddress() {
+	InetAddress r;
 	try {
 		if (name == null)
-			return InetAddress.getByAddress(address);
+			r = InetAddress.getByAddress(address);
 		else
-			return InetAddress.getByAddress(name.toString(),
+			r = InetAddress.getByAddress(name.toString(),
 							address);
 	} catch (UnknownHostException e) {
-		return null;
+		r = null;
 	}
+	return r;
 }
 
 void

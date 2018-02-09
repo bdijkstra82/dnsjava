@@ -93,19 +93,23 @@ setoffset(int n, int offset) {
 
 private final int
 offset(int n) {
+	final int r;
 	if (n == 0 && getlabels() == 0)
-		return 0;
-	if (n < 0 || n >= getlabels())
-		throw new IllegalArgumentException("label out of range");
-	if (n < MAXOFFSETS) {
-		int shift = 8 * (7 - n);
-		return ((int)(offsets >>> shift) & 0xFF);
-	} else {
-		int pos = offset(MAXOFFSETS - 1);
-		for (int i = MAXOFFSETS - 1; i < n; i++)
-			pos += (name[pos] + 1);
-		return (pos);
+		r = 0;
+	else {
+		if (n < 0 || n >= getlabels())
+			throw new IllegalArgumentException("label out of range");
+		if (n < MAXOFFSETS) {
+			int shift = 8 * (7 - n);
+			r = ((int)(offsets >>> shift) & 0xFF);
+		} else {
+			int pos = offset(MAXOFFSETS - 1);
+			for (int i = MAXOFFSETS - 1; i < n; i++)
+				pos += (name[pos] + 1);
+			r = pos;
+		}
 	}
+	return r;
 }
 
 private final void
@@ -454,7 +458,7 @@ relativize(Name origin) {
 }
 
 /**
- * Generates a new Name with the first n labels replaced by a wildcard 
+ * Generates a new Name with the first n labels replaced by a wildcard
  * @return The wildcard name
  */
 public Name
@@ -587,7 +591,7 @@ subdomain(Name domain) {
 	return domain.equals(name, offset(labels - dlabels));
 }
 
-private String
+private static String
 byteString(byte [] array, int pos) {
 	StringBuffer sb = new StringBuffer();
 	int len = array[pos++];
@@ -684,9 +688,10 @@ toWire(DNSOutput out, Compression c) {
 	if (!isAbsolute())
 		throw new IllegalArgumentException("toWire() called on " +
 						   "non-absolute name");
-	
+
 	int labels = labels();
-	for (int i = 0; i < labels - 1; i++) {
+	boolean z = true;
+	for (int i = 0; i < labels - 1 && z; i++) {
 		Name tname;
 		if (i == 0)
 			tname = this;
@@ -698,7 +703,7 @@ toWire(DNSOutput out, Compression c) {
 		if (pos >= 0) {
 			pos |= (LABEL_MASK << 8);
 			out.writeU16(pos);
-			return;
+			z = false;
 		} else {
 			if (c != null)
 				c.add(out.current(), tname);
@@ -706,7 +711,8 @@ toWire(DNSOutput out, Compression c) {
 			out.writeByteArray(name, off, name[off] + 1);
 		}
 	}
-	out.writeU8(0);
+	if (z)
+		out.writeU8(0);
 }
 
 /**
@@ -824,7 +830,7 @@ hashCode() {
  * Compares this Name to another Object.
  * @param o The Object to be compared.
  * @return The value 0 if the argument is a name equivalent to this name;
- * a value less than 0 if the argument is less than this name in the canonical 
+ * a value less than 0 if the argument is less than this name in the canonical
  * ordering, and a value greater than 0 if the argument is greater than this
  * name in the canonical ordering.
  * @throws ClassCastException if the argument is not a Name.

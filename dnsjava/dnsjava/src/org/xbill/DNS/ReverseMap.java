@@ -54,10 +54,12 @@ fromAddress(byte [] addr) {
 	}
 
 	try {
+		final Name r;
 		if (addr.length == 4)
-			return Name.fromString(sb.toString(), inaddr4);
+			r = Name.fromString(sb.toString(), inaddr4);
 		else
-			return Name.fromString(sb.toString(), inaddr6);
+			r = Name.fromString(sb.toString(), inaddr6);
+		return r;
 	}
 	catch (TextParseException e) {
 		throw new IllegalStateException("name cannot be invalid");

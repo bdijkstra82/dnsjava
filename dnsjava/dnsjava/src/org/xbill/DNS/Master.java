@@ -171,7 +171,7 @@ parseTTLClassAndType() throws IOException {
 	}
 }
 
-private long
+private static long
 parseUInt32(String s) {
 	if (!Character.isDigit(s.charAt(0)))
 		return -1;
@@ -306,7 +306,7 @@ _nextRecord() throws IOException {
 			continue;
 		else if (token.type == Tokenizer.EOF)
 			return null;
-		else if (((String) token.value).charAt(0) == '$') {
+		else if (token.value.charAt(0) == '$') {
 			s = token.value;
 
 			if (s.equalsIgnoreCase("$ORIGIN")) {
@@ -413,10 +413,12 @@ expandGenerate(boolean wantExpand) {
  */
 public Iterator
 generators() {
+	final Iterator r;
 	if (generators != null)
-		return Collections.unmodifiableList(generators).iterator();
+		r = Collections.unmodifiableList(generators).iterator();
 	else
-		return Collections.EMPTY_LIST.iterator();
+		r = Collections.EMPTY_LIST.iterator();
+	return r;
 }
 
 protected void

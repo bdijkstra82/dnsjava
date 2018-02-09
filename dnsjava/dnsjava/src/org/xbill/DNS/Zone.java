@@ -231,18 +231,20 @@ exactName(Name name) {
 	return data.get(name);
 }
 
-private synchronized RRset []
+private synchronized static RRset []
 allRRsets(Object types) {
+	final RRset[] r;
 	if (types instanceof List) {
 		List typelist = (List) types;
-		return (RRset []) typelist.toArray(new RRset[typelist.size()]);
+		r = (RRset []) typelist.toArray(new RRset[typelist.size()]);
 	} else {
 		RRset set = (RRset) types;
-		return new RRset [] {set};
+		r = new RRset [] {set};
 	}
+	return r;
 }
 
-private synchronized RRset
+private synchronized static RRset
 oneRRset(Object types, int type) {
 	if (type == Type.ANY)
 		throw new IllegalArgumentException("oneRRset(ANY)");
@@ -422,13 +424,13 @@ lookup(Name name, int type) {
 	return SetResponse.ofType(SetResponse.NXDOMAIN);
 }
 
-/**     
+/**
  * Looks up Records in the Zone.  This follows CNAMEs and wildcards.
  * @param name The name to look up
  * @param type The type to look up
  * @return A SetResponse object
  * @see SetResponse
- */ 
+ */
 public SetResponse
 findRecords(Name name, int type) {
 	return lookup(name, type);
@@ -440,7 +442,7 @@ findRecords(Name name, int type) {
  * @param type The type to look up
  * @return The matching RRset
  * @see RRset
- */ 
+ */
 public RRset
 findExactMatch(Name name, int type) {
 	Object types = exactName(name);
@@ -518,7 +520,7 @@ AXFR() {
 	return new ZoneIterator(true);
 }
 
-private void
+private static void
 nodeToString(StringBuffer sb, Object node) {
 	RRset [] sets = allRRsets(node);
 	for (int i = 0; i < sets.length; i++) {

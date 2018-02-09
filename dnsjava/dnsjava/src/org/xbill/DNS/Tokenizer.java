@@ -1,7 +1,7 @@
 // Copyright (c) 2003-2004 Brian Wellington (bwelling@xbill.org)
 //
 // Copyright (C) 2003-2004 Nominum, Inc.
-// 
+//
 // Permission to use, copy, modify, and distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
 // copyright notice and this permission notice appear in all copies.
@@ -315,8 +315,8 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 						return current.set(EOL, null);
 				} else
 					throw new IllegalStateException();
-			} else
-				ungetChar(c);
+			}
+			ungetChar(c);
 			break;
 		} else if (c == '\\') {
 			c = getChar();
@@ -606,15 +606,16 @@ remainingStrings() throws IOException {
 public byte []
 getBase64(boolean required) throws IOException {
 	String s = remainingStrings();
+	final byte[] array;
 	if (s == null) {
 		if (required)
 			throw exception("expected base64 encoded string");
-		else
-			return null;
+		array = null;
+	} else {
+		array = base64.fromString(s);
+		if (array == null)
+			throw exception("invalid base64 encoding");
 	}
-	byte [] array = base64.fromString(s);
-	if (array == null)
-		throw exception("invalid base64 encoding");
 	return array;
 }
 
@@ -644,15 +645,16 @@ getBase64() throws IOException {
 public byte []
 getHex(boolean required) throws IOException {
 	String s = remainingStrings();
+	final byte[] array;
 	if (s == null) {
 		if (required)
 			throw exception("expected hex encoded string");
-		else
-			return null;
+		array = null;
+	} else {
+		array = base16.fromString(s);
+		if (array == null)
+			throw exception("invalid hex encoding");
 	}
-	byte [] array = base16.fromString(s);
-	if (array == null)
-		throw exception("invalid hex encoding");
 	return array;
 }
 

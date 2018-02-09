@@ -183,12 +183,14 @@ addRecord(Record r, int section) {
  */
 public boolean
 removeRecord(Record r, int section) {
+	final boolean b;
 	if (sections[section] != null && sections[section].remove(r)) {
 		header.decCount(section);
-		return true;
+		b = true;
 	}
 	else
-		return false;
+		b = false;
+	return b;
 }
 
 /**
@@ -282,7 +284,7 @@ getTSIG() {
 		return null;
 	List l = sections[Section.ADDITIONAL];
 	Record rec = (Record) l.get(count - 1);
-	if (rec.type !=  Type.TSIG)
+	if (rec.type != Type.TSIG)
 		return null;
 	return (TSIGRecord) rec;
 }
@@ -444,8 +446,6 @@ private boolean
 toWire(DNSOutput out, int maxLength) {
 	if (maxLength < Header.LENGTH)
 		return false;
-
-	Header newheader = null;
 
 	int tempMaxLength = maxLength;
 	if (tsigkey != null)

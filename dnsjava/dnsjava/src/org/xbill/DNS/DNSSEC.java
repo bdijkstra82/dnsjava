@@ -229,9 +229,6 @@ public static class MalformedKeyException extends DNSSECException {
  * do not match.
  */
 public static class KeyMismatchException extends DNSSECException {
-	private KEYBase key;
-	private SIGBase sig;
-
 	KeyMismatchException(KEYBase key, SIGBase sig) {
 		super("key " +
 		      key.getName() + "/" +
@@ -349,13 +346,15 @@ readBigInteger(DNSInput in) {
 
 private static byte []
 trimByteArray(byte [] array) {
+	final byte[] r;
 	if (array[0] == 0) {
 		byte trimmedArray[] = new byte[array.length - 1];
 		System.arraycopy(array, 1, trimmedArray, 0, array.length - 1);
-		return trimmedArray;
+		r = trimmedArray;
 	} else {
-		return array;
+		r = array;
 	}
+	return r;
 }
 
 private static void
@@ -494,7 +493,7 @@ private static final ECKeyInfo ECDSA_P384 = new ECKeyInfo(48,
 
 private static PublicKey
 toECGOSTPublicKey(KEYBase r, ECKeyInfo keyinfo) throws IOException,
-	GeneralSecurityException, MalformedKeyException
+	GeneralSecurityException
 {
 	DNSInput in = new DNSInput(r.getKey());
 
@@ -508,7 +507,7 @@ toECGOSTPublicKey(KEYBase r, ECKeyInfo keyinfo) throws IOException,
 
 private static PublicKey
 toECDSAPublicKey(KEYBase r, ECKeyInfo keyinfo) throws IOException,
-	GeneralSecurityException, MalformedKeyException
+	GeneralSecurityException
 {
 	DNSInput in = new DNSInput(r.getKey());
 
@@ -696,7 +695,7 @@ DSASignaturefromDNS(byte [] dns) throws DNSSECException, IOException {
 	DNSInput in = new DNSInput(dns);
 	DNSOutput out = new DNSOutput();
 
-	int t = in.readU8();
+	in.readU8(); // t
 
 	byte [] r = in.readByteArray(DSA_LEN);
 	int rlen = DSA_LEN;
@@ -736,7 +735,7 @@ DSASignaturetoDNS(byte [] signature, int t) throws IOException {
 	int tmp = in.readU8();
 	if (tmp != ASN1_SEQ)
 		throw new IOException();
-	int seqlen = in.readU8();
+	in.readU8();	// seqlen
 
 	tmp = in.readU8();
 	if (tmp != ASN1_INT)
@@ -767,7 +766,7 @@ DSASignaturetoDNS(byte [] signature, int t) throws IOException {
 
 private static byte []
 ECGOSTSignaturefromDNS(byte [] signature, ECKeyInfo keyinfo)
-	throws DNSSECException, IOException
+	throws DNSSECException
 {
 	if (signature.length != keyinfo.length * 2)
 		throw new SignatureVerificationException();
@@ -821,7 +820,7 @@ ECDSASignaturetoDNS(byte [] signature, ECKeyInfo keyinfo) throws IOException {
 	int tmp = in.readU8();
 	if (tmp != ASN1_SEQ)
 		throw new IOException();
-	int seqlen = in.readU8();
+	in.readU8();	// seqlen
 
 	tmp = in.readU8();
 	if (tmp != ASN1_INT)

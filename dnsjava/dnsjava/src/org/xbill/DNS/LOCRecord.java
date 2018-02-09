@@ -73,7 +73,7 @@ rrFromWire(DNSInput in) throws IOException {
 	altitude = in.readU32();
 }
 
-private double
+private static double
 parseFixedPoint(String s)
 {
 	if (s.matches("^-?\\d+$"))
@@ -90,7 +90,7 @@ parseFixedPoint(String s)
 		throw new NumberFormatException();
 }
 
-private long
+private static long
 parsePosition(Tokenizer st, String type) throws IOException {
 	boolean isLatitude = type.equals("latitude");
 	int deg = 0, min = 0;
@@ -131,7 +131,7 @@ parsePosition(Tokenizer st, String type) throws IOException {
 	return value;
 }
 
-private long
+private static long
 parseDouble(Tokenizer st, String type, boolean required, long min, long max,
 	    long defaultValue)
 throws IOException
@@ -170,7 +170,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 				 0, 9000000000L, 1000);
 }
 
-private void
+private static void
 renderFixedPoint(StringBuffer sb, NumberFormat formatter, long value,
 		 long divisor)
 {
@@ -182,7 +182,7 @@ renderFixedPoint(StringBuffer sb, NumberFormat formatter, long value,
 	}
 }
 
-private String
+private static String
 positionToString(long value, char pos, char neg) {
 	StringBuffer sb = new StringBuffer();
 	char direction;
@@ -245,39 +245,39 @@ rrToString() {
 
 /** Returns the latitude */
 public double
-getLatitude() {  
+getLatitude() {
 	return ((double)(latitude - (1L << 31))) / (3600 * 1000);
-}       
+}
 
 /** Returns the longitude */
 public double
-getLongitude() {  
+getLongitude() {
 	return ((double)(longitude - (1L << 31))) / (3600 * 1000);
-}       
+}
 
 /** Returns the altitude */
 public double
-getAltitude() {  
+getAltitude() {
 	return ((double)(altitude - 10000000)) / 100;
-}       
+}
 
 /** Returns the diameter of the enclosing sphere */
 public double
-getSize() {  
+getSize() {
 	return ((double)size) / 100;
-}       
+}
 
 /** Returns the horizontal precision */
 public double
-getHPrecision() {  
+getHPrecision() {
 	return ((double)hPrecision) / 100;
-}       
+}
 
 /** Returns the horizontal precision */
 public double
-getVPrecision() {  
+getVPrecision() {
 	return ((double)vPrecision) / 100;
-}       
+}
 
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
@@ -301,7 +301,7 @@ parseLOCformat(int b) throws WireParseException {
 	return (out);
 }
 
-private int
+private static int
 toLOCformat(long l) {
 	byte exp = 0;
 	while (l > 9) {

@@ -159,9 +159,10 @@ findBestZone(Name name) {
 
 public RRset
 findExactMatch(Name name, int type, int dclass, boolean glue) {
+	final RRset r;
 	Zone zone = findBestZone(name);
 	if (zone != null)
-		return zone.findExactMatch(name, type);
+		r = zone.findExactMatch(name, type);
 	else {
 		RRset [] rrsets;
 		Cache cache = getCache(dclass);
@@ -170,10 +171,11 @@ findExactMatch(Name name, int type, int dclass, boolean glue) {
 		else
 			rrsets = cache.findRecords(name, type);
 		if (rrsets == null)
-			return null;
+			r = null;
 		else
-			return rrsets[0]; /* not quite right */
+			r = rrsets[0]; /* not quite right */
 	}
+	return r;
 }
 
 void
@@ -201,7 +203,7 @@ addRRset(Name name, Message response, RRset rrset, int section, int flags) {
 	}
 }
 
-private final void
+private final static void
 addSOA(Message response, Zone zone) {
 	response.addRecord(zone.getSOA(), Section.AUTHORITY);
 }
@@ -213,7 +215,7 @@ addNS(Message response, Zone zone, int flags) {
 		 Section.AUTHORITY, flags);
 }
 
-private final void
+private final static void
 addCacheNS(Message response, Cache cache, Name name) {
 	SetResponse sr = cache.lookupRecords(name, Type.NS, Credibility.HINT);
 	if (!sr.isDelegation())
@@ -388,10 +390,8 @@ doAXFR(Name name, Message query, TSIG tsig, TSIGRecord qtsig, Socket s) {
  */
 byte []
 generateReply(Message query, byte [] in, int length, Socket s)
-throws IOException
 {
 	Header header;
-	boolean badversion;
 	int maxLength;
 	int flags = 0;
 
@@ -415,9 +415,6 @@ throws IOException
 	}
 
 	OPTRecord queryOPT = query.getOPT();
-	if (queryOPT != null && queryOPT.getVersion() > 0)
-		badversion = true;
-
 	if (s != null)
 		maxLength = 65535;
 	else if (queryOPT != null)
@@ -620,14 +617,13 @@ public static void main(String [] args) {
 		System.out.println("usage: jnamed [conf]");
 		System.exit(0);
 	}
-	jnamed s;
 	try {
 		String conf;
 		if (args.length == 1)
 			conf = args[0];
 		else
 			conf = "jnamed.conf";
-		s = new jnamed(conf);
+		new jnamed(conf);
 	}
 	catch (IOException e) {
 		System.out.println(e);

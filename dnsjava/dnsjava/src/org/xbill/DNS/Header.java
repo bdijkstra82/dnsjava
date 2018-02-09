@@ -14,7 +14,7 @@ import java.util.*;
 
 public class Header implements Cloneable {
 
-private int id; 
+private int id;
 private int flags;
 private int [] counts;
 
@@ -99,9 +99,10 @@ setFlag(int flags, int bit, boolean value) {
 
 	// bits are indexed from left to right
 	if (value)
-		return flags |= (1 << (15 - bit));
+		flags |= (1 << (15 - bit));
 	else
-		return flags &= ~(1 << (15 - bit));
+		flags &= ~(1 << (15 - bit));
+	return flags;
 }
 
 /**
@@ -268,7 +269,7 @@ String
 toStringWithRcode(int newrcode) {
 	StringBuffer sb = new StringBuffer();
 
-	sb.append(";; ->>HEADER<<- "); 
+	sb.append(";; ->>HEADER<<- ");
 	sb.append("opcode: " + Opcode.string(getOpcode()));
 	sb.append(", status: " + Rcode.string(newrcode));
 	sb.append(", id: " + getID());

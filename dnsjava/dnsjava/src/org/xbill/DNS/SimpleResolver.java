@@ -39,7 +39,7 @@ private static String defaultResolver = "localhost";
 private static int uniqueID = 0;
 
 /**
- * Creates a SimpleResolver that will query the specified host 
+ * Creates a SimpleResolver that will query the specified host
  * @exception UnknownHostException Failure occurred while finding the host
  */
 public
@@ -177,7 +177,7 @@ getTimeout() {
 	return timeoutValue;
 }
 
-private Message
+private static Message
 parseMessage(byte [] b) throws WireParseException {
 	try {
 		return (new Message(b));
@@ -191,7 +191,7 @@ parseMessage(byte [] b) throws WireParseException {
 	}
 }
 
-private void
+private static void
 verifyTSIG(Message query, Message response, byte [] b, TSIG tsig) {
 	if (tsig == null)
 		return;
@@ -207,13 +207,15 @@ applyEDNS(Message query) {
 	query.addRecord(queryOPT, Section.ADDITIONAL);
 }
 
-private int
+private static int
 maxUDPSize(Message query) {
 	OPTRecord opt = query.getOPT();
+	final int r;
 	if (opt == null)
-		return DEFAULT_UDPSIZE;
+		r = DEFAULT_UDPSIZE;
 	else
-		return opt.getPayloadSize();
+		r = opt.getPayloadSize();
+	return r;
 }
 
 /**
@@ -277,12 +279,11 @@ send(Message query) throws IOException {
 				       "; got id " + id;
 			if (tcp) {
 				throw new WireParseException(error);
-			} else {
-				if (Options.check("verbose")) {
-					System.err.println(error);
-				}
-				continue;
 			}
+			if (Options.check("verbose")) {
+				System.err.println(error);
+			}
+			continue;
 		}
 		Message response = parseMessage(in);
 		verifyTSIG(query, response, in, tsig);

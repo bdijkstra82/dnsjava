@@ -73,20 +73,22 @@ rrToString() {
 /** Returns the Internet address */
 public InetAddress
 getAddress() {
+	InetAddress r;
 	try {
 		if (name == null)
-			return InetAddress.getByAddress(toArray(addr));
+			r = InetAddress.getByAddress(toArray(addr));
 		else
-			return InetAddress.getByAddress(name.toString(),
+			r = InetAddress.getByAddress(name.toString(),
 							toArray(addr));
 	} catch (UnknownHostException e) {
-		return null;
+		r = null;
 	}
+	return r;
 }
 
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
-	out.writeU32(((long)addr) & 0xFFFFFFFFL);
+	out.writeU32(addr & 0xFFFFFFFFL);
 }
 
 }

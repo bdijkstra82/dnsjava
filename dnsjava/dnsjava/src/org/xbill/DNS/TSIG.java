@@ -460,7 +460,7 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 	m.getHeader().incCount(Section.ADDITIONAL);
 	hmac.update(header);
 
-	int len = m.tsigstart - header.length;	
+	int len = m.tsigstart - header.length;
 	hmac.update(b, header.length, len);
 
 	DNSOutput out = new DNSOutput();
@@ -577,7 +577,7 @@ public static class StreamVerifier {
 	public int
 	verify(Message m, byte [] b) {
 		TSIGRecord tsig = m.getTSIG();
-	
+
 		nresponses++;
 
 		if (nresponses == 1) {
@@ -616,10 +616,9 @@ public static class StreamVerifier {
 			if (required) {
 				m.tsigState = Message.TSIG_FAILED;
 				return Rcode.FORMERR;
-			} else {
-				m.tsigState = Message.TSIG_INTERMEDIATE;
-				return Rcode.NOERROR;
 			}
+			m.tsigState = Message.TSIG_INTERMEDIATE;
+			return Rcode.NOERROR;
 		}
 
 		if (!tsig.getName().equals(key.name) ||

@@ -32,7 +32,7 @@ newMessage() {
 }
 
 public
-update(InputStream in) throws IOException {
+update(InputStream in) {
 	List inputs = new LinkedList();
 	List istreams = new LinkedList();
 
@@ -307,10 +307,9 @@ throws IOException
 		throw new IOException("Invalid type: " + s);
 
 	record = Record.fromString(name, type, classValue, ttl, st, zone);
-	if (record != null)
-		return (record);
-	else
+	if (record == null)
 		throw new IOException("Parse error");
+	return (record);
 }
 
 void
@@ -673,7 +672,7 @@ help(String topic) {
 }
 
 public static void
-main(String args[]) throws IOException {
+main(String args[]) {
 
 	InputStream in = null;
 	if (args.length >= 1) {
@@ -687,7 +686,7 @@ main(String args[]) throws IOException {
 	}
 	else
 		in = System.in;
-	update u = new update(in);
+	new update(in);
 }
 
 }

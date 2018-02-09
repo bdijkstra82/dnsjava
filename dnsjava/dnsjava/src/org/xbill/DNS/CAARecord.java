@@ -2,8 +2,7 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
-import org.xbill.DNS.utils.*;
+import java.io.IOException;
 
 /**
  * Certification Authority Authorization
@@ -25,7 +24,7 @@ private int flags;
 private byte [] tag;
 private byte [] value;
 
-CAARecord() {} 
+CAARecord() {}
 
 Record
 getObject() {

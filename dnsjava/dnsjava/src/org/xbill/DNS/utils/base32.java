@@ -8,7 +8,7 @@ import java.io.*;
  * Routines for converting between Strings of base32-encoded data and arrays
  * of binary data.  This currently supports the base32 and base32hex alphabets
  * specified in RFC 4648, sections 6 and 7.
- * 
+ *
  * @author Brian Wellington
  */
 
@@ -21,7 +21,7 @@ public static class Alphabet {
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=";
 	public static final String BASE32HEX =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV=";
-};
+}
 
 private String alphabet;
 private boolean padding, lowercase;
@@ -78,7 +78,7 @@ paddingToBlockLen(int padlen) {
 
 /**
  * Convert binary data to a base32-encoded String
- * 
+ *
  * @param b An array containing binary data
  * @return A String containing the encoded data
  */
@@ -140,7 +140,7 @@ toString(byte [] b) {
 
 /**
  * Convert a base32-encoded String to binary data
- * 
+ *
  * @param str A String containing the encoded data
  * @return An array containing the binary data, or null if the string is invalid
  */

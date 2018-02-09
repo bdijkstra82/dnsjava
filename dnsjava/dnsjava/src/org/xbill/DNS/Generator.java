@@ -93,7 +93,7 @@ Generator(long start, long end, long step, String namePattern,
 	this.current = start;
 }
 
-private String
+private static String
 substitute(String spec, long n) throws IOException {
 	boolean escaped = false;
 	byte [] str = spec.getBytes();

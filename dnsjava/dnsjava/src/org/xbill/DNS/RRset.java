@@ -9,7 +9,7 @@ import java.util.*;
  * A set of Records with the same name, type, and class.  Also included
  * are all RRSIG records signing the data records.
  * @see Record
- * @see RRSIGRecord 
+ * @see RRSIGRecord
  *
  * @author Brian Wellington
  */
@@ -221,7 +221,7 @@ first() {
 	return (Record) rrs.get(0);
 }
 
-private String
+private static String
 iteratorToString(Iterator it) {
 	StringBuffer sb = new StringBuffer();
 	while (it.hasNext()) {

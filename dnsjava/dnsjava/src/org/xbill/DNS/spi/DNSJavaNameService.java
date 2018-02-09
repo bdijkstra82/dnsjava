@@ -21,9 +21,9 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 /**
- * This class implements a Name Service Provider, which Java can use 
- * (starting with version 1.4), to perform DNS resolutions instead of using 
- * the standard calls. 
+ * This class implements a Name Service Provider, which Java can use
+ * (starting with version 1.4), to perform DNS resolutions instead of using
+ * the standard calls.
  * <p>
  * This Name Service Provider uses dnsjava.
  * <p>
@@ -110,7 +110,7 @@ invoke(Object proxy, Method method, Object[] args) throws Throwable {
 				}
 				return byteAddresses;
 			}
-		}		
+		}
 	} catch (Throwable e) {
 		System.err.println("DNSJavaNameService: Unexpected error.");
 		e.printStackTrace();
@@ -149,11 +149,11 @@ lookupAllHostAddr(String host) throws UnknownHostException {
 	InetAddress[] array = new InetAddress[records.length];
 	for (int i = 0; i < records.length; i++) {
 		Record record = records[i];
-		if (records[i] instanceof ARecord) {
-			ARecord a = (ARecord) records[i];
+		if (record instanceof ARecord) {
+			ARecord a = (ARecord) record;
 			array[i] = a.getAddress();
 		} else {
-			AAAARecord aaaa = (AAAARecord) records[i];
+			AAAARecord aaaa = (AAAARecord) record;
 			array[i] = aaaa.getAddress();
 		}
 	}

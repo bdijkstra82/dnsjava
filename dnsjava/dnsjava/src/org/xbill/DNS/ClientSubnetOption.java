@@ -2,8 +2,9 @@
 
 package org.xbill.DNS;
 
-import java.net.*;
-import java.util.regex.*;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * The Client Subnet EDNS Option, defined in
@@ -17,19 +18,19 @@ import java.util.regex.*;
  *
  * The option is transmitted as part of an OPTRecord in the additional section
  * of a DNS message, as defined by RFC 2671 (EDNS0).
- * 
+ *
  * The wire format of the option contains a 2-byte length field (1 for IPv4, 2
  * for IPv6), a 1-byte source netmask, a 1-byte scope netmask, and an address
  * truncated to the source netmask length (where the final octet is padded with
  * bits set to 0)
- * 
+ *
  *
  * @see OPTRecord
- * 
+ *
  * @author Brian Wellington
  * @author Ming Zhou &lt;mizhou@bnivideo.com&gt;, Beaumaris Networks
  */
-public class ClientSubnetOption extends EDNSOption {
+public class ClientSubnetOption extends EDNSOption implements Serializable {
 
 private static final long serialVersionUID = -3868158449890266347L;
 
@@ -63,7 +64,7 @@ checkMaskLength(String field, int family, int val) {
  * the source netmask.
  * @param address The address of the client.
  */
-public 
+public
 ClientSubnetOption(int sourceNetmask, int scopeNetmask, InetAddress address) {
 	super(EDNSOption.Code.CLIENT_SUBNET);
 
@@ -86,7 +87,7 @@ ClientSubnetOption(int sourceNetmask, int scopeNetmask, InetAddress address) {
  * @param address The address of the client.
  * @see ClientSubnetOption
  */
-public 
+public
 ClientSubnetOption(int sourceNetmask, InetAddress address) {
 	this(sourceNetmask, 0, address);
 }
@@ -95,30 +96,30 @@ ClientSubnetOption(int sourceNetmask, InetAddress address) {
  * Returns the family of the network address.  This will be either IPv4 (1)
  * or IPv6 (2).
  */
-public int 
+public int
 getFamily() {
 	return family;
 }
 
 /** Returns the source netmask. */
-public int 
+public int
 getSourceNetmask() {
 	return sourceNetmask;
 }
 
 /** Returns the scope netmask. */
-public int 
+public int
 getScopeNetmask() {
 	return scopeNetmask;
 }
 
 /** Returns the IP address of the client. */
-public InetAddress 
+public InetAddress
 getAddress() {
 	return address;
 }
 
-void 
+void
 optionFromWire(DNSInput in) throws WireParseException {
 	family = in.readU16();
 	if (family != Address.IPv4 && family != Address.IPv6)
@@ -150,7 +151,7 @@ optionFromWire(DNSInput in) throws WireParseException {
 		throw new WireParseException("invalid padding");
 }
 
-void 
+void
 optionToWire(DNSOutput out) {
 	out.writeU16(family);
 	out.writeU8(sourceNetmask);
@@ -158,7 +159,7 @@ optionToWire(DNSOutput out) {
 	out.writeByteArray(address.getAddress(), 0, (sourceNetmask + 7) / 8);
 }
 
-String 
+String
 optionToString() {
 	StringBuffer sb = new StringBuffer();
 	sb.append(address.getHostAddress());

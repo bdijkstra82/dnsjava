@@ -373,7 +373,7 @@ setCache(Cache cache) {
  * @param ndots The ndots value to use, which must be greater than or equal to
  * 0.
  */
-public void
+public static void
 setNdots(int ndots) {
 	if (ndots < 0)
 		throw new IllegalArgumentException("Illegal ndots value: " +

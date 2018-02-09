@@ -23,7 +23,7 @@ getObject() {
 	return new GPOSRecord();
 }
 
-private void
+private static void
 validate(double longitude, double latitude) throws IllegalArgumentException
 {
        if (longitude < -90.0 || longitude > 90.0) {

@@ -122,7 +122,7 @@ public static interface ZoneTransferHandler {
 	 * @param r The DNS record.
 	 */
 	public void handleRecord(Record r) throws ZoneTransferException;
-};
+}
 
 private static class BasicHandler implements ZoneTransferHandler {
 	private List axfr;
@@ -161,7 +161,7 @@ private static class BasicHandler implements ZoneTransferHandler {
 			list = axfr;
 		list.add(r);
 	}
-};
+}
 
 private
 ZoneTransferIn() {}
@@ -384,7 +384,7 @@ logxfr(String s) {
 		System.out.println(zname + ": " + s);
 }
 
-private void
+private static void
 fail(String s) throws ZoneTransferException {
 	throw new ZoneTransferException(s);
 }
@@ -402,7 +402,6 @@ fallback() throws ZoneTransferException {
 private void
 parseRR(Record rec) throws ZoneTransferException {
 	int type = rec.getType();
-	Delta delta;
 
 	switch (state) {
 	case INITIALSOA:
@@ -510,7 +509,7 @@ closeConnection() {
 	}
 }
 
-private Message
+private static Message
 parseMessage(byte [] b) throws WireParseException {
 	try {
 		return new Message(b);
@@ -531,7 +530,7 @@ doxfr() throws IOException, ZoneTransferException {
 		if (response.getHeader().getRcode() == Rcode.NOERROR &&
 		    verifier != null)
 		{
-			TSIGRecord tsigrec = response.getTSIG();
+			response.getTSIG();
 
 			int error = verifier.verify(response, in);
 			if (error != Rcode.NOERROR)

@@ -35,7 +35,7 @@ private static volatile boolean prng_initializing = true;
 static {
 	new Thread(new Runnable() {
 			   public void run() {
-			   int n = prng.nextInt();
+			   prng.nextInt();
 			   prng_initializing = false;
 		   }}).start();
 }
@@ -48,7 +48,7 @@ UDPClient(long endTime) throws IOException {
 }
 
 private void
-bind_random(InetSocketAddress addr) throws IOException
+bind_random(InetSocketAddress addr)
 {
 	if (prng_initializing) {
 		try {

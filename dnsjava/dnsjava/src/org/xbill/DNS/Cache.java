@@ -37,7 +37,7 @@ limitExpire(long ttl, long maxttl) {
 
 private static class CacheRRset extends RRset implements Element {
 	private static final long serialVersionUID = 5971755205903597024L;
-	
+
 	int credibility;
 	int expire;
 
@@ -203,16 +203,18 @@ removeName(Name name) {
 	data.remove(name);
 }
 
-private synchronized Element []
+private synchronized static Element []
 allElements(Object types) {
+	final Element[] r;
 	if (types instanceof List) {
 		List typelist = (List) types;
 		int size = typelist.size();
-		return (Element []) typelist.toArray(new Element[size]);
+		r = (Element []) typelist.toArray(new Element[size]);
 	} else {
 		Element set = (Element) types;
-		return new Element[] {set};
+		r = new Element[] {set};
 	}
+	return r;
 }
 
 private synchronized Element
@@ -516,10 +518,12 @@ lookupRecords(Name name, int type, int minCred) {
 private RRset []
 findRecords(Name name, int type, int minCred) {
 	SetResponse cr = lookupRecords(name, type, minCred);
+	final RRset[] r;
 	if (cr.isSuccessful())
-		return cr.answers();
+		r = cr.answers();
 	else
-		return null;
+		r = null;
+	return r;
 }
 
 /**
@@ -548,22 +552,24 @@ findAnyRecords(Name name, int type) {
 	return findRecords(name, type, Credibility.GLUE);
 }
 
-private final int
+private final static int
 getCred(int section, boolean isAuth) {
+	final int r;
 	if (section == Section.ANSWER) {
 		if (isAuth)
-			return Credibility.AUTH_ANSWER;
+			r = Credibility.AUTH_ANSWER;
 		else
-			return Credibility.NONAUTH_ANSWER;
+			r = Credibility.NONAUTH_ANSWER;
 	} else if (section == Section.AUTHORITY) {
 		if (isAuth)
-			return Credibility.AUTH_AUTHORITY;
+			r = Credibility.AUTH_AUTHORITY;
 		else
-			return Credibility.NONAUTH_AUTHORITY;
+			r = Credibility.NONAUTH_AUTHORITY;
 	} else if (section == Section.ADDITIONAL) {
-		return Credibility.ADDITIONAL;
+		r = Credibility.ADDITIONAL;
 	} else
 		throw new IllegalArgumentException("getCred: invalid section");
+	return r;
 }
 
 private static void
@@ -826,7 +832,7 @@ getDClass() {
 
 /**
  * Returns the contents of the Cache as a string.
- */ 
+ */
 public String
 toString() {
 	StringBuffer sb = new StringBuffer();

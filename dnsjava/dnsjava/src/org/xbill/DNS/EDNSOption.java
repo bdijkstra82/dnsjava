@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * DNS extension options, as described in RFC 2671.  The rdata of an OPT record
  * is defined as a list of options; this represents a single option.
- * 
+ *
  * @author Brian Wellington
  * @author Ming Zhou &lt;mizhou@bnivideo.com&gt;, Beaumaris Networks
  */
@@ -57,15 +57,15 @@ public static class Code {
 private final int code;
 
 /**
- * 
+ *
  * Creates an option with the given option code and data.
  */
-public 
+public
 EDNSOption(int code) {
 	this.code = Record.checkU16("code", code);
 }
 
-public String 
+public String
 toString() {
 	StringBuffer sb = new StringBuffer();
 
@@ -83,17 +83,17 @@ toString() {
  *
  * @return the option code
  */
-public int 
+public int
 getCode() {
 	return code;
 }
 
 /**
  * Returns the EDNS Option's data, as a byte array.
- * 
+ *
  * @return the option data
  */
-byte [] 
+byte []
 getData() {
 	DNSOutput out = new DNSOutput();
 	optionToWire(out);
@@ -105,7 +105,7 @@ getData() {
  * type-specific format.
  * @param in The input Stream.
  */
-abstract void 
+abstract void
 optionFromWire(DNSInput in) throws IOException;
 
 /**
@@ -155,7 +155,7 @@ fromWire(byte [] b) throws IOException {
  * Converts an EDNS Option (the type-specific option data only) into wire format.
  * @param out The output stream.
  */
-abstract void 
+abstract void
 optionToWire(DNSOutput out);
 
 /**
@@ -177,7 +177,7 @@ toWire(DNSOutput out) {
  * @return The option, in wire format.
  */
 public byte []
-toWire() throws IOException {
+toWire() {
 	DNSOutput out = new DNSOutput();
 	toWire(out);
 	return out.toByteArray();
