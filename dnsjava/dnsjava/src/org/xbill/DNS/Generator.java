@@ -192,7 +192,7 @@ substitute(String spec, long n) throws IOException {
 			else
 				number = Long.toString(v);
 			if (wantUpperCase)
-				number = number.toUpperCase();
+				number = number.toUpperCase(Locale.ENGLISH);
 			if (width != 0 && width > number.length()) {
 				int zeros = (int)width - number.length();
 				while (zeros-- > 0)

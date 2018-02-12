@@ -67,7 +67,7 @@ public static void
 set(String option) {
 	if (table == null)
 		table = new HashMap<String, String>();
-	table.put(option.toLowerCase(), "true");
+	table.put(option.toLowerCase(Locale.ENGLISH), "true");
 }
 
 /** Sets an option to the the supplied value */
@@ -75,7 +75,7 @@ public static void
 set(String option, String value) {
 	if (table == null)
 		table = new HashMap<String, String>();
-	table.put(option.toLowerCase(), value.toLowerCase());
+	table.put(option.toLowerCase(Locale.ENGLISH), value.toLowerCase());
 }
 
 /** Removes an option */
@@ -83,7 +83,7 @@ public static void
 unset(String option) {
 	if (table == null)
 		return;
-	table.remove(option.toLowerCase());
+	table.remove(option.toLowerCase(Locale.ENGLISH));
 }
 
 /** Checks if an option is defined */
@@ -91,7 +91,7 @@ public static boolean
 check(String option) {
 	if (table == null)
 		return false;
-	return (table.get(option.toLowerCase()) != null);
+	return (table.get(option.toLowerCase(Locale.ENGLISH)) != null);
 }
 
 /** Returns the value of an option */
@@ -99,7 +99,7 @@ public static String
 value(String option) {
 	if (table == null)
 		return null;
-	return (table.get(option.toLowerCase()));
+	return (table.get(option.toLowerCase(Locale.ENGLISH)));
 }
 
 /**

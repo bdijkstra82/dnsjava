@@ -546,7 +546,7 @@ help(String topic) {
 		    "zone     #\n");
 		return;
 	}
-	topic = topic.toLowerCase();
+	topic = topic.toLowerCase(Locale.ENGLISH);
 
 	if (topic.equals("add"))
 		System.out.println(

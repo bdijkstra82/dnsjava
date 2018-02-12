@@ -22,9 +22,10 @@ protected Name name;
 protected int type, dclass;
 protected long ttl;
 
-private static final DecimalFormat byteFormat = new DecimalFormat();
+private static final NumberFormat byteFormat;
 
 static {
+	byteFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	byteFormat.setMinimumIntegerDigits(3);
 }
 
@@ -285,7 +286,7 @@ rdataToWireCanonical() {
 }
 
 /**
- * Converts the type-specific RR to text format - must be overriden
+ * Converts the type-specific RR to text format - must be overridden
  */
 abstract String rrToString();
 
@@ -552,7 +553,7 @@ getTTL() {
 }
 
 /**
- * Converts the type-specific RR to wire format - must be overriden
+ * Converts the type-specific RR to wire format - must be overridden
  */
 abstract void
 rrToWire(DNSOutput out, Compression c, boolean canonical);

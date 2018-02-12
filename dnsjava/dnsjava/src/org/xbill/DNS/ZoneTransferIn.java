@@ -607,13 +607,10 @@ run(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
  * @throws ZoneTransferException The zone transfer failed to due a problem
  * with the zone transfer itself.
  */
-public List<?>
+public void
 run() throws IOException, ZoneTransferException {
 	final BasicHandler handler = new BasicHandler();
 	run(handler);
-	if (handler.axfr != null)
-		return handler.axfr;
-	return handler.ixfr;
 }
 
 private BasicHandler

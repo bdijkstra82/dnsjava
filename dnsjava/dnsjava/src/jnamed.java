@@ -12,9 +12,9 @@ public class jnamed {
 static final int FLAG_DNSSECOK = 1;
 static final int FLAG_SIGONLY = 2;
 
-Map<Integer, Cache> caches;
-Map<Name, Zone> znames;
-Map<Name, TSIG> TSIGs;
+final Map<Integer, Cache> caches;
+final Map<Name, Zone> znames;
+final Map<Name, TSIG> TSIGs;
 
 private static String
 addrport(InetAddress addr, int port) {
@@ -33,9 +33,9 @@ jnamed(String conffile) throws IOException, ZoneTransferException {
 		isr = new InputStreamReader(fs);
 		br = new BufferedReader(isr);
 	}
-	catch (Exception e) {
+	catch (IOException e) {
 		System.out.println("Cannot open " + conffile);
-		return;
+		throw e;
 	}
 
 	try {
@@ -499,21 +499,22 @@ TCPclient(Socket s) {
 		inLength = dataIn.readUnsignedShort();
 		in = new byte[inLength];
 		dataIn.readFully(in);
+		dataIn.close();
 
 		final Message query;
 		byte [] response = null;
 		try {
 			query = new Message(in);
 			response = generateReply(query, in, in.length, s);
-			if (response == null)
-				return;
 		}
 		catch (IOException e) {
 			response = formerrMessage(in);
 		}
-		dataOut = new DataOutputStream(s.getOutputStream());
-		dataOut.writeShort(response.length);
-		dataOut.write(response);
+		if (response != null) {
+			dataOut = new DataOutputStream(s.getOutputStream());
+			dataOut.writeShort(response.length);
+			dataOut.write(response);
+		}
 	}
 	catch (IOException e) {
 		System.out.println("TCPclient(" +
@@ -531,26 +532,40 @@ TCPclient(Socket s) {
 
 public void
 serveTCP(InetAddress addr, int port) {
+	ServerSocket sock = null;
 	try {
-		final ServerSocket sock = new ServerSocket(port, 128, addr);
+		sock = new ServerSocket(port, 128, addr);
 		while (true) {
+			@SuppressWarnings("resource")	// closed in TCPclient()
 			final Socket s = sock.accept();
 			Thread t;
 			t = new Thread(new Runnable() {
-					public void run() {TCPclient(s);}});
+					public void run() {
+						TCPclient(s);
+					}
+			});
 			t.start();
 		}
 	}
 	catch (IOException e) {
 		System.out.println("serveTCP(" + addrport(addr, port) + "): " +
 				   e);
+	} finally {
+		if (sock != null)
+			try {
+				sock.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 }
 
 public void
 serveUDP(InetAddress addr, int port) {
+	DatagramSocket sock = null;
 	try {
-		final DatagramSocket sock = new DatagramSocket(port, addr);
+		sock = new DatagramSocket(port, addr);
 		final short udpLength = 512;
 		final byte [] in = new byte[udpLength];
 		final DatagramPacket indp = new DatagramPacket(in, in.length);
@@ -593,6 +608,9 @@ serveUDP(InetAddress addr, int port) {
 	catch (IOException e) {
 		System.out.println("serveUDP(" + addrport(addr, port) + "): " +
 				   e);
+	} finally {
+		if (sock != null)
+			sock.close();
 	}
 }
 

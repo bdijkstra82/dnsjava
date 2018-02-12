@@ -14,12 +14,14 @@ TCPClient(long endTime) throws IOException {
 	super(SocketChannel.open(), endTime);
 }
 
+@SuppressWarnings("resource")
 void
 bind(SocketAddress addr) throws IOException {
 	final SocketChannel channel = (SocketChannel) key.channel();
 	channel.socket().bind(addr);
 }
 
+@SuppressWarnings("resource")
 void
 connect(SocketAddress addr) throws IOException {
 	final SocketChannel channel = (SocketChannel) key.channel();
@@ -38,6 +40,7 @@ connect(SocketAddress addr) throws IOException {
 	}
 }
 
+@SuppressWarnings("resource")
 void
 send(byte [] data) throws IOException {
 	final SocketChannel channel = (SocketChannel) key.channel();
@@ -71,6 +74,7 @@ send(byte [] data) throws IOException {
 	}
 }
 
+@SuppressWarnings("resource")
 private byte []
 _recv(int length) throws IOException {
 	final SocketChannel channel = (SocketChannel) key.channel();
@@ -99,6 +103,7 @@ _recv(int length) throws IOException {
 	return data;
 }
 
+@SuppressWarnings("resource")
 byte []
 recv() throws IOException {
 	final byte [] buf = _recv(2);

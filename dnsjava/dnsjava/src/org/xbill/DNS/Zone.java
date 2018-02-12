@@ -23,7 +23,7 @@ public static final int PRIMARY = 1;
 /** A secondary zone */
 public static final int SECONDARY = 2;
 
-private Map<Name, Object> data;//XXX
+private Map<Name, Object> data;//XXX values are RRset or List<RRset>
 private Name origin;
 private Object originNode;
 private int dclass = DClass.IN;
@@ -169,14 +169,15 @@ fromXFR(ZoneTransferIn xfrin) throws IOException, ZoneTransferException {
 	data = new TreeMap<Name, Object>();
 
 	origin = xfrin.getName();
-	final List<?> records = xfrin.run();	//XXX
-	for (Iterator<?> it = records.iterator(); it.hasNext(); ) {
-		Record record = (Record) it.next();
-		maybeAddRecord(record);
-	}
+	xfrin.run();
 	if (!xfrin.isAXFR())
 		throw new IllegalArgumentException("zones can only be " +
 						   "created from AXFRs");
+	final List<Record> records = xfrin.getAXFR();
+	for (Iterator<Record> it = records.iterator(); it.hasNext(); ) {
+		Record record = it.next();
+		maybeAddRecord(record);
+	}
 	validate();
 }
 

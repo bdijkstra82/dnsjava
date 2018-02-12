@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -498,7 +499,7 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 	final byte [] signature = tsig.getSignature();
 	final int digestLength = hmac.getMacLength();
 	final int minDigestLength;
-	if (hmac.getAlgorithm().toLowerCase().contains("md5"))
+	if (hmac.getAlgorithm().toLowerCase(Locale.ENGLISH).contains("md5"))
 		minDigestLength = 10;
 	else
 		minDigestLength = digestLength / 2;

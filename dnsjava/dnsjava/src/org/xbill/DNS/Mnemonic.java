@@ -3,6 +3,7 @@
 package org.xbill.DNS;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * A utility class for converting between numeric codes and mnemonics
@@ -90,9 +91,9 @@ check(int val) {
 private String
 sanitize(String str) {
 	if (wordcase == Wordcase.UPPER)
-		return str.toUpperCase();
+		str = str.toUpperCase(Locale.ENGLISH);
 	else if (wordcase == Wordcase.LOWER)
-		return str.toLowerCase();
+		str = str.toLowerCase(Locale.ENGLISH);
 	return str;
 }
 
@@ -161,11 +162,11 @@ public String
 getText(int val) {
 	check(val);
 	String str = values.get(Integer.valueOf(val));
-	if (str != null)
-		return str;
-	str = Integer.toString(val);
-	if (prefix != null)
-		return prefix + str;
+	if (str == null) {
+		str = Integer.toString(val);
+		if (prefix != null)
+			str = prefix + str;
+	}
 	return str;
 }
 
@@ -178,21 +179,20 @@ public int
 getValue(String str) {
 	str = sanitize(str);
 	final Integer value = strings.get(str);
+	int val;
 	if (value != null) {
-		return value.intValue();
-	}
-	if (prefix != null) {
-		if (str.startsWith(prefix)) {
-			final int val = parseNumeric(str.substring(prefix.length()));
-			if (val >= 0) {
-				return val;
-			}
+		val = value.intValue();
+	} else {
+		if (prefix != null && str.startsWith(prefix)) {
+			val = parseNumeric(str.substring(prefix.length()));
+		} else {
+			val = -1;
+		}
+		if (val < 0 && numericok) {
+			val = parseNumeric(str);
 		}
 	}
-	if (numericok) {
-		return parseNumeric(str);
-	}
-	return -1;
+	return val;
 }
 
 }

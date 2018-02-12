@@ -4,6 +4,7 @@ package org.xbill.DNS;
 
 import java.io.*;
 import java.text.*;
+import java.util.Locale;
 
 /**
  * Location - describes the physical location of hosts, networks, subnets.
@@ -21,10 +22,10 @@ private long size, hPrecision, vPrecision;
 private long latitude, longitude, altitude;
 
 static {
-	w2 = new DecimalFormat();
+	w2 = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	w2.setMinimumIntegerDigits(2);
 
-	w3 = new DecimalFormat();
+	w3 = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	w3.setMinimumIntegerDigits(3);
 }
 

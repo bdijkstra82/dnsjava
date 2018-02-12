@@ -4,6 +4,7 @@ package org.xbill.DNS.tests;
 
 import java.util.*;
 import org.xbill.DNS.*;
+import org.xbill.DNS.ZoneTransferIn.Delta;
 
 public class xfrin {
 
@@ -75,21 +76,23 @@ main(String [] args) throws Exception {
 	else
 		xfrin = ZoneTransferIn.newAXFR(zname, server, port, key);
 
-	final List<?> response = xfrin.run();
+	xfrin.run();
 	if (xfrin.isAXFR()) {
 		if (ixfr_serial >= 0)
 			System.out.println("AXFR-like IXFR response");
 		else
 			System.out.println("AXFR response");
-		final Iterator<?> it = response.iterator();
+		final List<Record> response = xfrin.getAXFR();
+		final Iterator<Record> it = response.iterator();
 		while (it.hasNext())
 			System.out.println(it.next());
 	} else if (xfrin.isIXFR()) {
 		System.out.println("IXFR response");
-		final Iterator<?> it = response.iterator();
+		final List<Delta> response = xfrin.getIXFR();
+		final Iterator<Delta> it = response.iterator();
 		while (it.hasNext()) {
 			final ZoneTransferIn.Delta delta;
-			delta = (ZoneTransferIn.Delta) it.next();
+			delta = it.next();
 			System.out.println("delta from " + delta.start +
 					   " to " + delta.end);
 			System.out.println("deletes");

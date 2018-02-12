@@ -16,10 +16,10 @@ final class FormattedTime {
 private static final NumberFormat w2, w4;
 
 static {
-	w2 = new DecimalFormat();
+	w2 = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	w2.setMinimumIntegerDigits(2);
 
-	w4 = new DecimalFormat();
+	w4 = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	w4.setMinimumIntegerDigits(4);
 	w4.setGroupingUsed(false);
 }
