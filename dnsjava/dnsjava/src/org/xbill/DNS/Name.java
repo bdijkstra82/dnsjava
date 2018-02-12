@@ -86,7 +86,7 @@ private final void
 setoffset(int n, int offset) {
 	if (n >= MAXOFFSETS)
 		return;
-	int shift = 8 * (7 - n);
+	final int shift = 8 * (7 - n);
 	offsets &= (~(0xFFL << shift));
 	offsets |= ((long)offset << shift);
 }
@@ -100,7 +100,7 @@ offset(int n) {
 		if (n < 0 || n >= getlabels())
 			throw new IllegalArgumentException("label out of range");
 		if (n < MAXOFFSETS) {
-			int shift = 8 * (7 - n);
+			final int shift = 8 * (7 - n);
 			r = ((int)(offsets >>> shift) & 0xFF);
 		} else {
 			int pos = offset(MAXOFFSETS - 1);
@@ -129,9 +129,9 @@ copy(Name src, Name dst) {
 		dst.name = src.name;
 		dst.offsets = src.offsets;
 	} else {
-		int offset0 = src.offset(0);
-		int namelen = src.name.length - offset0;
-		int labels = src.labels();
+		final int offset0 = src.offset(0);
+		final int namelen = src.name.length - offset0;
+		final int labels = src.labels();
 		dst.name = new byte[namelen];
 		System.arraycopy(src.name, offset0, dst.name, 0, namelen);
 		for (int i = 0; i < labels && i < MAXOFFSETS; i++)
@@ -142,7 +142,7 @@ copy(Name src, Name dst) {
 
 private final void
 append(byte [] array, int start, int n) throws NameTooLongException {
-	int length = (name == null ? 0 : (name.length - offset(0)));
+	final int length = (name == null ? 0 : (name.length - offset(0)));
 	int alength = 0;
 	for (int i = 0, pos = start; i < n; i++) {
 		int len = array[pos];
@@ -152,14 +152,14 @@ append(byte [] array, int start, int n) throws NameTooLongException {
 		pos += len;
 		alength += len;
 	}
-	int newlength = length + alength;
+	final int newlength = length + alength;
 	if (newlength > MAXNAME)
 		throw new NameTooLongException();
-	int labels = getlabels();
-	int newlabels = labels + n;
+	final int labels = getlabels();
+	final int newlabels = labels + n;
 	if (newlabels > MAXLABELS)
 		throw new IllegalStateException("too many labels");
-	byte [] newname = new byte[newlength];
+	final byte [] newname = new byte[newlength];
 	if (length != 0)
 		System.arraycopy(name, offset(0), newname, 0, length);
 	System.arraycopy(array, start, newname, length, alength);
@@ -221,7 +221,7 @@ Name(String s, Name origin) throws TextParseException {
 	}
 	int labelstart = -1;
 	int pos = 1;
-	byte [] label = new byte[MAXLABEL + 1];
+	final byte [] label = new byte[MAXLABEL + 1];
 	boolean escaped = false;
 	int digits = 0;
 	int intval = 0;
@@ -349,7 +349,7 @@ public
 Name(DNSInput in) throws WireParseException {
 	int len, pos;
 	boolean done = false;
-	byte [] label = new byte[MAXLABEL + 1];
+	final byte [] label = new byte[MAXLABEL + 1];
 	boolean savedState = false;
 
 	while (!done) {
@@ -410,7 +410,7 @@ Name(byte [] b) throws IOException {
  */
 public
 Name(Name src, int n) {
-	int slabels = src.labels();
+	final int slabels = src.labels();
 	if (n > slabels)
 		throw new IllegalArgumentException("attempted to remove too " +
 						   "many labels");
@@ -431,7 +431,7 @@ public static Name
 concatenate(Name prefix, Name suffix) throws NameTooLongException {
 	if (prefix.isAbsolute())
 		return (prefix);
-	Name newname = new Name();
+	final Name newname = new Name();
 	copy(prefix, newname);
 	newname.append(suffix.name, suffix.offset(0), suffix.getlabels());
 	return newname;
@@ -447,10 +447,10 @@ public Name
 relativize(Name origin) {
 	if (origin == null || !subdomain(origin))
 		return this;
-	Name newname = new Name();
+	final Name newname = new Name();
 	copy(this, newname);
-	int length = length() - origin.length();
-	int labels = newname.labels() - origin.labels();
+	final int length = length() - origin.length();
+	final int labels = newname.labels() - origin.labels();
 	newname.setlabels(labels);
 	newname.name = new byte[length];
 	System.arraycopy(name, offset(0), newname.name, 0, length);
@@ -467,7 +467,7 @@ wild(int n) {
 		throw new IllegalArgumentException("must replace 1 or more " +
 						   "labels");
 	try {
-		Name newname = new Name();
+		final Name newname = new Name();
 		copy(wild, newname);
 		newname.append(name, offset(n), getlabels() - n);
 		return newname;
@@ -494,7 +494,7 @@ canonicalize() {
 	if (canonical)
 		return this;
 
-	Name newname = new Name();
+	final Name newname = new Name();
 	newname.appendSafe(name, offset(0), getlabels());
 	for (int i = 0; i < newname.name.length; i++)
 		newname.name[i] = lowercase[newname.name[i] & 0xFF];
@@ -510,22 +510,22 @@ canonicalize() {
  */
 public Name
 fromDNAME(DNAMERecord dname) throws NameTooLongException {
-	Name dnameowner = dname.getName();
-	Name dnametarget = dname.getTarget();
+	final Name dnameowner = dname.getName();
+	final Name dnametarget = dname.getTarget();
 	if (!subdomain(dnameowner))
 		return null;
 
-	int plabels = labels() - dnameowner.labels();
-	int plength = length() - dnameowner.length();
-	int pstart = offset(0);
+	final int plabels = labels() - dnameowner.labels();
+	final int plength = length() - dnameowner.length();
+	final int pstart = offset(0);
 
-	int dlabels = dnametarget.labels();
-	int dlength = dnametarget.length();
+	final int dlabels = dnametarget.labels();
+	final int dlength = dnametarget.length();
 
 	if (plength + dlength > MAXNAME)
 		throw new NameTooLongException();
 
-	Name newname = new Name();
+	final Name newname = new Name();
 	newname.setlabels(plabels + dlabels);
 	newname.name = new byte[plength + dlength];
 	System.arraycopy(name, pstart, newname.name, 0, plength);
@@ -545,7 +545,7 @@ public boolean
 isWild() {
 	if (labels() == 0)
 		return false;
-	return (name[0] == (byte)1 && name[1] == (byte)'*');
+	return (name[0] == 1 && name[1] == '*');
 }
 
 /**
@@ -553,7 +553,7 @@ isWild() {
  */
 public boolean
 isAbsolute() {
-	int nlabels = labels();
+	final int nlabels = labels();
 	if (nlabels == 0)
 		return false;
         return name[offset(nlabels - 1)] == 0;
@@ -582,8 +582,8 @@ labels() {
  */
 public boolean
 subdomain(Name domain) {
-	int labels = labels();
-	int dlabels = domain.labels();
+	final int labels = labels();
+	final int dlabels = domain.labels();
 	if (dlabels > labels)
 		return false;
 	if (dlabels == labels)
@@ -593,8 +593,8 @@ subdomain(Name domain) {
 
 private static String
 byteString(byte [] array, int pos) {
-	StringBuilder sb = new StringBuilder();
-	int len = array[pos++];
+	final StringBuilder sb = new StringBuilder();
+	final int len = array[pos++];
 	for (int i = pos; i < pos + len; i++) {
 		int b = array[i] & 0xFF;
 		if (b <= 0x20 || b >= 0x7f) {
@@ -620,12 +620,12 @@ byteString(byte [] array, int pos) {
  */
 public String
 toString(boolean omitFinalDot) {
-	int labels = labels();
+	final int labels = labels();
 	if (labels == 0)
 		return "@";
 	else if (labels == 1 && name[offset(0)] == 0)
 		return ".";
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	for (int i = 0, pos = offset(0); i < labels; i++) {
 		int len = name[pos];
 		if (len > MAXLABEL)
@@ -660,9 +660,9 @@ toString() {
  */
 public byte []
 getLabel(int n) {
-	int pos = offset(n);
-	byte len = (byte)(name[pos] + 1);
-	byte [] label = new byte[len];
+	final int pos = offset(n);
+	final byte len = (byte)(name[pos] + 1);
+	final byte [] label = new byte[len];
 	System.arraycopy(name, pos, label, 0, len);
 	return label;
 }
@@ -674,7 +674,7 @@ getLabel(int n) {
  */
 public String
 getLabelString(int n) {
-	int pos = offset(n);
+	final int pos = offset(n);
 	return byteString(name, pos);
 }
 
@@ -690,7 +690,7 @@ toWire(DNSOutput out, Compression c) {
 		throw new IllegalArgumentException("toWire() called on " +
 						   "non-absolute name");
 
-	int labels = labels();
+	final int labels = labels();
 	boolean z = true;
 	for (int i = 0; i < labels - 1 && z; i++) {
 		Name tname;
@@ -722,7 +722,7 @@ toWire(DNSOutput out, Compression c) {
  */
 public byte []
 toWire() {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	toWire(out, null);
 	return out.toByteArray();
 }
@@ -733,7 +733,7 @@ toWire() {
  */
 public void
 toWireCanonical(DNSOutput out) {
-	byte [] b = toWireCanonical();
+	final byte [] b = toWireCanonical();
 	out.writeByteArray(b);
 }
 
@@ -743,10 +743,10 @@ toWireCanonical(DNSOutput out) {
  */
 public byte []
 toWireCanonical() {
-	int labels = labels();
+	final int labels = labels();
 	if (labels == 0)
 		return (new byte[0]);
-	byte [] b = new byte[name.length - offset(0)];
+	final byte [] b = new byte[name.length - offset(0)];
 	for (int i = 0, spos = offset(0), dpos = 0; i < labels; i++) {
 		int len = name[spos];
 		if (len > MAXLABEL)
@@ -776,7 +776,7 @@ toWire(DNSOutput out, Compression c, boolean canonical) {
 
 private final boolean
 equals(byte [] b, int bpos) {
-	int labels = labels();
+	final int labels = labels();
 	for (int i = 0, pos = offset(0); i < labels; i++) {
 		if (name[pos] != b[bpos])
 			return false;
@@ -802,7 +802,7 @@ equals(Object arg) {
 		return true;
 	if (arg == null || !(arg instanceof Name))
 		return false;
-	Name d = (Name) arg;
+	final Name d = (Name) arg;
 	if (d.hashcode == 0)
 		d.hashCode();
 	if (hashcode == 0)
@@ -843,9 +843,9 @@ compareTo(Name arg) {
 	if (this == arg)
 		return (0);
 
-	int labels = labels();
-	int alabels = arg.labels();
-	int compares = labels > alabels ? alabels : labels;
+	final int labels = labels();
+	final int alabels = arg.labels();
+	final int compares = labels > alabels ? alabels : labels;
 
 	for (int i = 1; i <= compares; i++) {
 		int start = offset(labels - i);

@@ -9,8 +9,8 @@ import org.xbill.DNS.utils.hexdump;
 
 class Client {
 
-protected long endTime;
-protected SelectionKey key;
+protected final long endTime;
+protected final SelectionKey key;
 
 /**
  * Packet logger, if available.
@@ -38,7 +38,7 @@ Client(SelectableChannel channel, long endTime) throws IOException {
 
 static protected void
 blockUntil(SelectionKey key, long endTime) throws IOException {
-	long timeout = endTime - System.currentTimeMillis();
+	final long timeout = endTime - System.currentTimeMillis();
 	int nkeys = 0;
 	if (timeout > 0)
 		nkeys = key.selector().select(timeout);

@@ -35,7 +35,7 @@ fromArray(byte [] array) {
 
 private static final byte []
 toArray(int addr) {
-	byte [] bytes = new byte[4];
+	final byte [] bytes = new byte[4];
 	bytes[0] = (byte) ((addr >>> 24) & 0xFF);
 	bytes[1] = (byte) ((addr >>> 16) & 0xFF);
 	bytes[2] = (byte) ((addr >>> 8) & 0xFF);

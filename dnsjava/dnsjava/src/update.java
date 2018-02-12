@@ -26,19 +26,19 @@ print(Object o) {
 
 public Message
 newMessage() {
-	Message msg = new Message();
+	final Message msg = new Message();
 	msg.getHeader().setOpcode(Opcode.UPDATE);
 	return msg;
 }
 
 public
 update(InputStream in) {
-	List<BufferedReader> inputs = new LinkedList();
-	List<InputStream> istreams = new LinkedList();
+	final List<BufferedReader> inputs = new LinkedList<BufferedReader>();
+	final List<InputStream> istreams = new LinkedList<InputStream>();
 
 	query = newMessage();
 
-	InputStreamReader isr = new InputStreamReader(in);
+	final InputStreamReader isr = new InputStreamReader(in);
 	BufferedReader br = new BufferedReader(isr);
 
 	inputs.add(br);
@@ -252,7 +252,7 @@ sendUpdate() throws IOException {
 		updzone = zone;
 		int dclass = defaultClass;
 		if (updzone == null) {
-			Record [] recs = query.getSectionArray(Section.UPDATE);
+			final Record [] recs = query.getSectionArray(Section.UPDATE);
 			for (int i = 0; i < recs.length; i++) {
 				if (updzone == null)
 					updzone = new Name(recs[i].getName(),
@@ -265,7 +265,7 @@ sendUpdate() throws IOException {
 				}
 			}
 		}
-		Record soa = Record.newRecord(updzone, Type.SOA, dclass);
+		final Record soa = Record.newRecord(updzone, Type.SOA, dclass);
 		query.addRecord(soa, Section.ZONE);
 	}
 
@@ -283,10 +283,10 @@ Record
 parseRR(Tokenizer st, int classValue, long TTLValue)
 throws IOException
 {
-	Name name = st.getName(zone);
+	final Name name = st.getName(zone);
 	long ttl;
-	int type;
-	Record record;
+	final int type;
+	final Record record;
 
 	String s = st.getString();
 
@@ -315,9 +315,9 @@ throws IOException
 void
 doRequire(Tokenizer st) throws IOException {
 	Tokenizer.Token token;
-	Name name;
-	Record record;
-	int type;
+	final Name name;
+	final Record record;
+	final int type;
 
 	name = st.getName(zone);
 	token = st.get();
@@ -342,10 +342,10 @@ doRequire(Tokenizer st) throws IOException {
 
 void
 doProhibit(Tokenizer st) throws IOException {
-	Tokenizer.Token token;
-	Name name;
-	Record record;
-	int type;
+	final Tokenizer.Token token;
+	final Name name;
+	final Record record;
+	final int type;
 
 	name = st.getName(zone);
 	token = st.get();
@@ -361,7 +361,7 @@ doProhibit(Tokenizer st) throws IOException {
 
 void
 doAdd(Tokenizer st) throws IOException {
-	Record record = parseRR(st, defaultClass, defaultTTL);
+	final Record record = parseRR(st, defaultClass, defaultTTL);
 	query.addRecord(record, Section.UPDATE);
 	print(record);
 }
@@ -370,9 +370,9 @@ void
 doDelete(Tokenizer st) throws IOException {
 	Tokenizer.Token token;
 	String s;
-	Name name;
-	Record record;
-	int type;
+	final Name name;
+	final Record record;
+	final int type;
 
 	name = st.getName(zone);
 	token = st.get();
@@ -401,14 +401,14 @@ doDelete(Tokenizer st) throws IOException {
 
 void
 doGlue(Tokenizer st) throws IOException {
-	Record record = parseRR(st, defaultClass, defaultTTL);
+	final Record record = parseRR(st, defaultClass, defaultTTL);
 	query.addRecord(record, Section.ADDITIONAL);
 	print(record);
 }
 
 void
 doQuery(Tokenizer st) throws IOException {
-	Record rec;
+	final Record rec;
 	Tokenizer.Token token;
 
 	Name name = null;
@@ -430,7 +430,7 @@ doQuery(Tokenizer st) throws IOException {
 	}
 
 	rec = Record.newRecord(name, type, dclass);
-	Message newQuery = Message.newQuery(rec);
+	final Message newQuery = Message.newQuery(rec);
 	if (res == null)
 		res = new SimpleResolver(server);
 	response = res.send(newQuery);
@@ -439,8 +439,8 @@ doQuery(Tokenizer st) throws IOException {
 
 void
 doFile(Tokenizer st, List<BufferedReader> inputs, List<InputStream> istreams) throws IOException {
-	String s = st.getString();
-	InputStream is;
+	final String s = st.getString();
+	final InputStream is;
 	try {
 		if (s.equals("-"))
 			is = System.in;
@@ -456,9 +456,9 @@ doFile(Tokenizer st, List<BufferedReader> inputs, List<InputStream> istreams) th
 
 void
 doLog(Tokenizer st) throws IOException {
-	String s = st.getString();
+	final String s = st.getString();
 	try {
-		FileOutputStream fos = new FileOutputStream(s);
+		final FileOutputStream fos = new FileOutputStream(s);
 		log = new PrintStream(fos);
 	}
 	catch (Exception e) {
@@ -468,30 +468,30 @@ doLog(Tokenizer st) throws IOException {
 
 boolean
 doAssert(Tokenizer st) throws IOException {
-	String field = st.getString();
-	String expected = st.getString();
+	final String field = st.getString();
+	final String expected = st.getString();
 	String value = null;
 	boolean flag = true;
-	int section;
+	final int section;
 
 	if (response == null) {
 		print("No response has been received");
 		return true;
 	}
 	if (field.equalsIgnoreCase("rcode")) {
-		int rcode = response.getHeader().getRcode();
+		final int rcode = response.getHeader().getRcode();
 		if (rcode != Rcode.value(expected)) {
 			value = Rcode.string(rcode);
 			flag = false;
 		}
 	}
 	else if (field.equalsIgnoreCase("serial")) {
-		Record [] answers = response.getSectionArray(Section.ANSWER);
+		final Record [] answers = response.getSectionArray(Section.ANSWER);
 		if (answers.length < 1 || !(answers[0] instanceof SOARecord))
 			print("Invalid response (no SOA)");
 		else {
-			SOARecord soa = (SOARecord) answers[0];
-			long serial = soa.getSerial();
+			final SOARecord soa = (SOARecord) answers[0];
+			final long serial = soa.getSerial();
 			if (serial != Long.parseLong(expected)) {
 				value = Long.toString(serial);
 				flag = false;
@@ -511,7 +511,7 @@ doAssert(Tokenizer st) throws IOException {
 			flag = false;
 	}
 	else if ((section = Section.value(field)) >= 0) {
-		int count = response.getHeader().getCount(section);
+		final int count = response.getHeader().getCount(section);
 		if (count != Integer.parseInt(expected)) {
 			value = Integer.toString(count);
 			flag = false;

@@ -23,8 +23,8 @@ public static class Alphabet {
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV=";
 }
 
-private String alphabet;
-private boolean padding, lowercase;
+private final String alphabet;
+private final boolean padding, lowercase;
 
 /**
  * Creates an object that can be used to do base32 conversions.
@@ -84,11 +84,11 @@ paddingToBlockLen(int padlen) {
  */
 public String
 toString(byte [] b) {
-	ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
+	final short s[] = new short[5];
+	final int t[] = new int[8];
 	for (int i = 0; i < (b.length + 4) / 5; i++) {
-		short s[] = new short[5];
-		int t[] = new int[8];
 
 		int blocklen = 5;
 		for (int j = 0; j < 5; j++) {
@@ -146,8 +146,8 @@ toString(byte [] b) {
  */
 public byte[]
 fromString(String str) {
-	ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	byte [] raw = str.getBytes();
+	final ByteArrayOutputStream bs = new ByteArrayOutputStream();
+	final byte [] raw = str.getBytes();
 	for (int i = 0; i < raw.length; i++)
 	{
 		char c = (char) raw[i];
@@ -165,14 +165,14 @@ fromString(String str) {
 			bs.write('=');
 	}
 
-	byte [] in = bs.toByteArray();
+	final byte [] in = bs.toByteArray();
 
 	bs.reset();
-	DataOutputStream ds = new DataOutputStream(bs);
+	final DataOutputStream ds = new DataOutputStream(bs);
 
+	final short[] s = new short[8];
+	final int[] t = new int[5];
 	for (int i = 0; i < in.length / 8; i++) {
-		short[] s = new short[8];
-		int[] t = new int[5];
 
 		int padlen = 8;
 		for (int j = 0; j < 8; j++) {

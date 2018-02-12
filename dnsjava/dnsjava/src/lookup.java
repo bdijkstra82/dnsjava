@@ -9,11 +9,11 @@ public class lookup {
 public static void
 printAnswer(String name, Lookup lookup) {
 	System.out.print(name + ":");
-	int result = lookup.getResult();
+	final int result = lookup.getResult();
 	if (result != Lookup.SUCCESSFUL)
 		System.out.print(" " + lookup.getErrorString());
 	System.out.println();
-	Name [] aliases = lookup.getAliases();
+	final Name [] aliases = lookup.getAliases();
 	if (aliases.length > 0) {
 		System.out.print("# aliases: ");
 		for (int i = 0; i < aliases.length; i++) {
@@ -24,7 +24,7 @@ printAnswer(String name, Lookup lookup) {
 		System.out.println();
 	}
 	if (lookup.getResult() == Lookup.SUCCESSFUL) {
-		Record [] answers = lookup.getAnswers();
+		final Record [] answers = lookup.getAnswers();
 		for (int i = 0; i < answers.length; i++)
 			System.out.println(answers[i]);
 	}

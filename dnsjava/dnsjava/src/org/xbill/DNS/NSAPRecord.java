@@ -30,7 +30,7 @@ checkAndConvertAddress(String address) {
 	if (!address.substring(0, 2).equalsIgnoreCase("0x")) {
 		return null;
 	}
-	ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+	final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 	boolean partial = false;
 	int current = 0;
 	for (int i = 2; i < address.length(); i++) {
@@ -82,7 +82,7 @@ rrFromWire(DNSInput in) throws IOException {
 @Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	String addr = st.getString();
+	final String addr = st.getString();
 	this.address = checkAndConvertAddress(addr);
 	if (this.address == null)
 		throw st.exception("invalid NSAP address " + addr);

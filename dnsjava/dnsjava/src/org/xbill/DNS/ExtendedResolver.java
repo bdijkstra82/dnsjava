@@ -18,32 +18,32 @@ public class ExtendedResolver implements Resolver {
 
 private static class Resolution implements ResolverListener {
 	Resolver [] resolvers;
-	int [] sent;
-	Object [] inprogress;
-	int retries;
+	final int [] sent;
+	final Object [] inprogress;
+	final int retries;
 	int outstanding;
 	boolean done;
-	Message query;
+	final Message query;
 	Message response;
 	Throwable thrown;
 	ResolverListener listener;
 
 	public
 	Resolution(ExtendedResolver eres, Message query) {
-		List<Resolver> l = eres.resolvers;
+		final List<Resolver> l = eres.resolvers;
 		resolvers = l.toArray (new Resolver[l.size()]);
 		if (eres.loadBalance) {
-			int nresolvers = resolvers.length;
+			final int nresolvers = resolvers.length;
 			/*
 			 * Note: this is not synchronized, since the
 			 * worst thing that can happen is a random
 			 * ordering, which is ok.
 			 */
-			int start = eres.lbStart++ % nresolvers;
+			final int start = eres.lbStart++ % nresolvers;
 			if (eres.lbStart > nresolvers)
 				eres.lbStart %= nresolvers;
 			if (start > 0) {
-				Resolver [] shuffle = new Resolver[nresolvers];
+				final Resolver [] shuffle = new Resolver[nresolvers];
 				for (int i = 0; i < nresolvers; i++) {
 					int pos = (i + start) % nresolvers;
 					shuffle[i] = resolvers[pos];
@@ -233,15 +233,10 @@ private static class Resolution implements ResolverListener {
 
 private static final int quantum = 5;
 
-private List<Resolver> resolvers;
+private final List<Resolver> resolvers = new ArrayList<Resolver>();
 private boolean loadBalance = false;
 private int lbStart = 0;
 private int retries = 3;
-
-private void
-init() {
-	resolvers = new ArrayList<Resolver>();
-}
 
 /**
  * Creates a new Extended Resolver.  The default ResolverConfig is used to
@@ -253,8 +248,7 @@ init() {
  */
 public
 ExtendedResolver() throws UnknownHostException {
-	init();
-	String [] servers = ResolverConfig.getCurrentConfig().servers();
+	final String [] servers = ResolverConfig.getCurrentConfig().servers();
 	if (servers != null) {
 		for (int i = 0; i < servers.length; i++) {
 			Resolver r = new SimpleResolver(servers[i]);
@@ -275,7 +269,6 @@ ExtendedResolver() throws UnknownHostException {
  */
 public
 ExtendedResolver(String [] servers) throws UnknownHostException {
-	init();
 	for (int i = 0; i < servers.length; i++) {
 		Resolver r = new SimpleResolver(servers[i]);
 		r.setTimeout(quantum);
@@ -291,7 +284,6 @@ ExtendedResolver(String [] servers) throws UnknownHostException {
  */
 public
 ExtendedResolver(Resolver [] res) throws UnknownHostException {
-	init();
 	for (int i = 0; i < res.length; i++)
 		resolvers.add(res[i]);
 }
@@ -354,7 +346,7 @@ setTimeout(int secs) {
  */
 public Message
 send(Message query) throws IOException {
-	Resolution res = new Resolution(this, query);
+	final Resolution res = new Resolution(this, query);
 	return res.start();
 }
 
@@ -370,7 +362,7 @@ send(Message query) throws IOException {
  */
 public Object
 sendAsync(final Message query, final ResolverListener listener) {
-	Resolution res = new Resolution(this, query);
+	final Resolution res = new Resolution(this, query);
 	res.startAsync(listener);
 	return res;
 }

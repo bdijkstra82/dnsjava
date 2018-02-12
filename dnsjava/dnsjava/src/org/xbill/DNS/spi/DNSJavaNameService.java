@@ -52,13 +52,13 @@ private boolean preferV6 = false;
  */
 protected
 DNSJavaNameService() {
-	String nameServers = System.getProperty(nsProperty);
-	String domain = System.getProperty(domainProperty);
-	String v6 = System.getProperty(v6Property);
+	final String nameServers = System.getProperty(nsProperty);
+	final String domain = System.getProperty(domainProperty);
+	final String v6 = System.getProperty(v6Property);
 
 	if (nameServers != null) {
-		StringTokenizer st = new StringTokenizer(nameServers, ",");
-		String [] servers = new String[st.countTokens()];
+		final StringTokenizer st = new StringTokenizer(nameServers, ",");
+		final String [] servers = new String[st.countTokens()];
 		int n = 0;
 		while (st.hasMoreTokens())
 			servers[n++] = st.nextToken();
@@ -93,16 +93,16 @@ invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getName().equals("getHostByAddr")) {
 			return this.getHostByAddr((byte[]) args[0]);
 		} else if (method.getName().equals("lookupAllHostAddr")) {
-			InetAddress[] addresses;
+			final InetAddress[] addresses;
 			addresses = this.lookupAllHostAddr((String) args[0]);
-			Class<?> returnType = method.getReturnType();
+			final Class<?> returnType = method.getReturnType();
 			if (returnType.equals(InetAddress[].class)) {
 				// method for Java >= 1.6
 				return addresses;
 			} else if (returnType.equals(byte[][].class)) {
 				// method for Java <= 1.5
-				int naddrs = addresses.length;
-				byte [][] byteAddresses = new byte[naddrs][];
+				final int naddrs = addresses.length;
+				final byte [][] byteAddresses = new byte[naddrs][];
 				byte [] addr;
 				for (int i = 0; i < naddrs; i++) {
 					addr = addresses[i].getAddress();
@@ -146,7 +146,7 @@ lookupAllHostAddr(String host) throws UnknownHostException {
 	if (records == null)
 		throw new UnknownHostException(host);
 
-	InetAddress[] array = new InetAddress[records.length];
+	final InetAddress[] array = new InetAddress[records.length];
 	for (int i = 0; i < records.length; i++) {
 		Record record = records[i];
 		if (record instanceof ARecord) {

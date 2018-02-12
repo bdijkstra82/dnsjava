@@ -59,7 +59,13 @@ private static final SetResponse unknown = new SetResponse(UNKNOWN);
 private static final SetResponse nxdomain = new SetResponse(NXDOMAIN);
 private static final SetResponse nxrrset = new SetResponse(NXRRSET);
 
-private int type;
+private int type;//XXX enum
+/*
+ * DELEGATION: RRset
+ * CNAME: 	   CNAMERecord
+ * DNAME:      DNAMERecord
+ * SUCCESSFUL: List<RRset>
+ */
 private Object data;
 
 private
@@ -92,7 +98,7 @@ ofType(int type) {
 		case CNAME:
 		case DNAME:
 		case SUCCESSFUL:
-			SetResponse sr = new SetResponse();
+			final SetResponse sr = new SetResponse();
 			sr.type = type;
 			sr.data = null;
 			return sr;
@@ -105,6 +111,7 @@ void
 addRRset(RRset rrset) {
 	if (data == null)
 		data = new ArrayList<Object>();
+	@SuppressWarnings("unchecked")
 	List<Object> l = (List<Object>) data;
 	l.add(rrset);
 }
@@ -156,7 +163,7 @@ public RRset []
 answers() {
 	if (type != SUCCESSFUL)
 		return null;
-	List<?> l = (List<?>) data;
+	final List<?> l = (List<?>) data;
 	return l.toArray(new RRset[l.size()]);
 }
 

@@ -25,11 +25,11 @@ base64() {}
  */
 public static String
 toString(byte [] b) {
-	ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
+	final short [] s = new short[3];
+	final short [] t = new short[4];
 	for (int i = 0; i < (b.length + 2) / 3; i++) {
-		short [] s = new short[3];
-		short [] t = new short[4];
 		for (int j = 0; j < 3; j++) {
 			if ((i * 3 + j) < b.length)
 				s[j] = (short) (b[i*3+j] & 0xFF);
@@ -68,8 +68,8 @@ toString(byte [] b) {
  */
 public static String
 formatString(byte [] b, int lineLength, String prefix, boolean addClose) {
-	String s = toString(b);
-	StringBuilder sb = new StringBuilder();
+	final String s = toString(b);
+	final StringBuilder sb = new StringBuilder();
 	for (int i = 0; i < s.length(); i += lineLength) {
 		sb.append (prefix);
 		if (i + lineLength >= s.length()) {
@@ -93,23 +93,23 @@ formatString(byte [] b, int lineLength, String prefix, boolean addClose) {
  */
 public static byte []
 fromString(String str) {
-	ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	byte [] raw = str.getBytes();
+	final ByteArrayOutputStream bs = new ByteArrayOutputStream();
+	final byte [] raw = str.getBytes();
 	for (int i = 0; i < raw.length; i++) {
 		if (!Character.isWhitespace((char)raw[i]))
 			bs.write(raw[i]);
 	}
-	byte [] in = bs.toByteArray();
+	final byte [] in = bs.toByteArray();
 	if (in.length % 4 != 0) {
 		return null;
 	}
 
 	bs.reset();
-	DataOutputStream ds = new DataOutputStream(bs);
+	final DataOutputStream ds = new DataOutputStream(bs);
 
+	final short [] s = new short[4];
+	final short [] t = new short[3];
 	for (int i = 0; i < (in.length + 3) / 4; i++) {
-		short [] s = new short[4];
-		short [] t = new short[3];
 
 		for (int j = 0; j < 4; j++)
 			s[j] = (short) Base64.indexOf(in[i*4+j]);

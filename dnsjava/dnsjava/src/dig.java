@@ -41,7 +41,7 @@ doAXFR(Message response) {
 		return;
 	}
 
-	Record [] records = response.getSectionArray(Section.ANSWER);
+	final Record [] records = response.getSectionArray(Section.ANSWER);
 	for (int i = 0; i < records.length; i++)
 		System.out.println(records[i]);
 
@@ -56,11 +56,11 @@ public static void
 main(String argv[]) throws IOException {
 	String server = null;
 	int arg;
-	Message query, response;
-	Record rec;
+	final Message query, response;
+	final Record rec;
 	SimpleResolver res = null;
 	boolean printQuery = false;
-	long startTime, endTime;
+	final long startTime, endTime;
 
 	if (argv.length < 1) {
 		usage();

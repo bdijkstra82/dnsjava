@@ -39,9 +39,9 @@ Options() {}
 
 public static void
 refresh() {
-	String s = System.getProperty("dnsjava.options");
+	final String s = System.getProperty("dnsjava.options");
 	if (s != null) {
-		StringTokenizer st = new StringTokenizer(s, ",");
+		final StringTokenizer st = new StringTokenizer(s, ",");
 		while (st.hasMoreTokens()) {
 			String token = st.nextToken();
 			int index = token.indexOf('=');
@@ -107,10 +107,10 @@ value(String option) {
  */
 public static int
 intValue(String option) {
-	String s = value(option);
+	final String s = value(option);
 	if (s != null) {
 		try {
-			int val = Integer.parseInt(s);
+			final int val = Integer.parseInt(s);
 			if (val > 0)
 				return (val);
 		}

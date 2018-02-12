@@ -108,7 +108,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	if (options != null) {
 		sb.append(options);
 		sb.append(" ");
@@ -136,19 +136,19 @@ getPayloadSize() {
  */
 public int
 getExtendedRcode() {
-	return (int)(ttl >>> 24);
+	return ((int)ttl) >>> 24;
 }
 
 /** Returns the highest supported EDNS version */
 public int
 getVersion() {
-	return (int)((ttl >>> 16) & 0xFF);
+	return ((int)ttl >>> 16) & 0xFF;
 }
 
 /** Returns the EDNS flags */
 public int
 getFlags() {
-	return (int)(ttl & 0xFFFF);
+	return ((int)ttl) & 0xFFFF;
 }
 
 @Override
@@ -156,7 +156,7 @@ void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	if (options == null)
 		return;
-	Iterator<EDNSOption> it = options.iterator();
+	final Iterator<EDNSOption> it = options.iterator();
 	while (it.hasNext()) {
 		EDNSOption option = it.next();
 		option.toWire(out);

@@ -65,11 +65,11 @@ rrFromWire(DNSInput in) throws IOException {
 @Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	String typeString = st.getString();
+	final String typeString = st.getString();
 	covered = Type.value(typeString);
 	if (covered < 0)
 		throw st.exception("Invalid type: " + typeString);
-	String algString = st.getString();
+	final String algString = st.getString();
 	alg = DNSSEC.Algorithm.value(algString);
 	if (alg < 0)
 		throw st.exception("Invalid algorithm: " + algString);
@@ -86,7 +86,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append (Type.string(covered));
 	sb.append (" ");
 	sb.append (alg);

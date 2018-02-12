@@ -45,7 +45,7 @@ ClientSubnetOption() {
 
 private static int
 checkMaskLength(String field, int family, int val) {
-	int max = Address.addressLength(family) * 8;
+	final int max = Address.addressLength(family) * 8;
 	if (val < 0 || val > max)
 		throw new IllegalArgumentException("\"" + field + "\" " + val +
 						   " must be in the range " +
@@ -133,12 +133,12 @@ optionFromWire(DNSInput in) throws WireParseException {
 		throw new WireParseException("invalid scope netmask");
 
 	// Read the truncated address
-	byte [] addr = in.readByteArray();
+	final byte [] addr = in.readByteArray();
 	if (addr.length != (sourceNetmask + 7) / 8)
 		throw new WireParseException("invalid address");
 
 	// Convert it to a full length address.
-	byte [] fulladdr = new byte[Address.addressLength(family)];
+	final byte [] fulladdr = new byte[Address.addressLength(family)];
 	System.arraycopy(addr, 0, fulladdr, 0, addr.length);
 
 	try {
@@ -164,7 +164,7 @@ optionToWire(DNSOutput out) {
 @Override
 String
 optionToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(address.getHostAddress());
 	sb.append("/");
 	sb.append(sourceNetmask);

@@ -21,7 +21,7 @@ private static final char [] hex = "0123456789ABCDEF".toCharArray();
  */
 public static String
 dump(String description, byte [] b, int offset, int length) {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 
 	sb.append(length + "b");
 	if (description != null)
@@ -32,7 +32,7 @@ dump(String description, byte [] b, int offset, int length) {
 	prefixlen = (prefixlen + 8) & ~ 7;
 	sb.append('\t');
 
-	int perline = (80 - prefixlen) / 3;
+	final int perline = (80 - prefixlen) / 3;
 	for (int i = 0; i < length; i++) {
 		if (i != 0 && i % perline == 0) {
 			sb.append('\n');

@@ -61,7 +61,7 @@ need(int n) {
 	if (newsize < pos + n) {
 		newsize = pos + n;
 	}
-	byte [] newarray = new byte[newsize];
+	final byte [] newarray = new byte[newsize];
 	System.arraycopy(array, 0, newarray, 0, pos);
 	array = newarray;
 }
@@ -195,7 +195,7 @@ writeCountedString(byte [] s) {
  */
 public byte []
 toByteArray() {
-	byte [] out = new byte[pos];
+	final byte [] out = new byte[pos];
 	System.arraycopy(array, 0, out, 0, pos);
 	return out;
 }

@@ -13,15 +13,20 @@ package org.xbill.DNS;
 public class Compression {
 
 private static class Entry {
-	Name name;
-	int pos;
-	Entry next;
+	final Name name;
+	final int pos;
+	final Entry next;
+	public Entry(Name name, int pos, Entry next) {
+		this.name = name;
+		this.pos = pos;
+		this.next = next;
+	}
 }
 
 private static final int TABLE_SIZE = 17;
 private static final int MAX_POINTER = 0x3FFF;
-private Entry [] table;
-private boolean verbose = Options.check("verbosecompression");
+private final Entry [] table;
+private final boolean verbose = Options.check("verbosecompression");
 
 /**
  * Creates a new Compression object.
@@ -40,11 +45,8 @@ public void
 add(int pos, Name name) {
 	if (pos > MAX_POINTER)
 		return;
-	int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
-	Entry entry = new Entry();
-	entry.name = name;
-	entry.pos = pos;
-	entry.next = table[row];
+	final int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+	final Entry entry = new Entry(name, pos, table[row]);
 	table[row] = entry;
 	if (verbose)
 		System.err.println("Adding " + name + " at " + pos);
@@ -58,7 +60,7 @@ add(int pos, Name name) {
  */
 public int
 get(Name name) {
-	int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+	final int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
 	int pos = -1;
 	for (Entry entry = table[row]; entry != null; entry = entry.next) {
 		if (entry.name.equals(name))

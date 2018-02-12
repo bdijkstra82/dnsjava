@@ -43,7 +43,7 @@ public static class Protocol {
 	/** Any protocol */
 	public static final int ANY = 255;
 
-	private static Mnemonic protocols = new Mnemonic("KEY protocol",
+	private static final Mnemonic protocols = new Mnemonic("KEY protocol",
 							 Mnemonic.CASE_UPPER);
 
 	static {
@@ -184,7 +184,7 @@ public static class Flags {
 	/** Signatory value 15 */
 	public static final int SIG15 = 15;
 
-	private static Mnemonic flags = new Mnemonic("KEY flags",
+	private static final Mnemonic flags = new Mnemonic("KEY flags",
 						      Mnemonic.CASE_UPPER);
 
 	static {
@@ -241,7 +241,7 @@ public static class Flags {
 			return -1;
 		} catch (NumberFormatException e) {
 		}
-		StringTokenizer st = new StringTokenizer(s, "|");
+		final StringTokenizer st = new StringTokenizer(s, "|");
 		value = 0;
 		while (st.hasMoreTokens()) {
 			int val = flags.getValue(st.nextToken());
@@ -332,15 +332,15 @@ KEYRecord(Name name, int dclass, long ttl, int flags, int proto, int alg,
 @Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	String flagString = st.getIdentifier();
+	final String flagString = st.getIdentifier();
 	flags = Flags.value(flagString);
 	if (flags < 0)
 		throw st.exception("Invalid flags: " + flagString);
-	String protoString = st.getIdentifier();
+	final String protoString = st.getIdentifier();
 	proto = Protocol.value(protoString);
 	if (proto < 0)
 		throw st.exception("Invalid protocol: " + protoString);
-	String algString = st.getIdentifier();
+	final String algString = st.getIdentifier();
 	alg = DNSSEC.Algorithm.value(algString);
 	if (alg < 0)
 		throw st.exception("Invalid algorithm: " + algString);

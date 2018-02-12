@@ -31,8 +31,8 @@ import org.xbill.DNS.utils.*;
 
 public class Tokenizer {
 
-private static String delim = " \t\n;()\"";
-private static String quotes = "\"";
+private static final String delim = " \t\n;()\"";
+private static final String quotes = "\"";
 
 /** End of file */
 public static final int EOF		= 0;
@@ -52,13 +52,13 @@ public static final int QUOTED_STRING	= 4;
 /** A comment; only returned when wantComment is set */
 public static final int COMMENT		= 5;
 
-private PushbackInputStream is;
+private final PushbackInputStream is;
 private boolean ungottenToken;
 private int multiline;
 private boolean quoting;
 private String delimiters;
 private Token current;
-private StringBuilder sb;
+private final StringBuilder sb;
 private boolean wantClose;
 
 private String filename;
@@ -125,7 +125,7 @@ public static class Token {
 }
 
 static class TokenizerException extends TextParseException {
-	String message;
+	final String message;
 
 	public
 	TokenizerException(String filename, int line, String message) {
@@ -250,7 +250,7 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 			return current;
 		}
 	}
-	int skipped = skipWhitespace();
+	final int skipped = skipWhitespace();
 	if (skipped > 0 && wantWhitespace)
 		return current.set(WHITESPACE, null);
 	type = IDENTIFIER;
@@ -370,7 +370,7 @@ unget() {
  */
 public String
 getString() throws IOException {
-	Token next = get();
+	final Token next = get();
 	if (!next.isString()) {
 		throw exception("expected a string");
 	}
@@ -379,7 +379,7 @@ getString() throws IOException {
 
 private String
 _getIdentifier(String expected) throws IOException {
-	Token next = get();
+	final Token next = get();
 	if (next.type != IDENTIFIER)
 		throw exception("expected " + expected);
 	return next.value;
@@ -405,7 +405,7 @@ getIdentifier() throws IOException {
  */
 public long
 getLong() throws IOException {
-	String next = _getIdentifier("an integer");
+	final String next = _getIdentifier("an integer");
 	if (!Character.isDigit(next.charAt(0)))
 		throw exception("expected an integer");
 	try {
@@ -425,7 +425,7 @@ getLong() throws IOException {
  */
 public long
 getUInt32() throws IOException {
-	long l = getLong();
+	final long l = getLong();
 	if (l < 0 || l > 0xFFFFFFFFL)
 		throw exception("expected an 32 bit unsigned integer");
 	return l;
@@ -441,7 +441,7 @@ getUInt32() throws IOException {
  */
 public int
 getUInt16() throws IOException {
-	long l = getLong();
+	final long l = getLong();
 	if (l < 0 || l > 0xFFFFL)
 		throw exception("expected an 16 bit unsigned integer");
 	return (int) l;
@@ -457,7 +457,7 @@ getUInt16() throws IOException {
  */
 public int
 getUInt8() throws IOException {
-	long l = getLong();
+	final long l = getLong();
 	if (l < 0 || l > 0xFFL)
 		throw exception("expected an 8 bit unsigned integer");
 	return (int) l;
@@ -472,7 +472,7 @@ getUInt8() throws IOException {
  */
 public long
 getTTL() throws IOException {
-	String next = _getIdentifier("a TTL value");
+	final String next = _getIdentifier("a TTL value");
 	try {
 		return TTL.parseTTL(next);
 	}
@@ -490,7 +490,7 @@ getTTL() throws IOException {
  */
 public long
 getTTLLike() throws IOException {
-	String next = _getIdentifier("a TTL-like value");
+	final String next = _getIdentifier("a TTL-like value");
 	try {
 		return TTL.parse(next, false);
 	}
@@ -511,7 +511,7 @@ getTTLLike() throws IOException {
  */
 public Name
 getName(Name origin) throws IOException {
-	String next = _getIdentifier("a name");
+	final String next = _getIdentifier("a name");
 	try {
 		Name name = Name.fromString(next, origin);
 		if (!name.isAbsolute())
@@ -535,8 +535,8 @@ getName(Name origin) throws IOException {
  */
 public byte []
 getAddressBytes(int family) throws IOException {
-	String next = _getIdentifier("an address");
-	byte [] bytes = Address.toByteArray(next, family);
+	final String next = _getIdentifier("an address");
+	final byte [] bytes = Address.toByteArray(next, family);
 	if (bytes == null)
 		throw exception("Invalid address: " + next);
 	return bytes;
@@ -552,7 +552,7 @@ getAddressBytes(int family) throws IOException {
  */
 public InetAddress
 getAddress(int family) throws IOException {
-	String next = _getIdentifier("an address");
+	final String next = _getIdentifier("an address");
 	try {
 		return Address.getByAddress(next, family);
 	}
@@ -568,7 +568,7 @@ getAddress(int family) throws IOException {
  */
 public void
 getEOL() throws IOException {
-	Token next = get();
+	final Token next = get();
 	if (next.type != EOL && next.type != EOF) {
 		throw exception("expected EOL or EOF");
 	}
@@ -606,7 +606,7 @@ remainingStrings() throws IOException {
  */
 public byte []
 getBase64(boolean required) throws IOException {
-	String s = remainingStrings();
+	final String s = remainingStrings();
 	final byte[] array;
 	if (s == null) {
 		if (required)
@@ -645,7 +645,7 @@ getBase64() throws IOException {
  */
 public byte []
 getHex(boolean required) throws IOException {
-	String s = remainingStrings();
+	final String s = remainingStrings();
 	final byte[] array;
 	if (s == null) {
 		if (required)
@@ -680,8 +680,8 @@ getHex() throws IOException {
  */
 public byte []
 getHexString() throws IOException {
-	String next = _getIdentifier("a hex string");
-	byte [] array = base16.fromString(next);
+	final String next = _getIdentifier("a hex string");
+	final byte [] array = base16.fromString(next);
 	if (array == null)
 		throw exception("invalid hex encoding");
 	return array;
@@ -696,8 +696,8 @@ getHexString() throws IOException {
  */
 public byte []
 getBase32String(base32 b32) throws IOException {
-	String next = _getIdentifier("a base32 string");
-	byte [] array = b32.fromString(next);
+	final String next = _getIdentifier("a base32 string");
+	final byte [] array = b32.fromString(next);
 	if (array == null)
 		throw exception("invalid base32 encoding");
 	return array;

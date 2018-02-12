@@ -20,7 +20,7 @@ private File file;
 private Record last = null;
 private long defaultTTL;
 private Master included = null;
-private Tokenizer st;
+private final Tokenizer st;
 private int currentType;
 private int currentDClass;
 private long currentTTL;
@@ -188,7 +188,7 @@ parseUInt32(String s) {
 
 private void
 startGenerate() throws IOException {
-	String s;
+	final String s;
 	int n;
 
 	// The first field is of the form start-end[/step]
@@ -197,7 +197,7 @@ startGenerate() throws IOException {
 	n = s.indexOf("-");
 	if (n < 0)
 		throw st.exception("Invalid $GENERATE range specifier: " + s);
-	String startstr = s.substring(0, n);
+	final String startstr = s.substring(0, n);
 	String endstr = s.substring(n + 1);
 	String stepstr = null;
 	n = endstr.indexOf("/");
@@ -205,9 +205,9 @@ startGenerate() throws IOException {
 		stepstr = endstr.substring(n + 1);
 		endstr = endstr.substring(0, n);
 	}
-	long start = parseUInt32(startstr);
-	long end = parseUInt32(endstr);
-	long step;
+	final long start = parseUInt32(startstr);
+	final long end = parseUInt32(endstr);
+	final long step;
 	if (stepstr != null)
 		step = parseUInt32(stepstr);
 	else
@@ -216,7 +216,7 @@ startGenerate() throws IOException {
 		throw st.exception("Invalid $GENERATE range specifier: " + s);
 
 	// The next field is the name specification.
-	String nameSpec = st.getIdentifier();
+	final String nameSpec = st.getIdentifier();
 
 	// Then the ttl/class/type, in the same form as a normal record.
 	// Only some types are supported.
@@ -226,7 +226,7 @@ startGenerate() throws IOException {
 				   Type.string(currentType) + " records");
 
 	// Next comes the rdata specification.
-	String rdataSpec = st.getIdentifier();
+	final String rdataSpec = st.getIdentifier();
 
 	// That should be the end.  However, we don't want to move past the
 	// line yet, so put back the EOL after reading it.
@@ -275,13 +275,13 @@ _nextRecord() throws IOException {
 	String s;
 
 	if (included != null) {
-		Record rec = included.nextRecord();
+		final Record rec = included.nextRecord();
 		if (rec != null)
 			return rec;
 		included = null;
 	}
 	if (generator != null) {
-		Record rec = nextGenerated();
+		final Record rec = nextGenerated();
 		if (rec != null)
 			return rec;
 		endGenerate();

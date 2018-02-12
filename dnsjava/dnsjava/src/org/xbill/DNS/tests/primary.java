@@ -33,19 +33,19 @@ main(String [] args) throws Exception {
 		arg++;
 	}
 
-	Name origin = Name.fromString(args[arg++], Name.root);
-	String file = args[arg++];
+	final Name origin = Name.fromString(args[arg++], Name.root);
+	final String file = args[arg++];
 
-	long start = System.currentTimeMillis();
-	Zone zone = new Zone(origin, file);
-	long end = System.currentTimeMillis();
+	final long start = System.currentTimeMillis();
+	final Zone zone = new Zone(origin, file);
+	final long end = System.currentTimeMillis();
 	if (axfr) {
-		Iterator<RRset> it = zone.AXFR();
+		final Iterator<RRset> it = zone.AXFR();
 		while (it.hasNext()) {
 			System.out.println(it.next());
 		}
 	} else if (iterator) {
-		Iterator<RRset> it = zone.iterator();
+		final Iterator<RRset> it = zone.iterator();
 		while (it.hasNext()) {
 			System.out.println(it.next());
 		}

@@ -13,8 +13,8 @@ import java.util.*;
 
 public class Update extends Message {
 
-private Name origin;
-private int dclass;
+private final Name origin;
+private final int dclass;
 
 /**
  * Creates an update message.
@@ -27,8 +27,8 @@ Update(Name zone, int dclass) {
 	if (!zone.isAbsolute())
 		throw new RelativeNameException(zone);
 	DClass.check(dclass);
-        getHeader().setOpcode(Opcode.UPDATE);
-	Record soa = Record.newRecord(zone, Type.SOA, DClass.IN);
+    getHeader().setOpcode(Opcode.UPDATE);
+    final Record soa = Record.newRecord(zone, Type.SOA, DClass.IN);
 	addRecord(soa, Section.QUESTION);
 	this.origin = zone;
 	this.dclass = dclass;

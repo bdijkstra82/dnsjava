@@ -89,7 +89,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(order);
 	sb.append(" ");
 	sb.append(preference);

@@ -22,7 +22,7 @@ private static final long serialVersionUID = -3270249290171239695L;
  * rrs contains both normal and RRSIG records, with the RRSIG records
  * at the end.
  */
-private List<Record> rrs;
+private final List<Record> rrs;
 private short nsigs;
 private short position;
 
@@ -71,7 +71,7 @@ addRR(Record r) {
 		safeAddRR(r);
 		return;
 	}
-	Record first = first();
+	final Record first = first();
 	if (!r.sameRRset(first))
 		throw new IllegalArgumentException("record does not match " +
 						   "rrset");
@@ -111,7 +111,7 @@ clear() {
 
 private synchronized Iterator<Record>
 iterator(boolean data, boolean cycle) {
-	int size, start, total;
+	final int size, start, total;
 
 	total = rrs.size();
 
@@ -134,7 +134,7 @@ iterator(boolean data, boolean cycle) {
 		start = total - nsigs;
 	}
 
-	List<Record> list = new ArrayList<Record>(size);
+	final List<Record> list = new ArrayList<Record>(size);
 	if (data) {
 		list.addAll(rrs.subList(start, size));
 		if (start != 0)
@@ -223,7 +223,7 @@ first() {
 
 private static String
 iteratorToString(Iterator<Record> it) {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	while (it.hasNext()) {
 		Record rr = it.next();
 		sb.append("[");
@@ -241,7 +241,7 @@ public String
 toString() {
 	if (rrs.size() == 0)
 		return ("{empty}");
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append("{ ");
 	sb.append(getName() + " ");
 	sb.append(getTTL() + " ");

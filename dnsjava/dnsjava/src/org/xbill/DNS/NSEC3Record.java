@@ -108,13 +108,13 @@ rrFromWire(DNSInput in) throws IOException {
 	flags = in.readU8();
 	iterations = in.readU16();
 
-	int salt_length = in.readU8();
+	final int salt_length = in.readU8();
 	if (salt_length > 0)
 		salt = in.readByteArray(salt_length);
 	else
 		salt = null;
 
-	int next_length = in.readU8();
+	final int next_length = in.readU8();
 	next = in.readByteArray(next_length);
 	types = new TypeBitmap(in);
 }
@@ -144,7 +144,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 	flags = st.getUInt8();
 	iterations = st.getUInt16();
 
-	String s = st.getString();
+	final String s = st.getString();
 	if (s.equals("-"))
 		salt = null;
 	else {
@@ -162,7 +162,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(hashAlg);
 	sb.append(' ');
 	sb.append(flags);
@@ -232,7 +232,7 @@ static byte []
 hashName(Name name, int hashAlg, int iterations, byte [] salt)
 throws NoSuchAlgorithmException
 {
-	MessageDigest digest;
+	final MessageDigest digest;
 	switch (hashAlg) {
 	case Digest.SHA1:
 		digest = MessageDigest.getInstance("sha-1");

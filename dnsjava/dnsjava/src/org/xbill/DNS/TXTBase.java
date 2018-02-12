@@ -32,7 +32,7 @@ TXTBase(Name name, int type, int dclass, long ttl, List<String> strings) {
 	if (strings == null)
 		throw new IllegalArgumentException("strings must not be null");
 	this.strings = new ArrayList<byte[]>(strings.size());
-	Iterator<String> it = strings.iterator();
+	final Iterator<String> it = strings.iterator();
 	try {
 		while (it.hasNext()) {
 			String s = it.next();
@@ -82,8 +82,8 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
-	Iterator<byte[]> it = strings.iterator();
+	final StringBuilder sb = new StringBuilder();
+	final Iterator<byte[]> it = strings.iterator();
 	while (it.hasNext()) {
 		byte [] array = it.next();
 		sb.append(byteArrayToString(array, true));
@@ -99,7 +99,7 @@ rrToString() {
  */
 public List<String>
 getStrings() {
-	List<String> list = new ArrayList<String>(strings.size());
+	final List<String> list = new ArrayList<String>(strings.size());
 	for (int i = 0; i < strings.size(); i++)
 		list.add(byteArrayToString(strings.get(i), false));
 	return list;
@@ -117,7 +117,7 @@ getStringsAsByteArrays() {
 @Override
 void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
-	Iterator<byte[]> it = strings.iterator();
+	final Iterator<byte[]> it = strings.iterator();
 	while (it.hasNext()) {
 		byte [] b = it.next();
 		out.writeCountedString(b);

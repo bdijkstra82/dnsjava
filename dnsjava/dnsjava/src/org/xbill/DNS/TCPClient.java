@@ -16,13 +16,13 @@ TCPClient(long endTime) throws IOException {
 
 void
 bind(SocketAddress addr) throws IOException {
-	SocketChannel channel = (SocketChannel) key.channel();
+	final SocketChannel channel = (SocketChannel) key.channel();
 	channel.socket().bind(addr);
 }
 
 void
 connect(SocketAddress addr) throws IOException {
-	SocketChannel channel = (SocketChannel) key.channel();
+	final SocketChannel channel = (SocketChannel) key.channel();
 	if (channel.connect(addr))
 		return;
 	key.interestOps(SelectionKey.OP_CONNECT);
@@ -40,13 +40,13 @@ connect(SocketAddress addr) throws IOException {
 
 void
 send(byte [] data) throws IOException {
-	SocketChannel channel = (SocketChannel) key.channel();
+	final SocketChannel channel = (SocketChannel) key.channel();
 	verboseLog("TCP write", channel.socket().getLocalSocketAddress(),
 		   channel.socket().getRemoteSocketAddress(), data);
-	byte [] lengthArray = new byte[2];
+	final byte [] lengthArray = new byte[2];
 	lengthArray[0] = (byte)(data.length >>> 8);
 	lengthArray[1] = (byte)(data.length & 0xFF);
-	ByteBuffer [] buffers = new ByteBuffer[2];
+	final ByteBuffer [] buffers = new ByteBuffer[2];
 	buffers[0] = ByteBuffer.wrap(lengthArray);
 	buffers[1] = ByteBuffer.wrap(data);
 	int nsent = 0;
@@ -73,10 +73,10 @@ send(byte [] data) throws IOException {
 
 private byte []
 _recv(int length) throws IOException {
-	SocketChannel channel = (SocketChannel) key.channel();
+	final SocketChannel channel = (SocketChannel) key.channel();
 	int nrecvd = 0;
-	byte [] data = new byte[length];
-	ByteBuffer buffer = ByteBuffer.wrap(data);
+	final byte [] data = new byte[length];
+	final ByteBuffer buffer = ByteBuffer.wrap(data);
 	key.interestOps(SelectionKey.OP_READ);
 	try {
 		while (nrecvd < length) {
@@ -101,10 +101,10 @@ _recv(int length) throws IOException {
 
 byte []
 recv() throws IOException {
-	byte [] buf = _recv(2);
-	int length = ((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF);
-	byte [] data = _recv(length);
-	SocketChannel channel = (SocketChannel) key.channel();
+	final byte [] buf = _recv(2);
+	final int length = ((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF);
+	final byte [] data = _recv(length);
+	final SocketChannel channel = (SocketChannel) key.channel();
 	verboseLog("TCP read", channel.socket().getLocalSocketAddress(),
 		   channel.socket().getRemoteSocketAddress(), data);
 	return data;
@@ -114,7 +114,7 @@ static byte []
 sendrecv(SocketAddress local, SocketAddress remote, byte [] data, long endTime)
 throws IOException
 {
-	TCPClient client = new TCPClient(endTime);
+	final TCPClient client = new TCPClient(endTime);
 	try {
 		if (local != null)
 			client.bind(local);

@@ -153,7 +153,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(precedence);
 	sb.append(" ");
 	sb.append(gatewayType);
@@ -221,11 +221,11 @@ rrToWire(DNSOutput out, Compression c, boolean canonical) {
 		break;
 	case Gateway.IPv4:
 	case Gateway.IPv6:
-		InetAddress gatewayAddr = (InetAddress) gateway;
+		final InetAddress gatewayAddr = (InetAddress) gateway;
 		out.writeByteArray(gatewayAddr.getAddress());
 		break;
 	case Gateway.Name:
-		Name gatewayName = (Name) gateway;
+		final Name gatewayName = (Name) gateway;
 		gatewayName.toWire(out, null, canonical);
 		break;
 	}

@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 public class DNSInput {
 
-private ByteBuffer byteBuffer;
+private final ByteBuffer byteBuffer;
 private int saved_pos;
 private int saved_end;
 
@@ -205,7 +205,7 @@ readByteArray(byte [] b, int off, int len) throws WireParseException {
 public byte []
 readByteArray(int len) throws WireParseException {
 	require(len);
-	byte [] out = new byte[len];
+	final byte [] out = new byte[len];
 	byteBuffer.get(out, 0, len);
 	return out;
 }
@@ -217,8 +217,8 @@ readByteArray(int len) throws WireParseException {
  */
 public byte []
 readByteArray() {
-	int len = remaining();
-	byte [] out = new byte[len];
+	final int len = remaining();
+	final byte [] out = new byte[len];
 	byteBuffer.get(out, 0, len);
 	return out;
 }
@@ -231,7 +231,7 @@ readByteArray() {
  */
 public byte []
 readCountedString() throws WireParseException {
-	int len = readU8();
+	final int len = readU8();
 	return readByteArray(len);
 }
 

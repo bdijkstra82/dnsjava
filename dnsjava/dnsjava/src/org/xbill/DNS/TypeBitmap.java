@@ -15,7 +15,7 @@ final class TypeBitmap implements Serializable {
 
 private static final long serialVersionUID = -125354057735389003L;
 
-private TreeSet<Integer> types;
+private final TreeSet<Integer> types;
 
 private
 TypeBitmap() {
@@ -77,7 +77,7 @@ TypeBitmap(Tokenizer st) throws IOException {
 
 public int []
 toArray() {
-	int [] array = new int[types.size()];
+	final int [] array = new int[types.size()];
 	int n = 0;
 	for (Iterator<Integer> it = types.iterator(); it.hasNext(); )
 		array[n++] = it.next().intValue();
@@ -87,7 +87,7 @@ toArray() {
 @Override
 public String
 toString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	for (Iterator<Integer> it = types.iterator(); it.hasNext(); ) {
 		int t = it.next().intValue();
 		sb.append(Type.string(t));
@@ -99,9 +99,9 @@ toString() {
 
 private static void
 mapToWire(DNSOutput out, TreeSet<Integer> map, int mapbase) {
-	int arraymax = (map.last().intValue()) & 0xFF;
-	int arraylength = (arraymax / 8) + 1;
-	int [] array = new int[arraylength];
+	final int arraymax = (map.last().intValue()) & 0xFF;
+	final int arraylength = (arraymax / 8) + 1;
+	final int [] array = new int[arraylength];
 	out.writeU8(mapbase);
 	out.writeU8(arraylength);
 	for (Iterator<Integer> it = map.iterator(); it.hasNext(); ) {
@@ -118,7 +118,7 @@ toWire(DNSOutput out) {
 		return;
 
 	int mapbase = -1;
-	TreeSet<Integer> map = new TreeSet<Integer>();
+	final TreeSet<Integer> map = new TreeSet<Integer>();
 
 	for (Iterator<Integer> it = types.iterator(); it.hasNext(); ) {
 		int t = it.next().intValue();

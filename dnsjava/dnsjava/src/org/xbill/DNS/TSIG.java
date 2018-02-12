@@ -49,7 +49,7 @@ public static final Name HMAC_SHA512 = Name.fromConstantString("hmac-sha512.");
 private static Map<Name, String> algMap;
 
 static {
-	Map<Name, String> out = new HashMap<Name, String>();
+	final Map<Name, String> out = new HashMap<Name, String>();
 	out.put(HMAC_MD5, "HmacMD5");
 	out.put(HMAC_SHA1, "HmacSHA1");
 	out.put(HMAC_SHA224, "HmacSHA224");
@@ -62,7 +62,7 @@ static {
 public static Name
 algorithmToName(String alg)
 {
-	Iterator<Entry<Name, String>> it = algMap.entrySet().iterator();
+	final Iterator<Entry<Name, String>> it = algMap.entrySet().iterator();
 	while (it.hasNext()) {
 		Entry<Name, String> entry = it.next();
 		if (alg.equalsIgnoreCase(entry.getValue()))
@@ -73,7 +73,7 @@ algorithmToName(String alg)
 public static String
 nameToAlgorithm(Name name)
 {
-	String alg = algMap.get(name);
+	final String alg = algMap.get(name);
 	if (alg != null)
 		return alg;
 	throw new IllegalArgumentException("Unknown algorithm");
@@ -85,8 +85,8 @@ nameToAlgorithm(Name name)
  */
 public static final short FUDGE		= 300;
 
-private Name name, alg;
-private Mac hmac;
+private final Name name, alg;
+private final Mac hmac;
 
 /**
  * Verifies the data (computes the secure hash and compares it to the input)
@@ -118,8 +118,9 @@ verify(Mac mac, byte [] signature, boolean truncation_ok) {
         return Arrays.equals(signature, expected);
 }
 
-private void
+private static Mac
 init_hmac(String macAlgorithm, SecretKey key) {
+	final Mac hmac;
 	try {
 		hmac = Mac.getInstance(macAlgorithm);
 		hmac.init(key);
@@ -129,6 +130,7 @@ init_hmac(String macAlgorithm, SecretKey key) {
 						   "exception setting up " +
 						   "HMAC.");
 	}
+	return hmac;
 }
 
 /**
@@ -141,9 +143,9 @@ public
 TSIG(Name algorithm, Name name, byte [] keyBytes) {
 	this.name = name;
 	this.alg = algorithm;
-	String macAlgorithm = nameToAlgorithm(algorithm);
-	SecretKey key = new SecretKeySpec(keyBytes, macAlgorithm);
-	init_hmac(macAlgorithm, key);
+	final String macAlgorithm = nameToAlgorithm(algorithm);
+	final SecretKey key = new SecretKeySpec(keyBytes, macAlgorithm);
+	hmac = init_hmac(macAlgorithm, key);
 }
 
 /**
@@ -156,8 +158,8 @@ public
 TSIG(Name algorithm, Name name, SecretKey key) {
 	this.name = name;
 	this.alg = algorithm;
-	String macAlgorithm = nameToAlgorithm(algorithm);
-	init_hmac(macAlgorithm, key);
+	final String macAlgorithm = nameToAlgorithm(algorithm);
+	hmac = init_hmac(macAlgorithm, key);
 }
 
 /**
@@ -194,7 +196,7 @@ TSIG(Name name, byte [] key) {
  */
 public
 TSIG(Name algorithm, String name, String key) {
-	byte[] keyBytes = base64.fromString(key);
+	final byte[] keyBytes = base64.fromString(key);
 	if (keyBytes == null)
 		throw new IllegalArgumentException("Invalid TSIG key string");
 	try {
@@ -204,8 +206,8 @@ TSIG(Name algorithm, String name, String key) {
 		throw new IllegalArgumentException("Invalid TSIG key name");
 	}
 	this.alg = algorithm;
-	String macAlgorithm = nameToAlgorithm(this.alg);
-	init_hmac(macAlgorithm, new SecretKeySpec(keyBytes, macAlgorithm));
+	final String macAlgorithm = nameToAlgorithm(this.alg);
+	hmac = init_hmac(macAlgorithm, new SecretKeySpec(keyBytes, macAlgorithm));
 }
 
 /**
@@ -273,7 +275,7 @@ fromString(String str) {
  */
 public TSIGRecord
 generate(Message m, byte [] b, int error, TSIGRecord old) {
-	Date timeSigned;
+	final Date timeSigned;
 	if (error != Rcode.BADTIME)
 		timeSigned = new Date();
 	else
@@ -290,7 +292,7 @@ generate(Message m, byte [] b, int error, TSIGRecord old) {
 		fudge = FUDGE;
 
 	if (old != null) {
-		DNSOutput out = new DNSOutput();
+		final DNSOutput out = new DNSOutput();
 		out.writeU16(old.getSignature().length);
 		if (signing) {
 			hmac.update(out.toByteArray());
@@ -320,13 +322,13 @@ generate(Message m, byte [] b, int error, TSIGRecord old) {
 	if (signing)
 		hmac.update(out.toByteArray());
 
-	byte [] signature;
+	final byte [] signature;
 	if (signing)
 		signature = hmac.doFinal();
 	else
 		signature = new byte[0];
 
-	byte [] other = null;
+	final byte [] other;
 	if (error == Rcode.BADTIME) {
 		out = new DNSOutput();
 		time = new Date().getTime() / 1000;
@@ -335,7 +337,8 @@ generate(Message m, byte [] b, int error, TSIGRecord old) {
 		out.writeU16(timeHigh);
 		out.writeU32(timeLow);
 		other = out.toByteArray();
-	}
+	} else
+		other = null;
 
 	return (new TSIGRecord(name, DClass.ANY, 0, alg, timeSigned, fudge,
 			       signature, m.getHeader().getID(), error, other));
@@ -350,7 +353,7 @@ generate(Message m, byte [] b, int error, TSIGRecord old) {
  */
 public void
 apply(Message m, int error, TSIGRecord old) {
-	Record r = generate(m, m.toWire(), error, old);
+	final Record r = generate(m, m.toWire(), error, old);
 	m.addRecord(r, Section.ADDITIONAL);
 	m.tsigState = Message.TSIG_SIGNED;
 }
@@ -376,7 +379,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
 		apply(m, old);
 		return;
 	}
-	Date timeSigned = new Date();
+	final Date timeSigned = new Date();
 	int fudge;
 	hmac.reset();
 
@@ -402,10 +405,10 @@ applyStream(Message m, TSIGRecord old, boolean first) {
 
 	hmac.update(out.toByteArray());
 
-	byte [] signature = hmac.doFinal();
-	byte [] other = null;
+	final byte [] signature = hmac.doFinal();
+	final byte [] other = null;
 
-	Record r = new TSIGRecord(name, DClass.ANY, 0, alg, timeSigned, fudge,
+	final Record r = new TSIGRecord(name, DClass.ANY, 0, alg, timeSigned, fudge,
 				  signature, m.getHeader().getID(),
 				  Rcode.NOERROR, other);
 	m.addRecord(r, Section.ADDITIONAL);
@@ -429,7 +432,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
 public byte
 verify(Message m, byte [] b, int length, TSIGRecord old) {
 	m.tsigState = Message.TSIG_FAILED;
-	TSIGRecord tsig = m.getTSIG();
+	final TSIGRecord tsig = m.getTSIG();
 	hmac.reset();
 	if (tsig == null)
 		return Rcode.FORMERR;
@@ -439,9 +442,9 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 			System.err.println("BADKEY failure");
 		return Rcode.BADKEY;
 	}
-	long now = System.currentTimeMillis();
-	long then = tsig.getTimeSigned().getTime();
-	long fudge = tsig.getFudge();
+	final long now = System.currentTimeMillis();
+	final long then = tsig.getTimeSigned().getTime();
+	final long fudge = tsig.getFudge();
 	if (Math.abs(now - then) > fudge * 1000) {
 		if (Options.check("verbose"))
 			System.err.println("BADTIME failure");
@@ -457,21 +460,21 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 		hmac.update(old.getSignature());
 	}
 	m.getHeader().decCount(Section.ADDITIONAL);
-	byte [] header = m.getHeader().toWire();
+	final byte [] header = m.getHeader().toWire();
 	m.getHeader().incCount(Section.ADDITIONAL);
 	hmac.update(header);
 
-	int len = m.tsigstart - header.length;
+	final int len = m.tsigstart - header.length;
 	hmac.update(b, header.length, len);
 
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	tsig.getName().toWireCanonical(out);
 	out.writeU16(tsig.dclass);
 	out.writeU32(tsig.ttl);
 	tsig.getAlgorithm().toWireCanonical(out);
-	long time = tsig.getTimeSigned().getTime() / 1000;
-	int timeHigh = (int) (time >> 32);
-	long timeLow = (time & 0xFFFFFFFFL);
+	final long time = tsig.getTimeSigned().getTime() / 1000;
+	final int timeHigh = (int) (time >> 32);
+	final long timeLow = (time & 0xFFFFFFFFL);
 	out.writeU16(timeHigh);
 	out.writeU32(timeLow);
 	out.writeU16(tsig.getFudge());
@@ -485,9 +488,9 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 
 	hmac.update(out.toByteArray());
 
-	byte [] signature = tsig.getSignature();
-	int digestLength = hmac.getMacLength();
-	int minDigestLength;
+	final byte [] signature = tsig.getSignature();
+	final int digestLength = hmac.getMacLength();
+	final int minDigestLength;
 	if (hmac.getAlgorithm().toLowerCase().contains("md5"))
 		minDigestLength = 10;
 	else
@@ -548,8 +551,8 @@ public static class StreamVerifier {
 	 * A helper class for verifying multiple message responses.
 	 */
 
-	private TSIG key;
-	private Mac verifier;
+	private final TSIG key;
+	private final Mac verifier;
 	private int nresponses;
 	private int lastsigned;
 	private TSIGRecord lastTSIG;
@@ -577,12 +580,12 @@ public static class StreamVerifier {
 	 */
 	public int
 	verify(Message m, byte [] b) {
-		TSIGRecord tsig = m.getTSIG();
+		final TSIGRecord tsig = m.getTSIG();
 
 		nresponses++;
 
 		if (nresponses == 1) {
-			int result = key.verify(m, b, lastTSIG);
+			final int result = key.verify(m, b, lastTSIG);
 			if (result == Rcode.NOERROR) {
 				byte [] signature = tsig.getSignature();
 				DNSOutput out = new DNSOutput();
@@ -596,12 +599,12 @@ public static class StreamVerifier {
 
 		if (tsig != null)
 			m.getHeader().decCount(Section.ADDITIONAL);
-		byte [] header = m.getHeader().toWire();
+		final byte [] header = m.getHeader().toWire();
 		if (tsig != null)
 			m.getHeader().incCount(Section.ADDITIONAL);
 		verifier.update(header);
 
-		int len;
+		final int len;
 		if (tsig == null)
 			len = b.length - header.length;
 		else
@@ -613,7 +616,7 @@ public static class StreamVerifier {
 			lastTSIG = tsig;
 		}
 		else {
-			boolean required = (nresponses - lastsigned >= 100);
+			final boolean required = (nresponses - lastsigned >= 100);
 			if (required) {
 				m.tsigState = Message.TSIG_FAILED;
 				return Rcode.FORMERR;
@@ -632,9 +635,9 @@ public static class StreamVerifier {
 		}
 
 		DNSOutput out = new DNSOutput();
-		long time = tsig.getTimeSigned().getTime() / 1000;
-		int timeHigh = (int) (time >> 32);
-		long timeLow = (time & 0xFFFFFFFFL);
+		final long time = tsig.getTimeSigned().getTime() / 1000;
+		final int timeHigh = (int) (time >> 32);
+		final long timeLow = (time & 0xFFFFFFFFL);
 		out.writeU16(timeHigh);
 		out.writeU32(timeLow);
 		out.writeU16(tsig.getFudge());

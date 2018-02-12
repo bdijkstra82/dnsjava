@@ -36,10 +36,10 @@ private Name [] searchPath;
 private Cache cache;
 private boolean temporary_cache;
 private int credibility;
-private Name name;
-private int type;
-private int dclass;
-private boolean verbose;
+private final Name name;
+private final int type;
+private final int dclass;
+private final boolean verbose;
 private int iterations;
 private boolean foundAlias;
 private boolean done;
@@ -173,7 +173,7 @@ setDefaultSearchPath(String [] domains) throws TextParseException {
 		defaultSearchPath = null;
 		return;
 	}
-	Name [] newdomains = new Name[domains.length];
+	final Name [] newdomains = new Name[domains.length];
 	for (int i = 0; i < domains.length; i++)
 		newdomains[i] = Name.fromString(domains[i], Name.root);
 	defaultSearchPath = newdomains;
@@ -342,7 +342,7 @@ setSearchPath(String [] domains) throws TextParseException {
 		this.searchPath = null;
 		return;
 	}
-	Name [] newdomains = new Name[domains.length];
+	final Name [] newdomains = new Name[domains.length];
 	for (int i = 0; i < domains.length; i++)
 		newdomains[i] = Name.fromString(domains[i], Name.root);
 	this.searchPath = newdomains;
@@ -415,8 +415,8 @@ follow(Name name, Name oldname) {
 private void
 processResponse(Name name, SetResponse response) {
 	if (response.isSuccessful()) {
-		RRset [] rrsets = response.answers();
-		List<Record> l = new ArrayList<Record>();
+		final RRset [] rrsets = response.answers();
+		final List<Record> l = new ArrayList<Record>();
 		Iterator<Record> it;
 		int i;
 
@@ -441,10 +441,10 @@ processResponse(Name name, SetResponse response) {
 		answers = null;
 		done = true;
 	} else if (response.isCNAME()) {
-		CNAMERecord cname = response.getCNAME();
+		final CNAMERecord cname = response.getCNAME();
 		follow(cname.getTarget(), name);
 	} else if (response.isDNAME()) {
-		DNAMERecord dname = response.getDNAME();
+		final DNAMERecord dname = response.getDNAME();
 		try {
 			follow(name.fromDNAME(dname), name);
 		} catch (NameTooLongException e) {
@@ -470,9 +470,9 @@ lookup(Name current) {
 	if (done || doneCurrent)
 		return;
 
-	Record question = Record.newRecord(current, type, dclass);
-	Message query = Message.newQuery(question);
-	Message response = null;
+	final Record question = Record.newRecord(current, type, dclass);
+	final Message query = Message.newQuery(question);
+	final Message response;
 	try {
 		response = resolver.send(query);
 	}
@@ -484,7 +484,7 @@ lookup(Name current) {
 			networkerror = true;
 		return;
 	}
-	int rcode = response.getHeader().getRcode();
+	final int rcode = response.getHeader().getRcode();
 	if (rcode != Rcode.NOERROR && rcode != Rcode.NXDOMAIN) {
 		// The server we contacted is broken or otherwise unhelpful.
 		// Press on.
@@ -588,7 +588,7 @@ private void
 checkDone() {
 	if (done && result != -1)
 		return;
-	StringBuilder sb = new StringBuilder("Lookup of " + name + " ");
+	final StringBuilder sb = new StringBuilder("Lookup of " + name + " ");
 	if (dclass != DClass.IN)
 		sb.append(DClass.string(dclass) + " ");
 	sb.append(Type.string(type) + " isn't done");

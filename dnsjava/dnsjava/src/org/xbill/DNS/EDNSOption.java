@@ -22,7 +22,7 @@ public static class Code {
 	/** Client Subnet, defined in draft-vandergaast-edns-client-subnet-02 */
 	public final static int CLIENT_SUBNET = 8;
 
-	private static Mnemonic codes = new Mnemonic("EDNS Option Codes",
+	private static final Mnemonic codes = new Mnemonic("EDNS Option Codes",
 						     Mnemonic.CASE_UPPER);
 
 	static {
@@ -68,7 +68,7 @@ EDNSOption(int code) {
 @Override
 public String
 toString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 
 	sb.append("{");
 	sb.append(EDNSOption.Code.string(code));
@@ -96,7 +96,7 @@ getCode() {
  */
 byte []
 getData() {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	optionToWire(out);
 	return out.toByteArray();
 }
@@ -116,15 +116,15 @@ optionFromWire(DNSInput in) throws IOException;
  */
 static EDNSOption
 fromWire(DNSInput in) throws IOException {
-	int code, length;
+	final int code, length;
 
 	code = in.readU16();
 	length = in.readU16();
 	if (in.remaining() < length)
 		throw new WireParseException("truncated option");
-	int save = in.saveActive();
+	final int save = in.saveActive();
 	in.setActive(length);
-	EDNSOption option;
+	final EDNSOption option;
 	switch (code) {
 	case Code.NSID:
 		option = new NSIDOption();
@@ -166,10 +166,10 @@ optionToWire(DNSOutput out);
 void
 toWire(DNSOutput out) {
 	out.writeU16(code);
-	int lengthPosition = out.current();
+	final int lengthPosition = out.current();
 	out.writeU16(0); /* until we know better */
 	optionToWire(out);
-	int length = out.current() - lengthPosition - 2;
+	final int length = out.current() - lengthPosition - 2;
 	out.writeU16At(length, lengthPosition);
 }
 
@@ -179,7 +179,7 @@ toWire(DNSOutput out) {
  */
 public byte []
 toWire() {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	toWire(out);
 	return out.toByteArray();
 }
@@ -194,7 +194,7 @@ public boolean
 equals(Object arg) {
 	if (arg == null || !(arg instanceof EDNSOption))
 		return false;
-	EDNSOption opt = (EDNSOption) arg;
+	final EDNSOption opt = (EDNSOption) arg;
 	if (code != opt.code)
 		return false;
 	return Arrays.equals(getData(), opt.getData());
@@ -206,7 +206,7 @@ equals(Object arg) {
 @Override
 public int
 hashCode() {
-	byte [] array = getData();
+	final byte [] array = getData();
 	int hashval = 0;
 	for (int i = 0; i < array.length; i++)
 		hashval += ((hashval << 3) + (array[i] & 0xFF));

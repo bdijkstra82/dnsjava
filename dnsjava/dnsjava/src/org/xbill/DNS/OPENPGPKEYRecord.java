@@ -56,7 +56,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	if (cert != null) {
 		if (Options.check("multiline")) {
 			sb.append("(\n");

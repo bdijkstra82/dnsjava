@@ -50,7 +50,7 @@ public static class CertificateType {
 	/** Certificate format defined by OID */
 	public static final int OID = 254;
 
-	private static Mnemonic types = new Mnemonic("Certificate type",
+	private static final Mnemonic types = new Mnemonic("Certificate type",
 						     Mnemonic.CASE_UPPER);
 
 	static {
@@ -148,7 +148,7 @@ rrFromWire(DNSInput in) throws IOException {
 @Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	String certTypeString = st.getString();
+	final String certTypeString = st.getString();
 	certType = CertificateType.value(certTypeString);
 	if (certType < 0)
 		throw st.exception("Invalid certificate type: " +
@@ -167,7 +167,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append (certType);
 	sb.append (" ");
 	sb.append (keyTag);

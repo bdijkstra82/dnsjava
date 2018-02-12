@@ -63,7 +63,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	final StringBuffer sb = new StringBuffer();
 	sb.append(responsibleAddress);
 	sb.append(" ");
 	sb.append(errorAddress);

@@ -24,9 +24,9 @@ private static byte []
 parseV4(String s) {
 	int numDigits;
 	int currentOctet;
-	byte [] values = new byte[4];
+	final byte [] values = new byte[4];
 	int currentValue;
-	int length = s.length();
+	final int length = s.length();
 
 	currentOctet = 0;
 	currentValue = 0;
@@ -72,9 +72,9 @@ parseV4(String s) {
 private static byte []
 parseV6(String s) {
 	int range = -1;
-	byte [] data = new byte[16];
+	final byte [] data = new byte[16];
 
-	String [] tokens = s.split(":", -1);
+	final String [] tokens = s.split(":", -1);
 
 	int first = 0;
 	int last = tokens.length - 1;
@@ -164,10 +164,10 @@ parseV6(String s) {
  */
 public static int []
 toArray(String s, int family) {
-	byte [] byteArray = toByteArray(s, family);
+	final byte [] byteArray = toByteArray(s, family);
 	if (byteArray == null)
 		return null;
-	int [] intArray = new int[byteArray.length];
+	final int [] intArray = new int[byteArray.length];
 	for (int i = 0; i < byteArray.length; i++)
 		intArray[i] = byteArray[i] & 0xFF;
 	return intArray;
@@ -206,7 +206,7 @@ toByteArray(String s, int family) {
  */
 public static boolean
 isDottedQuad(String s) {
-	byte [] address = Address.toByteArray(s, IPv4);
+	final byte [] address = Address.toByteArray(s, IPv4);
 	return (address != null);
 }
 
@@ -234,8 +234,8 @@ toDottedQuad(int [] addr) {
 private static Record []
 lookupHostName(String name, boolean all) throws UnknownHostException {
 	try {
-		Lookup lookup = new Lookup(name, Type.A);
-		Record [] a = lookup.run();
+		final Lookup lookup = new Lookup(name, Type.A);
+		final Record [] a = lookup.run();
 		if (a == null) {
 			if (lookup.getResult() == Lookup.TYPE_NOT_FOUND) {
 				Record [] aaaa = new Lookup(name, Type.AAAA).run();
@@ -246,10 +246,10 @@ lookupHostName(String name, boolean all) throws UnknownHostException {
 		}
 		if (! all)
 			return a;
-		Record [] aaaa = new Lookup(name, Type.AAAA).run();
+		final Record [] aaaa = new Lookup(name, Type.AAAA).run();
 		if (aaaa == null)
 			return a;
-		Record [] merged = new Record[a.length + aaaa.length];
+		final Record [] merged = new Record[a.length + aaaa.length];
 		System.arraycopy(a, 0, merged, 0, a.length);
 		System.arraycopy(aaaa, 0, merged, a.length, aaaa.length);
 		return merged;
@@ -261,7 +261,7 @@ lookupHostName(String name, boolean all) throws UnknownHostException {
 
 private static InetAddress
 addrFromRecord(String name, Record r) throws UnknownHostException {
-	InetAddress addr;
+	final InetAddress addr;
 	if (r instanceof ARecord) {
 		addr = ((ARecord)r).getAddress();
 	} else {
@@ -295,10 +295,10 @@ getByName(String name) throws UnknownHostException {
 public static InetAddress []
 getAllByName(String name) throws UnknownHostException {
 	try {
-		InetAddress addr = getByAddress(name);
+		final InetAddress addr = getByAddress(name);
 		return new InetAddress[] {addr};
 	} catch (UnknownHostException e) {
-		Record [] records = lookupHostName(name, true);
+		final Record [] records = lookupHostName(name, true);
 		InetAddress [] addrs = new InetAddress[records.length];
 		for (int i = 0; i < records.length; i++)
 			addrs[i] = addrFromRecord(name, records[i]);
@@ -338,7 +338,7 @@ public static InetAddress
 getByAddress(String addr, int family) throws UnknownHostException {
 	if (family != IPv4 && family != IPv6)
 		throw new IllegalArgumentException("unknown address family");
-	byte [] bytes;
+	final byte [] bytes;
 	bytes = toByteArray(addr, family);
 	if (bytes != null)
 		return InetAddress.getByAddress(addr, bytes);
@@ -353,11 +353,11 @@ getByAddress(String addr, int family) throws UnknownHostException {
  */
 public static String
 getHostName(InetAddress addr) throws UnknownHostException {
-	Name name = ReverseMap.fromAddress(addr);
-	Record [] records = new Lookup(name, Type.PTR).run();
+	final Name name = ReverseMap.fromAddress(addr);
+	final Record [] records = new Lookup(name, Type.PTR).run();
 	if (records == null)
 		throw new UnknownHostException("unknown address");
-	PTRRecord ptr = (PTRRecord) records[0];
+	final PTRRecord ptr = (PTRRecord) records[0];
 	return ptr.getTarget().toString();
 }
 
@@ -398,16 +398,16 @@ addressLength(int family) {
 public static InetAddress
 truncate(InetAddress address, int maskLength)
 {
-	int family = familyOf(address);
-	int maxMaskLength = addressLength(family) * 8;
+	final int family = familyOf(address);
+	final int maxMaskLength = addressLength(family) * 8;
 	if (maskLength < 0 || maskLength > maxMaskLength)
 		throw new IllegalArgumentException("invalid mask length");
 	if (maskLength == maxMaskLength)
 		return address;
-	byte [] bytes = address.getAddress();
+	final byte [] bytes = address.getAddress();
 	for (int i = maskLength / 8 + 1; i < bytes.length; i++)
 		bytes[i] = 0;
-	int maskBits = maskLength % 8;
+	final int maskBits = maskLength % 8;
 	int bitmask = 0;
 	for (int i = 0; i < maskBits; i++)
 		bitmask |= (1 << (7 - i));

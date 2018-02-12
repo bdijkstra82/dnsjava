@@ -98,7 +98,7 @@ rrToWire(DNSOutput out, Compression c, boolean canonical) {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(byteArrayToString(address, true));
 	if (subAddress != null) {
 		sb.append(" ");

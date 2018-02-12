@@ -46,12 +46,13 @@ Record(Name name, int type, int dclass, long ttl) {
 /**
  * Creates an empty record of the correct type; must be overriden
  */
+//XXX this is a factory method
 abstract Record
 getObject();
 
 private static final Record
 getEmptyRecord(Name name, int type, int dclass, long ttl, boolean hasData) {
-	Record proto, rec;
+	final Record proto, rec;
 
 	if (hasData) {
 		proto = Type.getProto(type);
@@ -71,6 +72,7 @@ getEmptyRecord(Name name, int type, int dclass, long ttl, boolean hasData) {
 /**
  * Converts the type-specific RR to wire format - must be overriden
  */
+// XXX factory method
 abstract void
 rrFromWire(DNSInput in) throws IOException;
 
@@ -78,7 +80,7 @@ private static Record
 newRecord(Name name, int type, int dclass, long ttl, int length, DNSInput in)
 throws IOException
 {
-	Record rec;
+	final Record rec;
 	rec = getEmptyRecord(name, type, dclass, ttl, in != null);
 	if (in != null) {
 		if (in.remaining() < length)
@@ -112,7 +114,7 @@ newRecord(Name name, int type, int dclass, long ttl, int length, byte [] data) {
 	DClass.check(dclass);
 	TTL.check(ttl);
 
-	DNSInput in;
+	final DNSInput in;
 	if (data != null)
 		in = new DNSInput(data);
 	else
@@ -174,11 +176,11 @@ newRecord(Name name, int type, int dclass) {
 
 static Record
 fromWire(DNSInput in, int section, boolean isUpdate) throws IOException {
-	int type, dclass;
-	long ttl;
-	int length;
-	Name name;
-	Record rec;
+	final int type, dclass;
+	final long ttl;
+	final int length;
+	final Name name;
+	final Record rec;
 
 	name = new Name(in);
 	type = in.readU16();
@@ -217,10 +219,10 @@ toWire(DNSOutput out, int section, Compression c) {
 	if (section == Section.QUESTION)
 		return;
 	out.writeU32(ttl);
-	int lengthPosition = out.current();
+	final int lengthPosition = out.current();
 	out.writeU16(0); /* until we know better */
 	rrToWire(out, c, false);
-	int rrlength = out.current() - lengthPosition - 2;
+	final int rrlength = out.current() - lengthPosition - 2;
 	out.writeU16At(rrlength, lengthPosition);
 }
 
@@ -229,7 +231,7 @@ toWire(DNSOutput out, int section, Compression c) {
  */
 public byte []
 toWire(int section) {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	toWire(out, section, null);
 	return out.toByteArray();
 }
@@ -244,10 +246,10 @@ toWireCanonical(DNSOutput out, boolean noTTL) {
 	} else {
 		out.writeU32(ttl);
 	}
-	int lengthPosition = out.current();
+	final int lengthPosition = out.current();
 	out.writeU16(0); /* until we know better */
 	rrToWire(out, null, true);
-	int rrlength = out.current() - lengthPosition - 2;
+	final int rrlength = out.current() - lengthPosition - 2;
 	out.writeU16At(rrlength, lengthPosition);
 }
 
@@ -257,7 +259,7 @@ toWireCanonical(DNSOutput out, boolean noTTL) {
  */
 private byte []
 toWireCanonical(boolean noTTL) {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	toWireCanonical(out, noTTL);
 	return out.toByteArray();
 }
@@ -277,7 +279,7 @@ toWireCanonical() {
  */
 public byte []
 rdataToWireCanonical() {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	rrToWire(out, null, true);
 	return out.toByteArray();
 }
@@ -301,7 +303,7 @@ rdataToString() {
 @Override
 public String
 toString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(name);
 	if (sb.length() < 8)
 		sb.append("\t");
@@ -318,7 +320,7 @@ toString() {
 		sb.append("\t");
 	}
 	sb.append(Type.string(type));
-	String rdata = rrToString();
+	final String rdata = rrToString();
 	if (!rdata.equals("")) {
 		sb.append("\t");
 		sb.append(rdata);
@@ -327,8 +329,9 @@ toString() {
 }
 
 /**
- * Converts the text format of an RR to the internal format - must be overriden
+ * Converts the text format of an RR to the internal format - must be overridden
  */
+//XXX this is a factory method
 abstract void
 rdataFromString(Tokenizer st, Name origin) throws IOException;
 
@@ -354,7 +357,7 @@ byteArrayFromString(String s) throws TextParseException {
 		return array;
 	}
 
-	ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 	int digits = 0;
 	int intval = 0;
@@ -400,7 +403,7 @@ byteArrayFromString(String s) throws TextParseException {
  */
 protected static String
 byteArrayToString(byte [] array, boolean quote) {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	if (quote)
 		sb.append('"');
 	for (int i = 0; i < array.length; i++) {
@@ -424,7 +427,7 @@ byteArrayToString(byte [] array, boolean quote) {
  */
 protected static String
 unknownToString(byte [] data) {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append("\\# ");
 	sb.append(data.length);
 	sb.append(" ");
@@ -447,7 +450,7 @@ public static Record
 fromString(Name name, int type, int dclass, long ttl, Tokenizer st, Name origin)
 throws IOException
 {
-	Record rec;
+	final Record rec;
 
 	if (!name.isAbsolute())
 		throw new RelativeNameException(name);
@@ -457,7 +460,7 @@ throws IOException
 
 	Tokenizer.Token t = st.get();
 	if (t.type == Tokenizer.IDENTIFIER && t.value.equals("\\#")) {
-		int length = st.getUInt16();
+		final int length = st.getUInt16();
 		byte [] data = st.getHex();
 		if (data == null) {
 			data = new byte[0];
@@ -526,7 +529,7 @@ getType() {
 public int
 getRRsetType() {
 	if (type == Type.RRSIG) {
-		RRSIGRecord sig = (RRSIGRecord) this;
+		final RRSIGRecord sig = (RRSIGRecord) this;
 		return sig.getTypeCovered();
 	}
 	return type;
@@ -577,11 +580,11 @@ public boolean
 equals(Object arg) {
 	if (arg == null || !(arg instanceof Record))
 		return false;
-	Record r = (Record) arg;
+	final Record r = (Record) arg;
 	if (type != r.type || dclass != r.dclass || !name.equals(r.name))
 		return false;
-	byte [] array1 = rdataToWireCanonical();
-	byte [] array2 = r.rdataToWireCanonical();
+	final byte [] array1 = rdataToWireCanonical();
+	final byte [] array2 = r.rdataToWireCanonical();
 	return Arrays.equals(array1, array2);
 }
 
@@ -591,7 +594,7 @@ equals(Object arg) {
 @Override
 public int
 hashCode() {
-	byte [] array = toWireCanonical(true);
+	final byte [] array = toWireCanonical(true);
 	int code = 0;
 	for (int i = 0; i < array.length; i++)
 		code += ((code << 3) + (array[i] & 0xFF));
@@ -616,7 +619,7 @@ public Record
 withName(Name name) {
 	if (!name.isAbsolute())
 		throw new RelativeNameException(name);
-	Record rec = cloneRecord();
+	final Record rec = cloneRecord();
 	rec.name = name;
 	return rec;
 }
@@ -627,7 +630,7 @@ withName(Name name) {
  */
 Record
 withDClass(int dclass, long ttl) {
-	Record rec = cloneRecord();
+	final Record rec = cloneRecord();
 	rec.dclass = dclass;
 	rec.ttl = ttl;
 	return rec;
@@ -663,8 +666,8 @@ compareTo(Record arg) {
 	n = type - arg.type;
 	if (n != 0)
 		return (n);
-	byte [] rdata1 = rdataToWireCanonical();
-	byte [] rdata2 = arg.rdataToWireCanonical();
+	final byte [] rdata1 = rdataToWireCanonical();
+	final byte [] rdata2 = arg.rdataToWireCanonical();
 	for (int i = 0; i < rdata1.length && i < rdata2.length; i++) {
 		n = (rdata1[i] & 0xFF) - (rdata2[i] & 0xFF);
 		if (n != 0)
@@ -715,6 +718,9 @@ checkU32(String field, long val) {
 	return val;
 }
 
+/**
+ * @param field unused
+ */
 /* Checks that a name is absolute */
 static Name
 checkName(String field, Name name) {
@@ -729,7 +735,7 @@ checkByteArrayLength(String field, byte [] array, int maxLength) {
 		throw new IllegalArgumentException("\"" + field + "\" array " +
 						   "must have no more than " +
 						   maxLength + " elements");
-	byte [] out = new byte[array.length];
+	final byte [] out = new byte[array.length];
 	System.arraycopy(array, 0, out, 0, array.length);
 	return out;
 }

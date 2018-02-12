@@ -25,7 +25,7 @@ base16() {}
  */
 public static String
 toString(byte [] b) {
-	ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 	for (int i = 0; i < b.length; i++) {
 		short value = (short) (b[i] & 0xFF);
@@ -44,19 +44,19 @@ toString(byte [] b) {
  */
 public static byte []
 fromString(String str) {
-	ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	byte [] raw = str.getBytes();
+	final ByteArrayOutputStream bs = new ByteArrayOutputStream();
+	final byte [] raw = str.getBytes();
 	for (int i = 0; i < raw.length; i++) {
 		if (!Character.isWhitespace((char)raw[i]))
 			bs.write(raw[i]);
 	}
-	byte [] in = bs.toByteArray();
+	final byte [] in = bs.toByteArray();
 	if (in.length % 2 != 0) {
 		return null;
 	}
 
 	bs.reset();
-	DataOutputStream ds = new DataOutputStream(bs);
+	final DataOutputStream ds = new DataOutputStream(bs);
 
 	for (int i = 0; i < in.length; i += 2) {
 		byte high = (byte) Base16.indexOf(Character.toUpperCase((char)in[i]));

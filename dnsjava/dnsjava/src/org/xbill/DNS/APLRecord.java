@@ -55,7 +55,7 @@ public static class Element {
 	@Override
 	public String
 	toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (negative)
 			sb.append("!");
 		sb.append(family);
@@ -74,7 +74,7 @@ public static class Element {
 	equals(Object arg) {
 		if (arg == null || !(arg instanceof Element))
 			return false;
-		Element elt = (Element) arg;
+		final Element elt = (Element) arg;
 		return (family == elt.family &&
 			negative == elt.negative &&
 			prefixLength == elt.prefixLength &&
@@ -140,7 +140,7 @@ parseAddress(byte [] in, int length) throws WireParseException {
 		throw new WireParseException("invalid address length");
 	if (in.length == length)
 		return in;
-	byte [] out = new byte[length];
+	final byte [] out = new byte[length];
 	System.arraycopy(in, 0, out, 0, in.length);
 	return out;
 }
@@ -239,7 +239,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	for (Iterator<Element> it = elements.iterator(); it.hasNext(); ) {
 		Element element = it.next();
 		sb.append(element);

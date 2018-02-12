@@ -32,7 +32,7 @@ private SOARecord SOA;
 private boolean hasWild;
 
 class ZoneIterator implements Iterator<RRset> {
-	private Iterator<Entry<Name, Object>> zentries;
+	private final Iterator<Entry<Name, Object>> zentries;
 	private RRset [] current;
 	private int count;
 	private boolean wantLastSOA;
@@ -42,7 +42,7 @@ class ZoneIterator implements Iterator<RRset> {
 			zentries = data.entrySet().iterator();
 		}
 		wantLastSOA = axfr;
-		RRset [] sets = allRRsets(originNode);
+		final RRset [] sets = allRRsets(originNode);
 		current = new RRset[sets.length];
 		for (int i = 0, j = 2; i < sets.length; i++) {
 			int type = sets[i].getType();
@@ -69,7 +69,7 @@ class ZoneIterator implements Iterator<RRset> {
 			wantLastSOA = false;
 			return oneRRset(originNode, Type.SOA);
 		}
-		RRset set = current[count++];
+		final RRset set = current[count++];
 		if (count == current.length) {
 			current = null;
 			while (zentries.hasNext()) {
@@ -99,11 +99,11 @@ validate() throws IOException {
 	if (originNode == null)
 		throw new IOException(origin + ": no data specified");
 
-	RRset rrset = oneRRset(originNode, Type.SOA);
+	final RRset rrset = oneRRset(originNode, Type.SOA);
 	if (rrset == null || rrset.size() != 1)
 		throw new IOException(origin +
 				      ": exactly 1 SOA must be specified");
-	Iterator<Record> it = rrset.rrs();
+	final Iterator<Record> it = rrset.rrs();
 	SOA = (SOARecord) it.next();
 
 	NS = oneRRset(originNode, Type.NS);
@@ -113,8 +113,8 @@ validate() throws IOException {
 
 private final void
 maybeAddRecord(Record record) throws IOException {
-	int rtype = record.getType();
-	Name name = record.getName();
+	final int rtype = record.getType();
+	final Name name = record.getName();
 
 	if (rtype == Type.SOA && !name.equals(origin)) {
 		throw new IOException("SOA owner " + name +
@@ -137,7 +137,7 @@ Zone(Name zone, String file) throws IOException {
 
 	if (zone == null)
 		throw new IllegalArgumentException("no zone name specified");
-	Master m = new Master(file, zone);
+	final Master m = new Master(file, zone);
 	Record record;
 
 	origin = zone;
@@ -169,7 +169,7 @@ fromXFR(ZoneTransferIn xfrin) throws IOException, ZoneTransferException {
 	data = new TreeMap<Name, Object>();
 
 	origin = xfrin.getName();
-	List<?> records = xfrin.run();	//XXX
+	final List<?> records = xfrin.run();	//XXX
 	for (Iterator<?> it = records.iterator(); it.hasNext(); ) {
 		Record record = (Record) it.next();
 		maybeAddRecord(record);
@@ -198,7 +198,7 @@ public
 Zone(Name zone, int dclass, String remote)
 throws IOException, ZoneTransferException
 {
-	ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(zone, remote, null);
+	final ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(zone, remote, null);
 	xfrin.setDClass(dclass);
 	fromXFR(xfrin);
 }
@@ -236,10 +236,10 @@ private synchronized static RRset []
 allRRsets(Object types) {
 	final RRset[] r;
 	if (types instanceof List) {
-		List<?> typelist = (List<?>) types;
+		final List<?> typelist = (List<?>) types;
 		r = typelist.toArray(new RRset[typelist.size()]);
 	} else {
-		RRset set = (RRset) types;
+		final RRset set = (RRset) types;
 		r = new RRset [] {set};
 	}
 	return r;
@@ -250,14 +250,14 @@ oneRRset(Object types, int type) {
 	if (type == Type.ANY)
 		throw new IllegalArgumentException("oneRRset(ANY)");
 	if (types instanceof List) {
-		List<?> list = (List<?>) types;
+		final List<?> list = (List<?>) types;
 		for (int i = 0; i < list.size(); i++) {
 			RRset set = (RRset) list.get(i);
 			if (set.getType() == type)
 				return set;
 		}
 	} else {
-		RRset set = (RRset) types;
+		final RRset set = (RRset) types;
 		if (set.getType() == type)
 			return set;
 	}
@@ -266,7 +266,7 @@ oneRRset(Object types, int type) {
 
 private synchronized RRset
 findRRset(Name name, int type) {
-	Object types = exactName(name);
+	final Object types = exactName(name);
 	if (types == null)
 		return null;
 	return oneRRset(types, type);
@@ -276,15 +276,15 @@ private synchronized void
 addRRset(Name name, RRset rrset) {
 	if (!hasWild && name.isWild())
 		hasWild = true;
-	Object types = data.get(name);
+	final Object types = data.get(name);
 	if (types == null) {
 		data.put(name, rrset);
 		return;
 	}
-	int rtype = rrset.getType();
+	final int rtype = rrset.getType();
 	if (types instanceof List) {
 		@SuppressWarnings("unchecked")
-		List<RRset> list = (List<RRset>) types;
+		final List<RRset> list = (List<RRset>) types;
 		for (int i = 0; i < list.size(); i++) {
 			RRset set = list.get(i);
 			if (set.getType() == rtype) {
@@ -294,11 +294,11 @@ addRRset(Name name, RRset rrset) {
 		}
 		list.add(rrset);
 	} else {
-		RRset set = (RRset) types;
+		final RRset set = (RRset) types;
 		if (set.getType() == rtype)
 			data.put(name, rrset);
 		else {
-			LinkedList<RRset> list = new LinkedList<RRset>();
+			final LinkedList<RRset> list = new LinkedList<RRset>();
 			list.add(set);
 			list.add(rrset);
 			data.put(name, list);
@@ -308,13 +308,13 @@ addRRset(Name name, RRset rrset) {
 
 private synchronized void
 removeRRset(Name name, int type) {
-	Object types = data.get(name);
+	final Object types = data.get(name);
 	if (types == null) {
 		return;
 	}
 	if (types instanceof List) {
 		@SuppressWarnings("unchecked")
-		List<RRset> list = (List<RRset>) types;
+		final List<RRset> list = (List<RRset>) types;
 		for (int i = 0; i < list.size(); i++) {
 			RRset set = list.get(i);
 			if (set.getType() == type) {
@@ -325,7 +325,7 @@ removeRRset(Name name, int type) {
 			}
 		}
 	} else {
-		RRset set = (RRset) types;
+		final RRset set = (RRset) types;
 		if (set.getType() != type)
 			return;
 		data.remove(name);
@@ -334,13 +334,13 @@ removeRRset(Name name, int type) {
 
 private synchronized SetResponse
 lookup(Name name, int type) {
-	int labels;
-	int olabels;
+	final int labels;
+	final int olabels;
 	int tlabels;
 	RRset rrset;
 	Name tname;
 	Object types;
-	SetResponse sr;
+	final SetResponse sr;
 
 	if (!name.subdomain(origin))
 		return SetResponse.ofType(SetResponse.NXDOMAIN);
@@ -365,7 +365,7 @@ lookup(Name name, int type) {
 
 		/* If this is a delegation, return that. */
 		if (!isOrigin) {
-			RRset ns = oneRRset(types, Type.NS);
+			final RRset ns = oneRRset(types, Type.NS);
 			if (ns != null)
 				return new SetResponse(SetResponse.DELEGATION,
 						       ns);
@@ -374,7 +374,7 @@ lookup(Name name, int type) {
 		/* If this is an ANY lookup, return everything. */
 		if (isExact && type == Type.ANY) {
 			sr = new SetResponse(SetResponse.SUCCESSFUL);
-			RRset [] sets = allRRsets(types);
+			final RRset [] sets = allRRsets(types);
 			for (int i = 0; i < sets.length; i++)
 				sr.addRRset(sets[i]);
 			return sr;
@@ -448,7 +448,7 @@ findRecords(Name name, int type) {
  */
 public RRset
 findExactMatch(Name name, int type) {
-	Object types = exactName(name);
+	final Object types = exactName(name);
 	if (types == null)
 		return null;
 	return oneRRset(types, type);
@@ -461,7 +461,7 @@ findExactMatch(Name name, int type) {
  */
 public void
 addRRset(RRset rrset) {
-	Name name = rrset.getName();
+	final Name name = rrset.getName();
 	addRRset(name, rrset);
 }
 
@@ -472,8 +472,8 @@ addRRset(RRset rrset) {
  */
 public void
 addRecord(Record r) {
-	Name name = r.getName();
-	int rtype = r.getRRsetType();
+	final Name name = r.getName();
+	final int rtype = r.getRRsetType();
 	synchronized (this) {
 		RRset rrset = findRRset(name, rtype);
 		if (rrset == null) {
@@ -492,8 +492,8 @@ addRecord(Record r) {
  */
 public void
 removeRecord(Record r) {
-	Name name = r.getName();
-	int rtype = r.getRRsetType();
+	final Name name = r.getName();
+	final int rtype = r.getRRsetType();
 	synchronized (this) {
 		RRset rrset = findRRset(name, rtype);
 		if (rrset == null)
@@ -525,9 +525,9 @@ AXFR() {
 
 private static void
 nodeToString(StringBuilder sb, Object node) {
-	RRset [] sets = allRRsets(node);
+	final RRset [] sets = allRRsets(node);
 	for (int i = 0; i < sets.length; i++) {
-		RRset rrset = sets[i];
+		final RRset rrset = sets[i];
 		Iterator<Record> it = rrset.rrs();
 		while (it.hasNext())
 			sb.append(it.next() + "\n");
@@ -542,8 +542,8 @@ nodeToString(StringBuilder sb, Object node) {
  */
 public synchronized String
 toMasterFile() {
-	Iterator<Entry<Name, Object>> zentries = data.entrySet().iterator();
-	StringBuilder sb = new StringBuilder();
+	final Iterator<Entry<Name, Object>> zentries = data.entrySet().iterator();
+	final StringBuilder sb = new StringBuilder();
 	nodeToString(sb, originNode);
 	while (zentries.hasNext()) {
 		Entry<Name, Object> entry = zentries.next();

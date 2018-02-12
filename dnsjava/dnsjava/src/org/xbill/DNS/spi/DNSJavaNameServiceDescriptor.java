@@ -15,10 +15,10 @@ import sun.net.spi.nameservice.*;
 
 public class DNSJavaNameServiceDescriptor implements NameServiceDescriptor {
 
-private static NameService nameService;
+private static final NameService nameService;
 
 static {
-	ClassLoader loader = NameService.class.getClassLoader();
+	final ClassLoader loader = NameService.class.getClassLoader();
 	nameService = (NameService) Proxy.newProxyInstance(loader,
 			new Class[] { NameService.class },
 			new DNSJavaNameService());
@@ -39,7 +39,7 @@ getType() {
 
 public String
 getProviderName() {
-	return "dnsjava"; 
+	return "dnsjava";
 }
 
 }

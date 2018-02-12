@@ -50,10 +50,10 @@ A6Record(Name name, int dclass, long ttl, int prefixBits,
 void
 rrFromWire(DNSInput in) throws IOException {
 	prefixBits = in.readU8();
-	int suffixbits = 128 - prefixBits;
-	int suffixbytes = (suffixbits + 7) / 8;
+	final int suffixbits = 128 - prefixBits;
+	final int suffixbytes = (suffixbits + 7) / 8;
 	if (prefixBits < 128) {
-		byte [] bytes = new byte[16];
+		final byte [] bytes = new byte[16];
 		in.readByteArray(bytes, 16 - suffixbytes, suffixbytes);
 		suffix = InetAddress.getByAddress(bytes);
 	}
@@ -84,7 +84,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(prefixBits);
 	if (suffix != null) {
 		sb.append(" ");
@@ -120,9 +120,9 @@ void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeU8(prefixBits);
 	if (suffix != null) {
-		int suffixbits = 128 - prefixBits;
-		int suffixbytes = (suffixbits + 7) / 8;
-		byte [] data = suffix.getAddress();
+		final int suffixbits = 128 - prefixBits;
+		final int suffixbytes = (suffixbits + 7) / 8;
+		final byte [] data = suffix.getAddress();
 		out.writeByteArray(data, 16 - suffixbytes, suffixbytes);
 	}
 	if (prefix != null)

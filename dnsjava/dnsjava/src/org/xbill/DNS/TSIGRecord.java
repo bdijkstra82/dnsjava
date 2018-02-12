@@ -71,19 +71,19 @@ void
 rrFromWire(DNSInput in) throws IOException {
 	alg = new Name(in);
 
-	long timeHigh = in.readU16();
-	long timeLow = in.readU32();
-	long time = (timeHigh << 32) + timeLow;
+	final long timeHigh = in.readU16();
+	final long timeLow = in.readU32();
+	final long time = (timeHigh << 32) + timeLow;
 	timeSigned = new Date(time * 1000);
 	fudge = in.readU16();
 
-	int sigLen = in.readU16();
+	final int sigLen = in.readU16();
 	signature = in.readByteArray(sigLen);
 
 	originalID = in.readU16();
 	error = in.readU16();
 
-	int otherLen = in.readU16();
+	final int otherLen = in.readU16();
 	if (otherLen > 0)
 		other = in.readByteArray(otherLen);
 	else
@@ -100,7 +100,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(alg);
 	sb.append(" ");
 	if (Options.check("multiline"))
@@ -133,7 +133,7 @@ rrToString() {
 			if (other.length != 6) {
 				sb.append("<invalid BADTIME other data>");
 			} else {
-				long time = ((long)(other[0] & 0xFF) << 40) +
+				final long time = ((long)(other[0] & 0xFF) << 40) +
 					    ((long)(other[1] & 0xFF) << 32) +
 					    ((other[2] & 0xFF) << 24) +
 					    ((other[3] & 0xFF) << 16) +
@@ -201,9 +201,9 @@ void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	alg.toWire(out, null, canonical);
 
-	long time = timeSigned.getTime() / 1000;
-	int timeHigh = (int) (time >> 32);
-	long timeLow = (time & 0xFFFFFFFFL);
+	final long time = timeSigned.getTime() / 1000;
+	final int timeHigh = (int) (time >> 32);
+	final long timeLow = (time & 0xFFFFFFFFL);
 	out.writeU16(timeHigh);
 	out.writeU32(timeLow);
 	out.writeU16(fudge);

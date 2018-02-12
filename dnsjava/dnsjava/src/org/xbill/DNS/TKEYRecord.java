@@ -85,13 +85,13 @@ rrFromWire(DNSInput in) throws IOException {
 	mode = in.readU16();
 	error = in.readU16();
 
-	int keylen = in.readU16();
+	final int keylen = in.readU16();
 	if (keylen > 0)
 		key = in.readByteArray(keylen);
 	else
 		key = null;
 
-	int otherlen = in.readU16();
+	final int otherlen = in.readU16();
 	if (otherlen > 0)
 		other = in.readByteArray(otherlen);
 	else
@@ -120,7 +120,7 @@ modeString() {
 @Override
 String
 rrToString() {
-	StringBuffer sb = new StringBuffer();
+	final StringBuffer sb = new StringBuffer();
 	sb.append(alg);
 	sb.append(" ");
 	if (Options.check("multiline"))

@@ -14,8 +14,8 @@ import java.net.*;
 
 public final class ReverseMap {
 
-private static Name inaddr4 = Name.fromConstantString("in-addr.arpa.");
-private static Name inaddr6 = Name.fromConstantString("ip6.arpa.");
+private static final Name inaddr4 = Name.fromConstantString("in-addr.arpa.");
+private static final Name inaddr6 = Name.fromConstantString("ip6.arpa.");
 
 /* Otherwise the class could be instantiated */
 private
@@ -33,7 +33,7 @@ fromAddress(byte [] addr) {
 		throw new IllegalArgumentException("array must contain " +
 						   "4 or 16 elements");
 
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	if (addr.length == 4) {
 		for (int i = addr.length - 1; i >= 0; i--) {
 			sb.append(addr[i] & 0xFF);
@@ -41,7 +41,7 @@ fromAddress(byte [] addr) {
 				sb.append(".");
 		}
 	} else {
-		int [] nibbles = new int[2];
+		final int [] nibbles = new int[2];
 		for (int i = addr.length - 1; i >= 0; i--) {
 			nibbles[0] = (addr[i] & 0xFF) >> 4;
 			nibbles[1] = (addr[i] & 0xFF) & 0xF;
@@ -75,7 +75,7 @@ fromAddress(byte [] addr) {
  */
 public static Name
 fromAddress(int [] addr) {
-	byte [] bytes = new byte[addr.length];
+	final byte [] bytes = new byte[addr.length];
 	for (int i = 0; i < addr.length; i++) {
 		if (addr[i] < 0 || addr[i] > 0xFF)
 			throw new IllegalArgumentException("array must " +
@@ -106,7 +106,7 @@ fromAddress(InetAddress addr) {
  */
 public static Name
 fromAddress(String addr, int family) throws UnknownHostException {
-	byte [] array = Address.toByteArray(addr, family);
+	final byte [] array = Address.toByteArray(addr, family);
 	if (array == null)
 		throw new UnknownHostException("Invalid IP address");
 	return fromAddress(array);

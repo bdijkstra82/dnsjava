@@ -13,7 +13,7 @@ import java.text.*;
 
 final class FormattedTime {
 
-private static NumberFormat w2, w4;
+private static final NumberFormat w2, w4;
 
 static {
 	w2 = new DecimalFormat();
@@ -34,8 +34,8 @@ FormattedTime() {}
  */
 public static String
 format(Date date) {
-	Calendar c = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-	StringBuilder sb = new StringBuilder();
+	final Calendar c = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+	final StringBuilder sb = new StringBuilder();
 
 	c.setTime(date);
 	sb.append(w4.format(c.get(Calendar.YEAR)));
@@ -59,7 +59,7 @@ parse(String s) throws TextParseException {
 		throw new TextParseException("Invalid time encoding: " + s);
 	}
 
-	Calendar c = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+	final Calendar c = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
 	c.clear();
 	try {
 		int year = Integer.parseInt(s.substring(0, 4));

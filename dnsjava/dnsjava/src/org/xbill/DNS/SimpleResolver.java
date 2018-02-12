@@ -49,7 +49,7 @@ SimpleResolver(String hostname) throws UnknownHostException {
 		if (hostname == null)
 			hostname = defaultResolver;
 	}
-	InetAddress addr;
+	final InetAddress addr;
 	if (hostname.equals("0"))
 		addr = InetAddress.getLocalHost();
 	else
@@ -195,7 +195,7 @@ private static void
 verifyTSIG(Message query, Message response, byte [] b, TSIG tsig) {
 	if (tsig == null)
 		return;
-	int error = tsig.verify(response, b, query.getTSIG());
+	final int error = tsig.verify(response, b, query.getTSIG());
 	if (Options.check("verbose"))
 		System.err.println("TSIG verify: " + Rcode.TSIGstring(error));
 }
@@ -209,7 +209,7 @@ applyEDNS(Message query) {
 
 private static int
 maxUDPSize(Message query) {
-	OPTRecord opt = query.getOPT();
+	final OPTRecord opt = query.getOPT();
 	final int r;
 	if (opt == null)
 		r = DEFAULT_UDPSIZE;
@@ -243,10 +243,10 @@ send(Message query) throws IOException {
 	if (tsig != null)
 		tsig.apply(query, null);
 
-	byte [] out = query.toWire(Message.MAXLENGTH);
-	int udpSize = maxUDPSize(query);
+	final byte [] out = query.toWire(Message.MAXLENGTH);
+	final int udpSize = maxUDPSize(query);
 	boolean tcp = false;
-	long endTime = System.currentTimeMillis() + timeoutValue;
+	final long endTime = System.currentTimeMillis() + timeoutValue;
 	do {
 		byte [] in;
 
@@ -312,14 +312,14 @@ sendAsync(final Message query, final ResolverListener listener) {
 	synchronized (this) {
 		id = new Integer(uniqueID++);
 	}
-	Record question = query.getQuestion();
-	String qname;
+	final Record question = query.getQuestion();
+	final String qname;
 	if (question != null)
 		qname = question.getName().toString();
 	else
 		qname = "(none)";
-	String name = this.getClass() + ": " + qname;
-	Thread thread = new ResolveThread(this, query, id, listener);
+	final String name = this.getClass() + ": " + qname;
+	final Thread thread = new ResolveThread(this, query, id, listener);
 	thread.setName(name);
 	thread.setDaemon(true);
 	thread.start();
@@ -328,8 +328,8 @@ sendAsync(final Message query, final ResolverListener listener) {
 
 private Message
 sendAXFR(Message query) throws IOException {
-	Name qname = query.getQuestion().getName();
-	ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(qname, address, tsig);
+	final Name qname = query.getQuestion().getName();
+	final ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(qname, address, tsig);
 	xfrin.setTimeout((int)(getTimeout() / 1000));
 	xfrin.setLocalAddress(localAddress);
 	try {
@@ -338,12 +338,12 @@ sendAXFR(Message query) throws IOException {
 	catch (ZoneTransferException e) {
 		throw new WireParseException(e.getMessage());
 	}
-	List<Record> records = xfrin.getAXFR();
-	Message response = new Message(query.getHeader().getID());
+	final List<Record> records = xfrin.getAXFR();
+	final Message response = new Message(query.getHeader().getID());
 	response.getHeader().setFlag(Flags.AA);
 	response.getHeader().setFlag(Flags.QR);
 	response.addRecord(query.getQuestion(), Section.QUESTION);
-	Iterator<Record> it = records.iterator();
+	final Iterator<Record> it = records.iterator();
 	while (it.hasNext())
 		response.addRecord(it.next(), Section.ANSWER);
 	return response;

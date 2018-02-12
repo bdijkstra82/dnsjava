@@ -96,8 +96,8 @@ Generator(long start, long end, long step, String namePattern,
 private static String
 substitute(String spec, long n) throws IOException {
 	boolean escaped = false;
-	byte [] str = spec.getBytes();
-	StringBuilder sb = new StringBuilder();
+	final byte [] str = spec.getBytes();
+	final StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < str.length; i++) {
 		char c = (char)(str[i] & 0xFF);
@@ -215,9 +215,9 @@ public Record
 nextRecord() throws IOException {
 	if (current > end)
 		return null;
-	String namestr = substitute(namePattern, current);
-	Name name = Name.fromString(namestr, origin);
-	String rdata = substitute(rdataPattern, current);
+	final String namestr = substitute(namePattern, current);
+	final Name name = Name.fromString(namestr, origin);
+	final String rdata = substitute(rdataPattern, current);
 	current += step;
 	return Record.fromString(name, type, dclass, ttl, rdata, origin);
 }
@@ -229,7 +229,7 @@ nextRecord() throws IOException {
  */
 public Record []
 expand() throws IOException {
-	List<Record> list = new ArrayList<Record>();
+	final List<Record> list = new ArrayList<Record>();
 	for (long i = start; i < end; i += step) {
 		String namestr = substitute(namePattern, current);
 		Name name = Name.fromString(namestr, origin);
@@ -247,7 +247,7 @@ expand() throws IOException {
 @Override
 public String
 toString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append("$GENERATE ");
 	sb.append(start + "-" + end);
 	if (step > 1)

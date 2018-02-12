@@ -27,8 +27,8 @@ getObject() {
 
 private static final byte []
 checkAndConvertAddress(String address) {
-	int length = address.length();
-	byte [] out = new byte [length];
+	final int length = address.length();
+	final byte [] out = new byte [length];
 	for (int i = 0; i < length; i++) {
 		char c = address.charAt(i);
 		if (!Character.isDigit(c))
@@ -62,7 +62,7 @@ rrFromWire(DNSInput in) throws IOException {
 @Override
 void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
-	String addr = st.getString();
+	final String addr = st.getString();
 	this.address = checkAndConvertAddress(addr);
 	if (this.address == null)
 		throw st.exception("invalid PSDN address " + addr);

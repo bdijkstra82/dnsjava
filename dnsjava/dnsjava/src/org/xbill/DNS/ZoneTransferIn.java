@@ -62,7 +62,7 @@ private TSIG tsig;
 private TSIG.StreamVerifier verifier;
 private long timeout = 900 * 1000;
 
-private int state;
+private int state;//XXX enum
 private long end_serial;
 private long current_serial;
 private Record initialsoa;
@@ -75,19 +75,20 @@ public static class Delta {
 	 */
 
 	/** The starting serial number of this delta. */
-	public long start;
+	public final long start;
 
 	/** The ending serial number of this delta. */
 	public long end;
 
 	/** A list of records added between the start and end versions */
-	public List<Record> adds;
+	public final List<Record> adds;
 
 	/** A list of records deleted between the start and end versions */
-	public List<Record> deletes;
+	public final List<Record> deletes;
 
 	private
-	Delta() {
+	Delta(long start) {
+		this.start = start;
 		adds = new ArrayList<Record>();
 		deletes = new ArrayList<Record>();
 	}
@@ -140,20 +141,19 @@ private static class BasicHandler implements ZoneTransferHandler {
 	}
 
 	public void startIXFRDeletes(Record soa) {
-		Delta delta = new Delta();
+		final Delta delta = new Delta(getSOASerial(soa));
 		delta.deletes.add(soa);
-		delta.start = getSOASerial(soa);
 		ixfr.add(delta);
 	}
 
 	public void startIXFRAdds(Record soa) {
-		Delta delta = ixfr.get(ixfr.size() - 1);
+		final Delta delta = ixfr.get(ixfr.size() - 1);
 		delta.adds.add(soa);
 		delta.end = getSOASerial(soa);
 	}
 
 	public void handleRecord(Record r) {
-		List<Record> list;
+		final List<Record> list;
 		if (ixfr != null) {
 			Delta delta = ixfr.get(ixfr.size() - 1);
 			if (delta.adds.size() > 0)
@@ -347,7 +347,7 @@ setLocalAddress(SocketAddress addr) {
 
 private void
 openConnection() throws IOException {
-	long endTime = System.currentTimeMillis() + timeout;
+	final long endTime = System.currentTimeMillis() + timeout;
 	client = new TCPClient(endTime);
 	if (localAddress != null)
 		client.bind(localAddress);
@@ -356,9 +356,9 @@ openConnection() throws IOException {
 
 private void
 sendQuery() throws IOException {
-	Record question = Record.newRecord(zname, qtype, dclass);
+	final Record question = Record.newRecord(zname, qtype, dclass);
 
-	Message query = new Message();
+	final Message query = new Message();
 	query.getHeader().setOpcode(Opcode.QUERY);
 	query.addRecord(question, Section.QUESTION);
 	if (qtype == Type.IXFR) {
@@ -371,13 +371,13 @@ sendQuery() throws IOException {
 		tsig.apply(query, null);
 		verifier = new TSIG.StreamVerifier(tsig, query.getTSIG());
 	}
-	byte [] out = query.toWire(Message.MAXLENGTH);
+	final byte [] out = query.toWire(Message.MAXLENGTH);
 	client.send(out);
 }
 
 private static long
 getSOASerial(Record rec) {
-	SOARecord soa = (SOARecord) rec;
+	final SOARecord soa = (SOARecord) rec;
 	return soa.getSerial();
 }
 
@@ -404,7 +404,7 @@ fallback() throws ZoneTransferException {
 
 private void
 parseRR(Record rec) throws ZoneTransferException {
-	int type = rec.getType();
+	final int type = rec.getType();
 
 	switch (state) {
 	case INITIALSOA:
@@ -466,7 +466,7 @@ parseRR(Record rec) throws ZoneTransferException {
 
 	case IXFR_ADD:
 		if (type == Type.SOA) {
-			long soa_serial = getSOASerial(rec);
+			final long soa_serial = getSOASerial(rec);
 			if (soa_serial == end_serial) {
 				state = END;
 				break;
@@ -607,7 +607,7 @@ run(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
  */
 public List<?>
 run() throws IOException, ZoneTransferException {
-	BasicHandler handler = new BasicHandler();
+	final BasicHandler handler = new BasicHandler();
 	run(handler);
 	if (handler.axfr != null)
 		return handler.axfr;
@@ -640,7 +640,7 @@ isAXFR() {
  */
 public List<Record>
 getAXFR() {
-	BasicHandler handler = getBasicHandler();
+	final BasicHandler handler = getBasicHandler();
 	return handler.axfr;
 }
 
@@ -661,7 +661,7 @@ isIXFR() {
  */
 public List<Delta>
 getIXFR() {
-	BasicHandler handler = getBasicHandler();
+	final BasicHandler handler = getBasicHandler();
 	return handler.ixfr;
 }
 
@@ -673,7 +673,7 @@ getIXFR() {
  */
 public boolean
 isCurrent() {
-	BasicHandler handler = getBasicHandler();
+	final BasicHandler handler = getBasicHandler();
 	return (handler.axfr == null && handler.ixfr == null);
 }
 

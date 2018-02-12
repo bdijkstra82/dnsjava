@@ -15,20 +15,13 @@ import java.util.*;
 public class Header implements Cloneable {
 
 private int id;
-private int flags;
-private int [] counts;
+private int flags = 0;
+private final int [] counts = new int[4];
 
-private static Random random = new Random();
+private static final Random random = new Random();
 
 /** The length of a DNS Header in wire format. */
 public static final int LENGTH = 12;
-
-private void
-init() {
-	counts = new int[4];
-	flags = 0;
-	id = -1;
-}
 
 /**
  * Create a new empty header.
@@ -36,7 +29,6 @@ init() {
  */
 public
 Header(int id) {
-	init();
 	setID(id);
 }
 
@@ -45,7 +37,7 @@ Header(int id) {
  */
 public
 Header() {
-	init();
+	id = -1;
 }
 
 /**
@@ -77,7 +69,7 @@ toWire(DNSOutput out) {
 
 public byte []
 toWire() {
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	toWire(out);
 	return out.toByteArray();
 }
@@ -138,7 +130,7 @@ getFlag(int bit) {
 
 boolean []
 getFlags() {
-	boolean [] array = new boolean[16];
+	final boolean [] array = new boolean[16];
 	for (int i = 0; i < array.length; i++)
 		if (validFlag(i))
 			array[i] = getFlag(i);
@@ -255,7 +247,7 @@ getFlagsByte() {
 /** Converts the header's flags into a String */
 public String
 printFlags() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < 16; i++)
 		if (validFlag(i) && getFlag(i)) {
@@ -267,7 +259,7 @@ printFlags() {
 
 String
 toStringWithRcode(int newrcode) {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 
 	sb.append(";; ->>HEADER<<- ");
 	sb.append("opcode: " + Opcode.string(getOpcode()));
@@ -293,7 +285,7 @@ toString() {
 @Override
 public Object
 clone() {
-	Header h = new Header();
+	final Header h = new Header();
 	h.id = id;
 	h.flags = flags;
 	System.arraycopy(counts, 0, h.counts, 0, counts.length);

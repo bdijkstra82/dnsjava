@@ -50,7 +50,7 @@ rrFromWire(DNSInput in) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(flags);
 	sb.append(" ");
 	sb.append(proto);
@@ -112,9 +112,9 @@ getFootprint() {
 
 	int foot = 0;
 
-	DNSOutput out = new DNSOutput();
+	final DNSOutput out = new DNSOutput();
 	rrToWire(out, null, false);
-	byte [] rdata = out.toByteArray();
+	final byte [] rdata = out.toByteArray();
 
 	if (alg == DNSSEC.Algorithm.RSAMD5) {
 		int d1 = rdata[rdata.length - 3] & 0xFF;

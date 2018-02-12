@@ -86,8 +86,8 @@ parseTTL(String s) {
 public static String
 format(long ttl) {
 	TTL.check(ttl);
-	StringBuilder sb = new StringBuilder();
-	long secs, mins, hours, days, weeks;
+	final StringBuilder sb = new StringBuilder();
+	final long secs, mins, hours, days, weeks;
 	secs = ttl % 60;
 	ttl /= 60;
 	mins = ttl % 60;

@@ -100,7 +100,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException
 	flags = st.getUInt8();
 	iterations = st.getUInt16();
 
-	String s = st.getString();
+	final String s = st.getString();
 	if (s.equals("-"))
 		salt = null;
 	else {
@@ -115,7 +115,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(hashAlg);
 	sb.append(' ');
 	sb.append(flags);

@@ -53,7 +53,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	InetAddress addr;
+	final InetAddress addr;
 	try {
 		addr = InetAddress.getByAddress(null, address);
 	} catch (UnknownHostException e) {
@@ -61,9 +61,9 @@ rrToString() {
 	}
 	if (addr.getAddress().length == 4) {
 		// Deal with Java's broken handling of mapped IPv4 addresses.
-		StringBuilder sb = new StringBuilder("0:0:0:0:0:ffff:");
-		int high = ((address[12] & 0xFF) << 8) + (address[13] & 0xFF);
-		int low = ((address[14] & 0xFF) << 8) + (address[15] & 0xFF);
+		final StringBuilder sb = new StringBuilder("0:0:0:0:0:ffff:");
+		final int high = ((address[12] & 0xFF) << 8) + (address[13] & 0xFF);
+		final int low = ((address[14] & 0xFF) << 8) + (address[15] & 0xFF);
 		sb.append(Integer.toHexString(high));
 		sb.append(':');
 		sb.append(Integer.toHexString(low));

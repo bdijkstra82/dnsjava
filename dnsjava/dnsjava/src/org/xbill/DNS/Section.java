@@ -32,10 +32,10 @@ public static final int PREREQ		= 1;
 /** The update (third) section of a dynamic update message */
 public static final int UPDATE		= 2;
 
-private static Mnemonic sections = new Mnemonic("Message Section",
+private static final Mnemonic sections = new Mnemonic("Message Section",
 						Mnemonic.CASE_LOWER);
-private static String [] longSections = new String[4];
-private static String [] updateSections = new String[4];
+private static final String [] longSections = new String[4];
+private static final String [] updateSections = new String[4];
 
 static {
 	sections.setMaximum(3);

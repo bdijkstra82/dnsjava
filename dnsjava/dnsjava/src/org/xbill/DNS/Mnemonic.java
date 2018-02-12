@@ -13,11 +13,11 @@ import java.util.HashMap;
 
 class Mnemonic {
 
-private static Integer cachedInts[] = new Integer[64];//XXX
+private static final Integer cachedInts[] = new Integer[64];//XXX
 
 static {
 	for (int i = 0; i < cachedInts.length; i++) {
-		cachedInts[i] = new Integer(i);
+		cachedInts[i] = Integer.valueOf(i);
 	}
 }
 
@@ -30,10 +30,10 @@ static final int CASE_UPPER = 2;
 /* Strings will be stored/searched for in lowercase. */
 static final int CASE_LOWER = 3;
 
-private HashMap<String, Integer> strings;
-private HashMap<Integer, String> values;
-private String description;
-private int wordcase;
+private final HashMap<String, Integer> strings;
+private final HashMap<Integer, String> values;
+private final String description;
+private final int wordcase;//XXX enum
 private String prefix;
 private int max;
 private boolean numericok;
@@ -111,7 +111,7 @@ sanitize(String str) {
 private int
 parseNumeric(String s) {
 	try {
-		int val = Integer.parseInt(s);
+		final int val = Integer.parseInt(s);
 		if (val >= 0 && val <= max)
 			return val;
 	}
@@ -128,7 +128,7 @@ parseNumeric(String s) {
 public void
 add(int val, String str) {
 	check(val);
-	Integer value = toInteger(val);
+	final Integer value = toInteger(val);
 	str = sanitize(str);
 	strings.put(str, value);
 	values.put(value, str);
@@ -143,7 +143,7 @@ add(int val, String str) {
 public void
 addAlias(int val, String str) {
 	check(val);
-	Integer value = toInteger(val);
+	final Integer value = toInteger(val);
 	str = sanitize(str);
 	strings.put(str, value);
 }
@@ -189,13 +189,13 @@ getText(int val) {
 public int
 getValue(String str) {
 	str = sanitize(str);
-	Integer value = strings.get(str);
+	final Integer value = strings.get(str);
 	if (value != null) {
 		return value.intValue();
 	}
 	if (prefix != null) {
 		if (str.startsWith(prefix)) {
-			int val = parseNumeric(str.substring(prefix.length()));
+			final int val = parseNumeric(str.substring(prefix.length()));
 			if (val >= 0) {
 				return val;
 			}

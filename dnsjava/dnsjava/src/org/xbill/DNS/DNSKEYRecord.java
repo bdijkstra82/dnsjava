@@ -83,7 +83,7 @@ void
 rdataFromString(Tokenizer st, Name origin) throws IOException {
 	flags = st.getUInt16();
 	proto = st.getUInt8();
-	String algString = st.getString();
+	final String algString = st.getString();
 	alg = DNSSEC.Algorithm.value(algString);
 	if (alg < 0)
 		throw st.exception("Invalid algorithm: " + algString);

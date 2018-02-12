@@ -17,13 +17,13 @@ usage(String s) {
 
 public static void
 main(String [] args) throws Exception {
-	ZoneTransferIn xfrin;
+	final ZoneTransferIn xfrin;
 	TSIG key = null;
 	int ixfr_serial = -1;
 	String server = null;
 	int port = SimpleResolver.DEFAULT_PORT;
 	boolean fallback = false;
-	Name zname;
+	final Name zname;
 
 	int arg = 0;
 	while (arg < args.length) {
@@ -58,8 +58,8 @@ main(String [] args) throws Exception {
 	zname = Name.fromString(args[arg]);
 
 	if (server == null) {
-		Lookup l = new Lookup(zname, Type.NS);
-		Record [] ns = l.run();
+		final Lookup l = new Lookup(zname, Type.NS);
+		final Record [] ns = l.run();
 		if (ns == null) {
 			System.out.println("failed to look up NS record: " +
 					   l.getErrorString());
@@ -75,20 +75,20 @@ main(String [] args) throws Exception {
 	else
 		xfrin = ZoneTransferIn.newAXFR(zname, server, port, key);
 
-	List<?> response = xfrin.run();
+	final List<?> response = xfrin.run();
 	if (xfrin.isAXFR()) {
 		if (ixfr_serial >= 0)
 			System.out.println("AXFR-like IXFR response");
 		else
 			System.out.println("AXFR response");
-		Iterator<?> it = response.iterator();
+		final Iterator<?> it = response.iterator();
 		while (it.hasNext())
 			System.out.println(it.next());
 	} else if (xfrin.isIXFR()) {
 		System.out.println("IXFR response");
-		Iterator<?> it = response.iterator();
+		final Iterator<?> it = response.iterator();
 		while (it.hasNext()) {
-			ZoneTransferIn.Delta delta;
+			final ZoneTransferIn.Delta delta;
 			delta = (ZoneTransferIn.Delta) it.next();
 			System.out.println("delta from " + delta.start +
 					   " to " + delta.end);

@@ -15,7 +15,7 @@ public class LOCRecord extends Record {
 
 private static final long serialVersionUID = 9058224788126750409L;
 
-private static NumberFormat w2, w3;
+private static final NumberFormat w2, w3;
 
 private long size, hPrecision, vPrecision;
 private long latitude, longitude, altitude;
@@ -61,7 +61,7 @@ LOCRecord(Name name, int dclass, long ttl, double latitude, double longitude,
 @Override
 void
 rrFromWire(DNSInput in) throws IOException {
-	int version;
+	final int version;
 
 	version = in.readU8();
 	if (version != 0)
@@ -81,12 +81,12 @@ parseFixedPoint(String s)
 	if (s.matches("^-?\\d+$"))
 		return Integer.parseInt(s);
 	else if (s.matches("^-?\\d+\\.\\d*$")) {
-		String [] parts = s.split("\\.");
-		double value = Integer.parseInt(parts[0]);
+		final String [] parts = s.split("\\.");
+		final double value = Integer.parseInt(parts[0]);
 		double fraction = Integer.parseInt(parts[1]);
 		if (value < 0)
 			fraction *= -1;
-		int digits = parts[1].length();
+		final int digits = parts[1].length();
 		return value + (fraction / Math.pow(10, digits));
 	} else
 		throw new NumberFormatException();
@@ -94,8 +94,9 @@ parseFixedPoint(String s)
 
 private static long
 parsePosition(Tokenizer st, String type) throws IOException {
-	boolean isLatitude = type.equals("latitude");
-	int deg = 0, min = 0;
+	final boolean isLatitude = type.equals("latitude");
+	final int deg;
+	int min = 0;
 	double sec = 0;
 	long value;
 	String s;
@@ -122,7 +123,7 @@ parsePosition(Tokenizer st, String type) throws IOException {
 
 	value = (long) (1000 * (sec + 60L * (min + 60L * deg)));
 
-	char c = Character.toUpperCase(s.charAt(0));
+	final char c = Character.toUpperCase(s.charAt(0));
 	if ((isLatitude && c == 'S') || (!isLatitude && c == 'W'))
 		value = -value;
 	else if ((isLatitude && c != 'N') || (!isLatitude && c != 'E'))
@@ -138,7 +139,7 @@ parseDouble(Tokenizer st, String type, boolean required, long min, long max,
 	    long defaultValue)
 throws IOException
 {
-	Tokenizer.Token token = st.get();
+	final Tokenizer.Token token = st.get();
 	if (token.isEOL()) {
 		if (required)
 			throw st.exception("Invalid LOC " + type);
@@ -149,7 +150,7 @@ throws IOException
 	if (s.length() > 1 && s.charAt(s.length() - 1) == 'm')
 		s = s.substring(0, s.length() - 1);
 	try {
-		long value = (long)(100 * parseFixedPoint(s));
+		final long value = (long)(100 * parseFixedPoint(s));
 		if (value < min || value > max)
 			throw st.exception("Invalid LOC " + type);
 		return value;
@@ -187,8 +188,8 @@ renderFixedPoint(StringBuilder sb, NumberFormat formatter, long value,
 
 private static String
 positionToString(long value, char pos, char neg) {
-	StringBuilder sb = new StringBuilder();
-	char direction;
+	final StringBuilder sb = new StringBuilder();
+	final char direction;
 
 	long temp = value - (1L << 31);
 	if (temp < 0) {
@@ -218,7 +219,7 @@ positionToString(long value, char pos, char neg) {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 
 	/* Latitude */
 	sb.append(positionToString(latitude, 'N', 'S'));

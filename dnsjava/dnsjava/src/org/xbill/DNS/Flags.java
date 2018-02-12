@@ -10,7 +10,7 @@ package org.xbill.DNS;
 
 public final class Flags {
 
-private static Mnemonic flags = new Mnemonic("DNS Header Flag",
+private static final Mnemonic flags = new Mnemonic("DNS Header Flag",
 					     Mnemonic.CASE_LOWER);
 
 /** query/response */

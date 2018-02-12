@@ -14,7 +14,7 @@ private static final int EPHEMERAL_START = 1024;
 private static final int EPHEMERAL_STOP  = 65535;
 private static final int EPHEMERAL_RANGE  = EPHEMERAL_STOP - EPHEMERAL_START;
 
-private static SecureRandom prng = new SecureRandom();
+private static final SecureRandom prng = new SecureRandom();
 private static volatile boolean prng_initializing = true;
 
 /*
@@ -60,7 +60,7 @@ bind_random(InetSocketAddress addr)
 			return;
 	}
 
-	DatagramChannel channel = (DatagramChannel) key.channel();
+	final DatagramChannel channel = (DatagramChannel) key.channel();
 	InetSocketAddress temp;
 
 	for (int i = 0; i < 1024; i++) {
@@ -93,7 +93,7 @@ bind(SocketAddress addr) throws IOException {
 	}
 
 	if (addr != null) {
-		DatagramChannel channel = (DatagramChannel) key.channel();
+		final DatagramChannel channel = (DatagramChannel) key.channel();
 		channel.socket().bind(addr);
 		bound = true;
 	}
@@ -103,13 +103,13 @@ void
 connect(SocketAddress addr) throws IOException {
 	if (!bound)
 		bind(null);
-	DatagramChannel channel = (DatagramChannel) key.channel();
+	final DatagramChannel channel = (DatagramChannel) key.channel();
 	channel.connect(addr);
 }
 
 void
 send(byte [] data) throws IOException {
-	DatagramChannel channel = (DatagramChannel) key.channel();
+	final DatagramChannel channel = (DatagramChannel) key.channel();
 	verboseLog("UDP write", channel.socket().getLocalSocketAddress(),
 		   channel.socket().getRemoteSocketAddress(), data);
 	channel.write(ByteBuffer.wrap(data));
@@ -117,8 +117,8 @@ send(byte [] data) throws IOException {
 
 byte []
 recv(int max) throws IOException {
-	DatagramChannel channel = (DatagramChannel) key.channel();
-	byte [] temp = new byte[max];
+	final DatagramChannel channel = (DatagramChannel) key.channel();
+	final byte [] temp = new byte[max];
 	key.interestOps(SelectionKey.OP_READ);
 	try {
 		while (!key.isReadable())
@@ -128,11 +128,11 @@ recv(int max) throws IOException {
 		if (key.isValid())
 			key.interestOps(0);
 	}
-	long ret = channel.read(ByteBuffer.wrap(temp));
+	final long ret = channel.read(ByteBuffer.wrap(temp));
 	if (ret <= 0)
 		throw new EOFException();
-	int len = (int) ret;
-	byte [] data = new byte[len];
+	final int len = (int) ret;
+	final byte [] data = new byte[len];
 	System.arraycopy(temp, 0, data, 0, len);
 	verboseLog("UDP read", channel.socket().getLocalSocketAddress(),
 		   channel.socket().getRemoteSocketAddress(), data);
@@ -144,7 +144,7 @@ sendrecv(SocketAddress local, SocketAddress remote, byte [] data, int max,
 	 long endTime)
 throws IOException
 {
-	UDPClient client = new UDPClient(endTime);
+	final UDPClient client = new UDPClient(endTime);
 	try {
 		client.bind(local);
 		client.connect(remote);

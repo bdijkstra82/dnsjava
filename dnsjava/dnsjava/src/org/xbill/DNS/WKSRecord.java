@@ -149,7 +149,7 @@ public static class Protocol {
 	/** WIDEBAND EXPAK */
 	public static final int WB_EXPAK = 79;
 
-	private static Mnemonic protocols = new Mnemonic("IP protocol",
+	private static final Mnemonic protocols = new Mnemonic("IP protocol",
 							 Mnemonic.CASE_LOWER);
 
 	static {
@@ -466,7 +466,7 @@ public static class Service {
 	/** LINK */
 	public static final int LINK = 245;
 
-	private static Mnemonic services = new Mnemonic("TCP/UDP service",
+	private static final Mnemonic services = new Mnemonic("TCP/UDP service",
 							Mnemonic.CASE_LOWER);
 
 	static {
@@ -614,8 +614,8 @@ void
 rrFromWire(DNSInput in) throws IOException {
 	address = in.readByteArray(4);
 	protocol = in.readU8();
-	byte [] array = in.readByteArray();
-	List<Integer> list = new ArrayList<Integer>();
+	final byte [] array = in.readByteArray();
+	final List<Integer> list = new ArrayList<Integer>();
 	for (int i = 0; i < array.length; i++) {
 		for (int j = 0; j < 8; j++) {
 			int octet = array[i] & 0xFF;
@@ -644,7 +644,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 		throw st.exception("Invalid IP protocol: " + s);
 	}
 
-	List<Integer> list = new ArrayList<Integer>();
+	final List<Integer> list = new ArrayList<Integer>();
 	while (true) {
 		Tokenizer.Token t = st.get();
 		if (!t.isString())
@@ -669,7 +669,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 @Override
 String
 rrToString() {
-	StringBuilder sb = new StringBuilder();
+	final StringBuilder sb = new StringBuilder();
 	sb.append(Address.toDottedQuad(address));
 	sb.append(" ");
 	sb.append(protocol);
@@ -712,8 +712,8 @@ void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeByteArray(address);
 	out.writeU8(protocol);
-	int highestPort = services[services.length - 1];
-	byte [] array = new byte[highestPort / 8 + 1];
+	final int highestPort = services[services.length - 1];
+	final byte [] array = new byte[highestPort / 8 + 1];
 	for (int i = 0; i < services.length; i++) {
 		int port = services[i];
 		array[port / 8] |= (1 << (7 - port % 8));
