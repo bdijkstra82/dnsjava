@@ -9,7 +9,7 @@ package org.xbill.DNS;
  * @author Brian Wellington
  */
 
-class ResolveThread extends Thread {
+class ResolveJob implements Runnable {
 
 private final Message query;
 private final Object id;
@@ -18,7 +18,7 @@ private final Resolver res;
 
 /** Creates a new ResolveThread */
 public
-ResolveThread(Resolver res, Message query, Object id,
+ResolveJob(Resolver res, Message query, Object id,
 	      ResolverListener listener)
 {
 	this.res = res;
@@ -31,7 +31,6 @@ ResolveThread(Resolver res, Message query, Object id,
 /**
  * Performs the query, and executes the callback.
  */
-@Override
 public void
 run() {
 	try {

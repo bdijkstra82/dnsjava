@@ -319,7 +319,7 @@ sendAsync(final Message query, final ResolverListener listener) {
 	else
 		qname = "(none)";
 	final String name = this.getClass() + ": " + qname;
-	final Thread thread = new ResolveThread(this, query, id, listener);
+	final Thread thread = new Thread(new ResolveJob(this, query, id, listener));
 	thread.setName(name);
 	thread.setDaemon(true);
 	thread.start();
