@@ -343,7 +343,7 @@ lookup(Name name, int type) {
 	final SetResponse sr;
 
 	if (!name.subdomain(origin))
-		return SetResponse.ofType(SetResponse.NXDOMAIN);
+		return SetResponse.nxdomain;
 
 	labels = name.labels();
 	olabels = origin.labels();
@@ -367,16 +367,12 @@ lookup(Name name, int type) {
 		if (!isOrigin) {
 			final RRset ns = oneRRset(types, Type.NS);
 			if (ns != null)
-				return new SetResponse(SetResponse.DELEGATION,
-						       ns);
+				return SetResponse.delegation(ns);
 		}
 
 		/* If this is an ANY lookup, return everything. */
 		if (isExact && type == Type.ANY) {
-			sr = new SetResponse(SetResponse.SUCCESSFUL);
-			final RRset [] sets = allRRsets(types);
-			for (int i = 0; i < sets.length; i++)
-				sr.addRRset(sets[i]);
+			sr = SetResponse.success(allRRsets(types));
 			return sr;
 		}
 
@@ -387,24 +383,21 @@ lookup(Name name, int type) {
 		if (isExact) {
 			rrset = oneRRset(types, type);
 			if (rrset != null) {
-				sr = new SetResponse(SetResponse.SUCCESSFUL);
-				sr.addRRset(rrset);
+				sr = SetResponse.success(rrset);
 				return sr;
 			}
 			rrset = oneRRset(types, Type.CNAME);
 			if (rrset != null)
-				return new SetResponse(SetResponse.CNAME,
-						       rrset);
+				return SetResponse.cname(rrset);
 		} else {
 			rrset = oneRRset(types, Type.DNAME);
 			if (rrset != null)
-				return new SetResponse(SetResponse.DNAME,
-						       rrset);
+				return SetResponse.dname(rrset);
 		}
 
 		/* We found the name, but not the type. */
 		if (isExact)
-			return SetResponse.ofType(SetResponse.NXRRSET);
+			return SetResponse.nxrrset;
 	}
 
 	if (hasWild) {
@@ -417,14 +410,14 @@ lookup(Name name, int type) {
 
 			rrset = oneRRset(types, type);
 			if (rrset != null) {
-				sr = new SetResponse(SetResponse.SUCCESSFUL);
+				sr = SetResponse.success();
 				sr.addRRset(rrset);
 				return sr;
 			}
 		}
 	}
 
-	return SetResponse.ofType(SetResponse.NXDOMAIN);
+	return SetResponse.nxdomain;
 }
 
 /**

@@ -29,27 +29,25 @@ private TSIG tsigkey;
 private TSIGRecord querytsig;
 private int tsigerror;
 
+static enum TsigState {
+	/* The message was not signed */
+	TSIG_UNSIGNED,
+	/* The message was signed and verification succeeded */
+	TSIG_VERIFIED,
+	/* The message was an unsigned message in multiple-message response */
+	TSIG_INTERMEDIATE,
+	/* The message was signed and no verification was attempted.  */
+	TSIG_SIGNED,
+	/*
+	 * The message was signed and verification failed, or was not signed
+	 * when it should have been.
+	 */
+	TSIG_FAILED
+}
+
 int tsigstart;
-int tsigState;//XXX enum
+TsigState tsigState = TsigState.TSIG_UNSIGNED;
 int sig0start;
-
-/* The message was not signed */
-static final int TSIG_UNSIGNED = 0;
-
-/* The message was signed and verification succeeded */
-static final int TSIG_VERIFIED = 1;
-
-/* The message was an unsigned message in multiple-message response */
-static final int TSIG_INTERMEDIATE = 2;
-
-/* The message was signed and no verification was attempted.  */
-static final int TSIG_SIGNED = 3;
-
-/*
- * The message was signed and verification failed, or was not signed
- * when it should have been.
- */
-static final int TSIG_FAILED = 4;
 
 private static final Record [] emptyRecordArray = new Record[0];
 private static final RRset [] emptyRRsetArray = new RRset[0];
@@ -296,9 +294,9 @@ getTSIG() {
  */
 public boolean
 isSigned() {
-	return (tsigState == TSIG_SIGNED ||
-		tsigState == TSIG_VERIFIED ||
-		tsigState == TSIG_FAILED);
+	return (tsigState == TsigState.TSIG_SIGNED ||
+		tsigState == TsigState.TSIG_VERIFIED ||
+		tsigState == TsigState.TSIG_FAILED);
 }
 
 /**
@@ -307,7 +305,7 @@ isSigned() {
  */
 public boolean
 isVerified() {
-	return (tsigState == TSIG_VERIFIED);
+	return (tsigState == TsigState.TSIG_VERIFIED);
 }
 
 /**

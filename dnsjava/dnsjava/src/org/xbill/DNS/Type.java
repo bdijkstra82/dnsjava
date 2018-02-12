@@ -220,7 +220,7 @@ private static class TypeMnemonic extends Mnemonic {
 	public void
 	add(int val, String str, Record proto) {
 		super.add(val, str);
-		objects.put(Mnemonic.toInteger(val), proto);
+		objects.put(Integer.valueOf(val), proto);
 	}
 
 	@Override
@@ -232,7 +232,7 @@ private static class TypeMnemonic extends Mnemonic {
 	public Record
 	getProto(int val) {
 		check(val);
-		return objects.get(toInteger(val));
+		return objects.get(Integer.valueOf(val));
 	}
 }
 

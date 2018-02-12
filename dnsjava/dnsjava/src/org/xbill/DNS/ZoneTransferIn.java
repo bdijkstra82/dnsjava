@@ -39,14 +39,16 @@ import java.util.List;
 
 public class ZoneTransferIn {
 
-private static final int INITIALSOA	= 0;
-private static final int FIRSTDATA	= 1;
-private static final int IXFR_DELSOA	= 2;
-private static final int IXFR_DEL	= 3;
-private static final int IXFR_ADDSOA	= 4;
-private static final int IXFR_ADD	= 5;
-private static final int AXFR		= 6;
-private static final int END		= 7;
+	private static enum State {
+		INITIALSOA,
+		FIRSTDATA,
+		IXFR_DELSOA,
+		IXFR_DEL,
+		IXFR_ADDSOA,
+		IXFR_ADD,
+		AXFR,
+		END
+	}
 
 private Name zname;
 private int qtype;
@@ -62,7 +64,7 @@ private TSIG tsig;
 private TSIG.StreamVerifier verifier;
 private long timeout = 900 * 1000;
 
-private int state;//XXX enum
+private State state;
 private long end_serial;
 private long current_serial;
 private Record initialsoa;
@@ -190,7 +192,7 @@ ZoneTransferIn(Name zone, int xfrtype, long serial, boolean fallback,
 	dclass = DClass.IN;
 	ixfr_serial = serial;
 	want_fallback = fallback;
-	state = INITIALSOA;
+	state = State.INITIALSOA;
 }
 
 /**
@@ -399,7 +401,7 @@ fallback() throws ZoneTransferException {
 
 	logxfr("falling back to AXFR");
 	qtype = Type.AXFR;
-	state = INITIALSOA;
+	state = State.INITIALSOA;
 }
 
 private void
@@ -418,10 +420,10 @@ parseRR(Record rec) throws ZoneTransferException {
 		    Serial.compare(end_serial, ixfr_serial) <= 0)
 		{
 			logxfr("up to date");
-			state = END;
+			state = State.END;
 			break;
 		}
-		state = FIRSTDATA;
+		state = State.FIRSTDATA;
 		break;
 
 	case FIRSTDATA:
@@ -433,26 +435,26 @@ parseRR(Record rec) throws ZoneTransferException {
 			rtype = Type.IXFR;
 			handler.startIXFR();
 			logxfr("got incremental response");
-			state = IXFR_DELSOA;
+			state = State.IXFR_DELSOA;
 		} else {
 			rtype = Type.AXFR;
 			handler.startAXFR();
 			handler.handleRecord(initialsoa);
 			logxfr("got nonincremental response");
-			state = AXFR;
+			state = State.AXFR;
 		}
 		parseRR(rec); // Restart...
 		return;
 
 	case IXFR_DELSOA:
 		handler.startIXFRDeletes(rec);
-		state = IXFR_DEL;
+		state = State.IXFR_DEL;
 		break;
 
 	case IXFR_DEL:
 		if (type == Type.SOA) {
 			current_serial = getSOASerial(rec);
-			state = IXFR_ADDSOA;
+			state = State.IXFR_ADDSOA;
 			parseRR(rec); // Restart...
 			return;
 		}
@@ -461,20 +463,20 @@ parseRR(Record rec) throws ZoneTransferException {
 
 	case IXFR_ADDSOA:
 		handler.startIXFRAdds(rec);
-		state = IXFR_ADD;
+		state = State.IXFR_ADD;
 		break;
 
 	case IXFR_ADD:
 		if (type == Type.SOA) {
 			final long soa_serial = getSOASerial(rec);
 			if (soa_serial == end_serial) {
-				state = END;
+				state = State.END;
 				break;
 			} else if (soa_serial != current_serial) {
 				fail("IXFR out of sync: expected serial " +
 				     current_serial + " , got " + soa_serial);
 			} else {
-				state = IXFR_DELSOA;
+				state = State.IXFR_DELSOA;
 				parseRR(rec); // Restart...
 				return;
 			}
@@ -488,7 +490,7 @@ parseRR(Record rec) throws ZoneTransferException {
 			break;
 		handler.handleRecord(rec);
 		if (type == Type.SOA) {
-			state = END;
+			state = State.END;
 		}
 		break;
 
@@ -527,7 +529,7 @@ parseMessage(byte [] b) throws WireParseException {
 private void
 doxfr() throws IOException, ZoneTransferException {
 	sendQuery();
-	while (state != END) {
+	while (state != State.END) {
 		byte [] in = client.recv();
 		Message response =  parseMessage(in);
 		if (response.getHeader().getRcode() == Rcode.NOERROR &&
@@ -542,7 +544,7 @@ doxfr() throws IOException, ZoneTransferException {
 
 		Record [] answers = response.getSectionArray(Section.ANSWER);
 
-		if (state == INITIALSOA) {
+		if (state == State.INITIALSOA) {
 			int rcode = response.getRcode();
 			if (rcode != Rcode.NOERROR) {
 				if (qtype == Type.IXFR &&
@@ -571,7 +573,7 @@ doxfr() throws IOException, ZoneTransferException {
 			parseRR(answers[i]);
 		}
 
-		if (state == END && verifier != null &&
+		if (state == State.END && verifier != null &&
 		    !response.isVerified())
 			fail("last message must be signed");
 	}

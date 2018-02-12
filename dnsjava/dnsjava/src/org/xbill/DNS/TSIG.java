@@ -2,12 +2,19 @@
 
 package org.xbill.DNS;
 
-import java.util.*;
-import java.util.Map.Entry;
 import java.security.GeneralSecurityException;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.SecretKey;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.xbill.DNS.utils.base64;
 
 /**
@@ -355,7 +362,7 @@ public void
 apply(Message m, int error, TSIGRecord old) {
 	final Record r = generate(m, m.toWire(), error, old);
 	m.addRecord(r, Section.ADDITIONAL);
-	m.tsigState = Message.TSIG_SIGNED;
+	m.tsigState = Message.TsigState.TSIG_SIGNED;
 }
 
 /**
@@ -412,7 +419,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
 				  signature, m.getHeader().getID(),
 				  Rcode.NOERROR, other);
 	m.addRecord(r, Section.ADDITIONAL);
-	m.tsigState = Message.TSIG_SIGNED;
+	m.tsigState = Message.TsigState.TSIG_SIGNED;
 }
 
 /**
@@ -431,7 +438,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
  */
 public byte
 verify(Message m, byte [] b, int length, TSIGRecord old) {
-	m.tsigState = Message.TSIG_FAILED;
+	m.tsigState = Message.TsigState.TSIG_FAILED;
 	final TSIGRecord tsig = m.getTSIG();
 	hmac.reset();
 	if (tsig == null)
@@ -510,7 +517,7 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 		return Rcode.BADSIG;
 	}
 
-	m.tsigState = Message.TSIG_VERIFIED;
+	m.tsigState = Message.TsigState.TSIG_VERIFIED;
 	return Rcode.NOERROR;
 }
 
@@ -618,10 +625,10 @@ public static class StreamVerifier {
 		else {
 			final boolean required = (nresponses - lastsigned >= 100);
 			if (required) {
-				m.tsigState = Message.TSIG_FAILED;
+				m.tsigState = Message.TsigState.TSIG_FAILED;
 				return Rcode.FORMERR;
 			}
-			m.tsigState = Message.TSIG_INTERMEDIATE;
+			m.tsigState = Message.TsigState.TSIG_INTERMEDIATE;
 			return Rcode.NOERROR;
 		}
 
@@ -630,7 +637,7 @@ public static class StreamVerifier {
 		{
 			if (Options.check("verbose"))
 				System.err.println("BADKEY failure");
-			m.tsigState = Message.TSIG_FAILED;
+			m.tsigState = Message.TsigState.TSIG_FAILED;
 			return Rcode.BADKEY;
 		}
 
@@ -646,7 +653,7 @@ public static class StreamVerifier {
 		if (TSIG.verify(verifier, tsig.getSignature()) == false) {
 			if (Options.check("verbose"))
 				System.err.println("BADSIG failure");
-			m.tsigState = Message.TSIG_FAILED;
+			m.tsigState = Message.TsigState.TSIG_FAILED;
 			return Rcode.BADSIG;
 		}
 
@@ -656,7 +663,7 @@ public static class StreamVerifier {
 		verifier.update(out.toByteArray());
 		verifier.update(tsig.getSignature());
 
-		m.tsigState = Message.TSIG_VERIFIED;
+		m.tsigState = Message.TsigState.TSIG_VERIFIED;
 		return Rcode.NOERROR;
 	}
 }

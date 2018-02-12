@@ -14,103 +14,108 @@ import java.util.*;
 
 public class SetResponse {
 
-/**
- * The Cache contains no information about the requested name/type
- */
-static final int UNKNOWN	= 0;
+	private static enum Type {
+		/**
+		 * The Cache contains no information about the requested name/type
+		 */
+		UNKNOWN,
 
-/**
- * The Zone does not contain the requested name, or the Cache has
- * determined that the name does not exist.
- */
-static final int NXDOMAIN	= 1;
+		/**
+		 * The Zone does not contain the requested name, or the Cache has
+		 * determined that the name does not exist.
+		 */
+		NXDOMAIN,
 
-/**
- * The Zone contains the name, but no data of the requested type,
- * or the Cache has determined that the name exists and has no data
- * of the requested type.
- */
-static final int NXRRSET	= 2;
+		/**
+		 * The Zone contains the name, but no data of the requested type,
+		 * or the Cache has determined that the name exists and has no data
+		 * of the requested type.
+		 */
+		NXRRSET,
 
-/**
- * A delegation enclosing the requested name was found.
- */
-static final int DELEGATION	= 3;
+		/**
+		 * A delegation enclosing the requested name was found.
+		 */
+		DELEGATION,
 
-/**
- * The Cache/Zone found a CNAME when looking for the name.
- * @see CNAMERecord
- */
-static final int CNAME		= 4;
+		/**
+		 * The Cache/Zone found a CNAME when looking for the name.
+		 * @see CNAMERecord
+		 */
+		CNAME,
 
-/**
- * The Cache/Zone found a DNAME when looking for the name.
- * @see DNAMERecord
- */
-static final int DNAME		= 5;
+		/**
+		 * The Cache/Zone found a DNAME when looking for the name.
+		 * @see DNAMERecord
+		 */
+		DNAME,
 
-/**
- * The Cache/Zone has successfully answered the question for the
- * requested name/type/class.
- */
-static final int SUCCESSFUL	= 6;
+		/**
+		 * The Cache/Zone has successfully answered the question for the
+		 * requested name/type/class.
+		 */
+		SUCCESSFUL
+	}
 
-private static final SetResponse unknown = new SetResponse(UNKNOWN);
-private static final SetResponse nxdomain = new SetResponse(NXDOMAIN);
-private static final SetResponse nxrrset = new SetResponse(NXRRSET);
 
-private int type;//XXX enum
+static final SetResponse unknown = new SetResponse(Type.UNKNOWN, null);
+static final SetResponse nxdomain = new SetResponse(Type.NXDOMAIN, null);
+static final SetResponse nxrrset = new SetResponse(Type.NXRRSET, null);
+
+static final SetResponse delegation(RRset rrset) {
+	return new SetResponse(Type.DELEGATION, rrset);
+}
+
+static final SetResponse cname(RRset rrset) {
+	final CNAMERecord r = (CNAMERecord) rrset.first();
+	return new SetResponse(Type.CNAME, r);
+}
+
+static final SetResponse dname(RRset rrset) {
+	final DNAMERecord r = (DNAMERecord) rrset.first();
+	return new SetResponse(Type.DNAME, r);
+}
+
+static final SetResponse success() {
+	Collection<RRset> data = new ArrayList<RRset>();
+	return new SetResponse(Type.SUCCESSFUL, data);
+}
+
+static final SetResponse success(RRset rrset) {
+	Collection<RRset> data = new ArrayList<RRset>();
+	data.add(rrset);
+	return new SetResponse(Type.SUCCESSFUL, data);
+}
+
+static final SetResponse success(Collection<? extends RRset> sets) {
+	return new SetResponse(Type.SUCCESSFUL, sets);
+}
+
+static final SetResponse success(RRset... sets) {
+	Collection<RRset> data = new ArrayList<RRset>();
+	for (RRset rrs : sets) {
+		data.add(rrs);
+	}
+	return new SetResponse(Type.SUCCESSFUL, data);
+}
+
+
+private final Type type;
 /*
  * DELEGATION: RRset
  * CNAME: 	   CNAMERecord
  * DNAME:      DNAMERecord
  * SUCCESSFUL: List<RRset>
  */
-private Object data;
+private final Object data;
 
-private
-SetResponse() {}
-
-SetResponse(int type, RRset rrset) {
-	if (type < 0 || type > 6)
-		throw new IllegalArgumentException("invalid type");
+private SetResponse(Type type, Object data) {
 	this.type = type;
-	this.data = rrset;
-}
-
-SetResponse(int type) {
-	if (type < 0 || type > 6)
-		throw new IllegalArgumentException("invalid type");
-	this.type = type;
-	this.data = null;
-}
-
-static SetResponse
-ofType(int type) {
-	switch (type) {
-		case UNKNOWN:
-			return unknown;
-		case NXDOMAIN:
-			return nxdomain;
-		case NXRRSET:
-			return nxrrset;
-		case DELEGATION:
-		case CNAME:
-		case DNAME:
-		case SUCCESSFUL:
-			final SetResponse sr = new SetResponse();
-			sr.type = type;
-			sr.data = null;
-			return sr;
-		default:
-			throw new IllegalArgumentException("invalid type");
-	}
+	this.data = data;
 }
 
 void
 addRRset(RRset rrset) {
-	if (data == null)
-		data = new ArrayList<Object>();
 	@SuppressWarnings("unchecked")
 	List<Object> l = (List<Object>) data;
 	l.add(rrset);
@@ -119,49 +124,49 @@ addRRset(RRset rrset) {
 /** Is the answer to the query unknown? */
 public boolean
 isUnknown() {
-	return (type == UNKNOWN);
+	return (type == Type.UNKNOWN);
 }
 
 /** Is the answer to the query that the name does not exist? */
 public boolean
 isNXDOMAIN() {
-	return (type == NXDOMAIN);
+	return (type == Type.NXDOMAIN);
 }
 
 /** Is the answer to the query that the name exists, but the type does not? */
 public boolean
 isNXRRSET() {
-	return (type == NXRRSET);
+	return (type == Type.NXRRSET);
 }
 
 /** Is the result of the lookup that the name is below a delegation? */
 public boolean
 isDelegation() {
-	return (type == DELEGATION);
+	return (type == Type.DELEGATION);
 }
 
 /** Is the result of the lookup a CNAME? */
 public boolean
 isCNAME() {
-	return (type == CNAME);
+	return (type == Type.CNAME);
 }
 
 /** Is the result of the lookup a DNAME? */
 public boolean
 isDNAME() {
-	return (type == DNAME);
+	return (type == Type.DNAME);
 }
 
 /** Was the query successful? */
 public boolean
 isSuccessful() {
-	return (type == SUCCESSFUL);
+	return (type == Type.SUCCESSFUL);
 }
 
 /** If the query was successful, return the answers */
 public RRset []
 answers() {
-	if (type != SUCCESSFUL)
+	if (type != Type.SUCCESSFUL)
 		return null;
 	final List<?> l = (List<?>) data;
 	return l.toArray(new RRset[l.size()]);
@@ -172,7 +177,7 @@ answers() {
  */
 public CNAMERecord
 getCNAME() {
-	return (CNAMERecord)((RRset)data).first();
+	return (CNAMERecord)data;
 }
 
 /**
@@ -180,7 +185,7 @@ getCNAME() {
  */
 public DNAMERecord
 getDNAME() {
-	return (DNAMERecord)((RRset)data).first();
+	return (DNAMERecord)data;
 }
 
 /**

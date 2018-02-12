@@ -440,7 +440,7 @@ lookup(Name name, int type, int minCred) {
 		 * Otherwise, look for a DNAME.
 		 */
 		if (isExact && type == Type.ANY) {
-			sr = new SetResponse(SetResponse.SUCCESSFUL);
+			sr = SetResponse.success();
 			Element [] elements = allElements(types);
 			int added = 0;
 			for (int i = 0; i < elements.length; i++) {
@@ -464,11 +464,10 @@ lookup(Name name, int type, int minCred) {
 			if (element != null &&
 			    element instanceof CacheRRset)
 			{
-				sr = new SetResponse(SetResponse.SUCCESSFUL);
-				sr.addRRset((CacheRRset) element);
+				sr = SetResponse.success((CacheRRset) element);
 				return sr;
 			} else if (element != null) {
-				sr = new SetResponse(SetResponse.NXRRSET);
+				sr = SetResponse.nxrrset;
 				return sr;
 			}
 
@@ -476,34 +475,31 @@ lookup(Name name, int type, int minCred) {
 			if (element != null &&
 			    element instanceof CacheRRset)
 			{
-				return new SetResponse(SetResponse.CNAME,
-						       (CacheRRset) element);
+				return SetResponse.cname((CacheRRset) element);
 			}
 		} else {
 			element = oneElement(tname, types, Type.DNAME, minCred);
 			if (element != null &&
 			    element instanceof CacheRRset)
 			{
-				return new SetResponse(SetResponse.DNAME,
-						       (CacheRRset) element);
+				return SetResponse.dname((CacheRRset) element);
 			}
 		}
 
 		/* Look for an NS */
 		element = oneElement(tname, types, Type.NS, minCred);
 		if (element != null && element instanceof CacheRRset)
-			return new SetResponse(SetResponse.DELEGATION,
-					       (CacheRRset) element);
+			return SetResponse.delegation((CacheRRset) element);
 
 		/* Check for the special NXDOMAIN element. */
 		if (isExact) {
 			element = oneElement(tname, types, 0, minCred);
 			if (element != null)
-				return SetResponse.ofType(SetResponse.NXDOMAIN);
+				return SetResponse.nxdomain;
 		}
 
 	}
-	return SetResponse.ofType(SetResponse.UNKNOWN);
+	return SetResponse.unknown;
 }
 
 /**
@@ -642,25 +638,21 @@ addMessage(Message in) {
 			completed = true;
 			if (curname == qname) {
 				if (response == null)
-					response = new SetResponse(
-							SetResponse.SUCCESSFUL);
-				response.addRRset(answers[i]);
+					response = SetResponse.success(answers[i]);
 			}
 			markAdditional(answers[i], additionalNames);
 		} else if (type == Type.CNAME && name.equals(curname)) {
 			CNAMERecord cname;
 			addRRset(answers[i], cred);
 			if (curname == qname)
-				response = new SetResponse(SetResponse.CNAME,
-							   answers[i]);
+				response = SetResponse.cname(answers[i]);
 			cname = (CNAMERecord) answers[i].first();
 			curname = cname.getTarget();
 		} else if (type == Type.DNAME && curname.subdomain(name)) {
 			DNAMERecord dname;
 			addRRset(answers[i], cred);
 			if (curname == qname)
-				response = new SetResponse(SetResponse.DNAME,
-							   answers[i]);
+				response = SetResponse.dname(answers[i]);
 			dname = (DNAMERecord) answers[i].first();
 			try {
 				curname = curname.fromDNAME(dname);
@@ -692,12 +684,10 @@ addMessage(Message in) {
 				soarec = (SOARecord) soa.first();
 			addNegative(curname, cachetype, soarec, cred);
 			if (response == null) {
-				int responseType;
 				if (rcode == Rcode.NXDOMAIN)
-					responseType = SetResponse.NXDOMAIN;
+					response = SetResponse.nxdomain;
 				else
-					responseType = SetResponse.NXRRSET;
-				response = SetResponse.ofType(responseType);
+					response = SetResponse.nxrrset;
 			}
 			/* DNSSEC records are not cached. */
 		} else {
@@ -706,9 +696,7 @@ addMessage(Message in) {
 			addRRset(ns, cred);
 			markAdditional(ns, additionalNames);
 			if (response == null)
-				response = new SetResponse(
-							SetResponse.DELEGATION,
-							ns);
+				response = SetResponse.delegation(ns);
 		}
 	} else if (rcode == Rcode.NOERROR && ns != null) {
 		/* Cache the NS set from a positive response. */

@@ -13,27 +13,25 @@ import java.util.HashMap;
 
 class Mnemonic {
 
-private static final Integer cachedInts[] = new Integer[64];//XXX
-
-static {
-	for (int i = 0; i < cachedInts.length; i++) {
-		cachedInts[i] = Integer.valueOf(i);
-	}
+public static enum Wordcase {
+	SENSITIVE,
+	UPPER,
+	LOWER
 }
 
 /* Strings are case-sensitive. */
-static final int CASE_SENSITIVE = 1;
+static final Wordcase CASE_SENSITIVE = Wordcase.SENSITIVE;
 
 /* Strings will be stored/searched for in uppercase. */
-static final int CASE_UPPER = 2;
+static final Wordcase CASE_UPPER = Wordcase.UPPER;
 
 /* Strings will be stored/searched for in lowercase. */
-static final int CASE_LOWER = 3;
+static final Wordcase CASE_LOWER = Wordcase.LOWER;
 
 private final HashMap<String, Integer> strings;
 private final HashMap<Integer, String> values;
 private final String description;
-private final int wordcase;//XXX enum
+private final Wordcase wordcase;
 private String prefix;
 private int max;
 private boolean numericok;
@@ -46,7 +44,7 @@ private boolean numericok;
  * throwing exceptions.
  */
 public
-Mnemonic(String description, int wordcase) {
+Mnemonic(String description, Wordcase wordcase) {
 	this.description = description;
 	this.wordcase = wordcase;
 	strings = new HashMap<String, Integer>();
@@ -78,16 +76,6 @@ setNumericAllowed(boolean numeric) {
 }
 
 /**
- * Converts an int into a possibly cached Integer.
- */
-public static Integer
-toInteger(int val) {
-	if (val >= 0 && val < cachedInts.length)
-		return (cachedInts[val]);
-	return new Integer(val);
-}
-
-/**
  * Checks that a numeric value is within the range [0..max]
  */
 public void
@@ -101,9 +89,9 @@ check(int val) {
 /* Converts a String to the correct case. */
 private String
 sanitize(String str) {
-	if (wordcase == CASE_UPPER)
+	if (wordcase == Wordcase.UPPER)
 		return str.toUpperCase();
-	else if (wordcase == CASE_LOWER)
+	else if (wordcase == Wordcase.LOWER)
 		return str.toLowerCase();
 	return str;
 }
@@ -128,7 +116,7 @@ parseNumeric(String s) {
 public void
 add(int val, String str) {
 	check(val);
-	final Integer value = toInteger(val);
+	final Integer value = Integer.valueOf(val);
 	str = sanitize(str);
 	strings.put(str, value);
 	values.put(value, str);
@@ -143,7 +131,7 @@ add(int val, String str) {
 public void
 addAlias(int val, String str) {
 	check(val);
-	final Integer value = toInteger(val);
+	final Integer value = Integer.valueOf(val);
 	str = sanitize(str);
 	strings.put(str, value);
 }
@@ -172,7 +160,7 @@ addAll(Mnemonic source) {
 public String
 getText(int val) {
 	check(val);
-	String str = values.get(toInteger(val));
+	String str = values.get(Integer.valueOf(val));
 	if (str != null)
 		return str;
 	str = Integer.toString(val);

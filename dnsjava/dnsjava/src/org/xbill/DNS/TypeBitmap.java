@@ -52,8 +52,8 @@ TypeBitmap(DNSInput in) throws WireParseException {
 			for (int j = 0; j < 8; j++) {
 				if ((current & (1 << (7 - j))) == 0)
 					continue;
-				int typecode = mapbase * 256 + + i * 8 + j;
-				types.add(Mnemonic.toInteger(typecode));
+				int typecode = mapbase * 256 + i * 8 + j;
+				types.add(Integer.valueOf(typecode));
 			}
 		}
 	}
@@ -70,7 +70,7 @@ TypeBitmap(Tokenizer st) throws IOException {
 		if (typecode < 0) {
 			throw st.exception("Invalid type: " + t.value);
 		}
-		types.add(Mnemonic.toInteger(typecode));
+		types.add(Integer.valueOf(typecode));
 	}
 	st.unget();
 }
@@ -130,7 +130,7 @@ toWire(DNSOutput out) {
 			}
 			mapbase = base;
 		}
-			map.add(Integer.valueOf(t));
+		map.add(Integer.valueOf(t));
 	}
 	mapToWire(out, map, mapbase);
 }
@@ -142,7 +142,7 @@ empty() {
 
 public boolean
 contains(int typecode) {
-	return types.contains(Mnemonic.toInteger(typecode));
+	return types.contains(Integer.valueOf(typecode));
 }
 
 }
