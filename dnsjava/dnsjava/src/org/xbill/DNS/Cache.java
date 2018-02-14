@@ -22,28 +22,28 @@ public class Cache {
 
 private interface Element {
 	public boolean expired();
-	public int compareCredibility(int cred);
+	public int compareCredibility(Credibility cred);
 	public int getType();
 }
 
-private static int
+private static long
 limitExpire(long ttl, long maxttl) {
-	if (maxttl >= 0 && maxttl < ttl)
+	if (maxttl >= 0L && maxttl < ttl)
 		ttl = maxttl;
-	final long expire = (System.currentTimeMillis() / 1000) + ttl;
-	if (expire < 0 || expire > Integer.MAX_VALUE)
-		return Integer.MAX_VALUE;
-	return (int)expire;
+	long expire = (System.currentTimeMillis() / 1000L) + ttl;
+	if (expire < 0L)
+		expire = Long.MAX_VALUE;
+	return expire;
 }
 
 private static class CacheRRset extends RRset implements Element {
 	private static final long serialVersionUID = 5971755205903597024L;
 
-	final int credibility;
-	final int expire;
+	final Credibility credibility;
+	final long expire;
 
 	public
-	CacheRRset(Record rec, int cred, long maxttl) {
+	CacheRRset(Record rec, Credibility cred, long maxttl) {
 		super();
 		this.credibility = cred;
 		this.expire = limitExpire(rec.getTTL(), maxttl);
@@ -51,7 +51,7 @@ private static class CacheRRset extends RRset implements Element {
 	}
 
 	public
-	CacheRRset(RRset rrset, int cred, long maxttl) {
+	CacheRRset(RRset rrset, Credibility cred, long maxttl) {
 		super(rrset);
 		this.credibility = cred;
 		this.expire = limitExpire(rrset.getTTL(), maxttl);
@@ -59,13 +59,13 @@ private static class CacheRRset extends RRset implements Element {
 
 	public final boolean
 	expired() {
-		final int now = (int)(System.currentTimeMillis() / 1000);
+		final long now = System.currentTimeMillis() / 1000L;
 		return (now >= expire);
 	}
 
 	public final int
-	compareCredibility(int cred) {
-		return credibility - cred;
+	compareCredibility(Credibility cred) {
+		return credibility.compareTo(cred);
 	}
 
 	@Override
@@ -79,22 +79,23 @@ private static class CacheRRset extends RRset implements Element {
 	}
 }
 
+/* Type value used for NXDOMAIN negative elements */
+private static final int Type_NXDOMAIN = 0;
+
 private static class NegativeElement implements Element {
 	final int type;
 	final Name name;
-	final int credibility;
-	final int expire;
+	final Credibility credibility;
+	final long expire;
 
 	public
-	NegativeElement(Name name, int type, SOARecord soa, int cred,
+	NegativeElement(Name name, int type, SOARecord soa, Credibility cred,
 			long maxttl)
 	{
 		this.name = name;
 		this.type = type;
-		long cttl = 0;
-		if (soa != null)
-			cttl = soa.getMinimum();
 		this.credibility = cred;
+		final long cttl = (soa != null) ? soa.getMinimum() : 0L;
 		this.expire = limitExpire(cttl, maxttl);
 	}
 
@@ -105,25 +106,25 @@ private static class NegativeElement implements Element {
 
 	public final boolean
 	expired() {
-		final int now = (int)(System.currentTimeMillis() / 1000);
+		final long now = System.currentTimeMillis() / 1000L;
 		return (now >= expire);
 	}
 
 	public final int
-	compareCredibility(int cred) {
-		return credibility - cred;
+	compareCredibility(Credibility cred) {
+		return credibility.compareTo(cred);
 	}
 
 	@Override
 	public String
 	toString() {
 		final StringBuilder sb = new StringBuilder();
-		if (type == 0)
+		if (type == Type_NXDOMAIN)
 			sb.append("NXDOMAIN ").append(name);
 		else
 			sb.append("NXRRSET ").append(name).append(' ').append(Type.string(type));
 		sb.append(" cl = ");
-		sb.append(credibility);
+		sb.append(credibility.ordinal());
 		return sb.toString();
 	}
 }
@@ -224,15 +225,15 @@ allElements(Object types) {
 }
 
 private synchronized Element
-oneElement(Name name, Object types, int type, int minCred) {
+oneElement(Name name, Object types, int type, Credibility minCred) {
 	Element found = null;
 
 	if (type == Type.ANY)
 		throw new IllegalArgumentException("oneElement(ANY)");
 	if (types instanceof List) {
-		final List<?> list = (List<?>) types;
-		for (int i = 0; i < list.size(); i++) {
-			Element set = (Element) list.get(i);
+		@SuppressWarnings("unchecked")
+		final List<Element> list = (List<Element>) types;
+		for (Element set : list) {
 			if (set.getType() == type) {
 				found = set;
 				break;
@@ -243,19 +244,18 @@ oneElement(Name name, Object types, int type, int minCred) {
 		if (set.getType() == type)
 			found = set;
 	}
-	if (found == null)
-		return null;
-	if (found.expired()) {
-		removeElement(name, type);
-		return null;
+	if (found != null) {
+		if (found.expired()) {
+			removeElement(name, type);
+			found = null;
+		} else if (found.compareCredibility(minCred) < 0)
+			found = null;
 	}
-	if (found.compareCredibility(minCred) < 0)
-		return null;
 	return found;
 }
 
 private synchronized Element
-findElement(Name name, int type, int minCred) {
+findElement(Name name, int type, Credibility minCred) {
 	final Object types = exactName(name);
 	if (types == null)
 		return null;
@@ -297,26 +297,24 @@ addElement(Name name, Element element) {
 private synchronized void
 removeElement(Name name, int type) {
 	final Object types = data.get(name);
-	if (types == null) {
-		return;
-	}
-	if (types instanceof List) {
-		@SuppressWarnings("unchecked")
-		final List<Element> list = (List<Element>) types;
-		for (int i = 0; i < list.size(); i++) {
-			Element elt = list.get(i);
-			if (elt.getType() == type) {
-				list.remove(i);
-				if (list.size() == 0)
-					data.remove(name);
-				return;
+	if (types != null) {
+		if (types instanceof List) {
+			@SuppressWarnings("unchecked")
+			final List<Element> list = (List<Element>) types;
+			for (int i = 0; i < list.size(); i++) {
+				Element elt = list.get(i);
+				if (elt.getType() == type) {
+					list.remove(i);
+					if (list.isEmpty())
+						data.remove(name);
+					break;
+				}
 			}
+		} else {
+			final Element elt = (Element) types;
+			if (elt.getType() == type)
+				data.remove(name);
 		}
-	} else {
-		final Element elt = (Element) types;
-		if (elt.getType() != type)
-			return;
-		data.remove(name);
 	}
 }
 
@@ -334,7 +332,7 @@ clearCache() {
  * @see Record
  */
 public synchronized void
-addRecord(Record r, int cred, Object o) {
+addRecord(Record r, Credibility cred, Object o) {
 	final Name name = r.getName();
 	final int type = r.getRRsetType();
 	if (!Type.isRR(type))
@@ -358,11 +356,11 @@ addRecord(Record r, int cred, Object o) {
  * @see RRset
  */
 public synchronized void
-addRRset(RRset rrset, int cred) {
+addRRset(RRset rrset, Credibility cred) {
 	final long ttl = rrset.getTTL();
 	final Name name = rrset.getName();
 	final int type = rrset.getType();
-	Element element = findElement(name, type, 0);
+	Element element = findElement(name, type, Credibility.HINT);
 	if (ttl == 0) {
 		if (element != null && element.compareCredibility(cred) <= 0)
 			removeElement(name, type);
@@ -389,10 +387,10 @@ addRRset(RRset rrset, int cred) {
  * @param cred The credibility of the negative entry
  */
 public synchronized void
-addNegative(Name name, int type, SOARecord soa, int cred) {
+addNegative(Name name, int type, SOARecord soa, Credibility cred) {
 	final long ttl = (soa != null) ? soa.getTTL() : 0L;
-	Element element = findElement(name, type, 0);
-	if (ttl == 0) {
+	Element element = findElement(name, type, Credibility.HINT);
+	if (ttl == 0L) {
 		if (element != null && element.compareCredibility(cred) <= 0)
 			removeElement(name, type);
 	} else {
@@ -409,13 +407,13 @@ addNegative(Name name, int type, SOARecord soa, int cred) {
  * Finds all matching sets or something that causes the lookup to stop.
  */
 protected synchronized SetResponse
-lookup(Name name, int type, int minCred) {
+lookup(Name name, int type, Credibility minCred) {
 	final int labels;
 	int tlabels;
 	Element element;
 	Name tname;
 	Object types;
-	SetResponse sr;
+	SetResponse sr = SetResponse.unknown;
 
 	labels = name.labels();
 
@@ -440,66 +438,64 @@ lookup(Name name, int type, int minCred) {
 		 * Otherwise, look for a DNAME.
 		 */
 		if (isExact && type == Type.ANY) {
-			sr = SetResponse.success();
 			Element [] elements = allElements(types);
 			int added = 0;
-			for (int i = 0; i < elements.length; i++) {
-				element = elements[i];
-				if (element.expired()) {
-					removeElement(tname, element.getType());
-					continue;
+			for (Element elem : elements) {
+				if (elem.expired()) {
+					removeElement(tname, elem.getType());
+				} else if (elem instanceof CacheRRset &&
+						elem.compareCredibility(minCred) >= 0) {
+					sr.addRRset((CacheRRset)elem);
+					added++;
 				}
-				if (!(element instanceof CacheRRset))
-					continue;
-				if (element.compareCredibility(minCred) < 0)
-					continue;
-				sr.addRRset((CacheRRset)element);
-				added++;
 			}
 			/* There were positive entries */
 			if (added > 0)
-				return sr;
+				sr = SetResponse.success();
 		} else if (isExact) {
 			element = oneElement(tname, types, type, minCred);
 			if (element != null &&
 			    element instanceof CacheRRset)
 			{
 				sr = SetResponse.success((CacheRRset) element);
-				return sr;
 			} else if (element != null) {
 				sr = SetResponse.nxrrset;
-				return sr;
+			} else {
+				element = oneElement(tname, types, Type.CNAME, minCred);
+				if (element != null &&
+				    element instanceof CacheRRset)
+				{
+					sr = SetResponse.cname((CacheRRset) element);
+				}
 			}
 
-			element = oneElement(tname, types, Type.CNAME, minCred);
-			if (element != null &&
-			    element instanceof CacheRRset)
-			{
-				return SetResponse.cname((CacheRRset) element);
-			}
 		} else {
 			element = oneElement(tname, types, Type.DNAME, minCred);
 			if (element != null &&
 			    element instanceof CacheRRset)
 			{
-				return SetResponse.dname((CacheRRset) element);
+				sr = SetResponse.dname((CacheRRset) element);
 			}
 		}
 
-		/* Look for an NS */
-		element = oneElement(tname, types, Type.NS, minCred);
-		if (element != null && element instanceof CacheRRset)
-			return SetResponse.delegation((CacheRRset) element);
+		if (sr == SetResponse.unknown) {
+			/* Look for an NS */
+			element = oneElement(tname, types, Type.NS, minCred);
+			if (element != null && element instanceof CacheRRset)
+				sr = SetResponse.delegation((CacheRRset) element);
+		}
 
-		/* Check for the special NXDOMAIN element. */
-		if (isExact) {
-			element = oneElement(tname, types, 0, minCred);
-			if (element != null)
-				return SetResponse.nxdomain;
+		if (sr == SetResponse.unknown) {
+			/* Check for the special NXDOMAIN element. */
+			if (isExact) {
+				element = oneElement(tname, types, Type_NXDOMAIN, minCred);
+				if (element != null)
+					sr = SetResponse.nxdomain;
+			}
 		}
 
 	}
-	return SetResponse.unknown;
+	return sr;
 }
 
 /**
@@ -513,12 +509,12 @@ lookup(Name name, int type, int minCred) {
  * @see Credibility
  */
 public SetResponse
-lookupRecords(Name name, int type, int minCred) {
+lookupRecords(Name name, int type, Credibility minCred) {
 	return lookup(name, type, minCred);
 }
 
 private RRset []
-findRecords(Name name, int type, int minCred) {
+findRecords(Name name, int type, Credibility minCred) {
 	final SetResponse cr = lookupRecords(name, type, minCred);
 	final RRset[] r;
 	if (cr.isSuccessful())
@@ -554,9 +550,9 @@ findAnyRecords(Name name, int type) {
 	return findRecords(name, type, Credibility.GLUE);
 }
 
-private final static int
+private final static Credibility
 getCred(int section, boolean isAuth) {
-	final int r;
+	final Credibility r;
 	if (section == Section.ANSWER) {
 		if (isAuth)
 			r = Credibility.AUTH_ANSWER;
@@ -596,6 +592,7 @@ markAdditional(RRset rrset, Set<Name> names) {
  * lookup, or null if nothing useful could be cached from the message.
  * @see Message
  */
+@SuppressWarnings("deprecation")	// Type.A6
 public SetResponse
 addMessage(Message in) {
 	final boolean isAuth = in.getHeader().getFlag(Flags.AA);
@@ -604,7 +601,7 @@ addMessage(Message in) {
 	Name curname;
 	final int qtype;
 	final int qclass;
-	int cred;
+	Credibility cred;
 	final int rcode = in.getHeader().getRcode();
 	boolean completed = false;
 	final RRset [] answers, auth, addl;
@@ -625,35 +622,35 @@ addMessage(Message in) {
 	additionalNames = new HashSet<Name>();
 
 	answers = in.getSectionRRsets(Section.ANSWER);
-	for (int i = 0; i < answers.length; i++) {
-		if (answers[i].getDClass() != qclass)
+	for (RRset answer : answers) {
+		if (answer.getDClass() != qclass)
 			continue;
-		int type = answers[i].getType();
-		Name name = answers[i].getName();
+		int type = answer.getType();
+		Name name = answer.getName();
 		cred = getCred(Section.ANSWER, isAuth);
 		if ((type == qtype || qtype == Type.ANY) &&
 		    name.equals(curname))
 		{
-			addRRset(answers[i], cred);
+			addRRset(answer, cred);
 			completed = true;
 			if (curname == qname) {
 				if (response == null)
-					response = SetResponse.success(answers[i]);
+					response = SetResponse.success(answer);
 			}
-			markAdditional(answers[i], additionalNames);
+			markAdditional(answer, additionalNames);
 		} else if (type == Type.CNAME && name.equals(curname)) {
 			CNAMERecord cname;
-			addRRset(answers[i], cred);
+			addRRset(answer, cred);
 			if (curname == qname)
-				response = SetResponse.cname(answers[i]);
-			cname = (CNAMERecord) answers[i].first();
+				response = SetResponse.cname(answer);
+			cname = (CNAMERecord) answer.first();
 			curname = cname.getTarget();
 		} else if (type == Type.DNAME && curname.subdomain(name)) {
 			DNAMERecord dname;
-			addRRset(answers[i], cred);
+			addRRset(answer, cred);
 			if (curname == qname)
-				response = SetResponse.dname(answers[i]);
-			dname = (DNAMERecord) answers[i].first();
+				response = SetResponse.dname(answer);
+			dname = (DNAMERecord) answer.first();
 			try {
 				curname = curname.fromDNAME(dname);
 			}
@@ -665,17 +662,19 @@ addMessage(Message in) {
 
 	auth = in.getSectionRRsets(Section.AUTHORITY);
 	RRset soa = null, ns = null;
-	for (int i = 0; i < auth.length; i++) {
-		if (auth[i].getType() == Type.SOA &&
-		    curname.subdomain(auth[i].getName()))
-			soa = auth[i];
-		else if (auth[i].getType() == Type.NS &&
-			 curname.subdomain(auth[i].getName()))
-			ns = auth[i];
+	for (RRset rrs : auth) {
+		int rrsetType = rrs.getType();
+		if (rrsetType == Type.SOA &&
+		    curname.subdomain(rrs.getName())) {
+			soa = rrs;
+		} else if (rrsetType == Type.NS &&
+			 curname.subdomain(rrs.getName())) {
+			ns = rrs;
+		}
 	}
 	if (!completed) {
 		/* This is a negative response or a referral. */
-		final int cachetype = (rcode == Rcode.NXDOMAIN) ? 0 : qtype;
+		final int cachetype = (rcode == Rcode.NXDOMAIN) ? Type_NXDOMAIN : qtype;
 		if (rcode == Rcode.NXDOMAIN || soa != null || ns == null) {
 			/* Negative response */
 			cred = getCred(Section.AUTHORITY, isAuth);
@@ -706,8 +705,7 @@ addMessage(Message in) {
 	}
 
 	addl = in.getSectionRRsets(Section.ADDITIONAL);
-	for (int i = 0; i < addl.length; i++) {
-		RRset rrs = addl[i];
+	for (RRset rrs : addl) {
 		int type = rrs.getType();
 		if (type == Type.A || type == Type.AAAA || type == Type.A6) {
 			Name name = rrs.getName();
@@ -835,8 +833,8 @@ toString() {
 		final Iterator<Object> it = data.values().iterator();
 		while (it.hasNext()) {
 			Element [] elements = allElements(it.next());
-			for (int i = 0; i < elements.length; i++) {
-				sb.append(elements[i]);
+			for (Element element : elements) {
+				sb.append(element);
 				sb.append('\n');
 			}
 		}

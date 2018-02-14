@@ -35,7 +35,7 @@ private Resolver resolver;
 private Name [] searchPath;
 private Cache cache;
 private boolean temporary_cache;
-private int credibility;
+private Credibility credibility;
 private final Name name;
 private final int type;
 private final int dclass;
@@ -387,7 +387,7 @@ setNdots(int ndots) {
  * @param credibility The minimum credibility level.
  */
 public void
-setCredibility(int credibility) {
+setCredibility(Credibility credibility) {
 	this.credibility = credibility;
 }
 

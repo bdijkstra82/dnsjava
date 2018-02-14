@@ -14,8 +14,6 @@ import java.net.Inet6Address;
 
 public final class Address {
 
-	public static enum Family {IPv4, IPv6}
-
 public static final int IPv4 = 1;
 public static final int IPv6 = 2;
 
