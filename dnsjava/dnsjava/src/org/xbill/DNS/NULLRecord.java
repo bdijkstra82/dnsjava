@@ -29,6 +29,7 @@ getObject() {
  * Creates a NULL record from the given data.
  * @param data The contents of the record.
  */
+@SuppressWarnings("deprecation")	// Type.NULL
 public
 NULLRecord(Name name, int dclass, long ttl, byte [] data) {
 	super(name, Type.NULL, dclass, ttl);

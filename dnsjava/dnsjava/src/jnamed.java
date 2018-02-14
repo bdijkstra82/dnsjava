@@ -253,17 +253,18 @@ addAdditional(Message response, int flags) {
 	addAdditional2(response, Section.AUTHORITY, flags);
 }
 
-byte
+@SuppressWarnings("deprecation")	// Type.SIG
+int
 addAnswer(Message response, Name name, int type, int dclass,
 	  int iterations, int flags)
 {
 	final SetResponse sr;
-	byte rcode = Rcode.NOERROR;
+	int rcode = Rcode.NOERROR;
 
 	if (iterations > 6)
 		return Rcode.NOERROR;
 
-	if (type == Type.SIG || type == Type.RRSIG) {
+	if (type == Type.RRSIG || type == Type.SIG) {
 		type = Type.ANY;
 		flags |= FLAG_SIGONLY;
 	}
@@ -439,7 +440,7 @@ generateReply(Message query, byte [] in, int length, Socket s)
 	if (!Type.isRR(type) && type != Type.ANY)
 		return errorMessage(query, Rcode.NOTIMP);
 
-	final byte rcode = addAnswer(response, name, type, dclass, 0, flags);
+	final int rcode = addAnswer(response, name, type, dclass, 0, flags);
 	if (rcode != Rcode.NOERROR && rcode != Rcode.NXDOMAIN)
 		return errorMessage(query, rcode);
 

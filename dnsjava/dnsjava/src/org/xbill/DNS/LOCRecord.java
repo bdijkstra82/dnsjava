@@ -310,12 +310,12 @@ parseLOCformat(int b) throws WireParseException {
 
 private static int
 toLOCformat(long l) {
-	byte exp = 0;
+	int exp = 0;
 	while (l > 9) {
 		exp++;
 		l /= 10;
 	}
-	return (int)((l << 4) + exp);
+	return (int)(l << 4) + exp;
 }
 
 }

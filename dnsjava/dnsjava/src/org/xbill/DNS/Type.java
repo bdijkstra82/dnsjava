@@ -307,45 +307,20 @@ private static final TypeMnemonic types = new TypeMnemonic();
 static {
 	types.add(A, "A", ARecord.class);
 	types.add(NS, "NS", NSRecord.class);
-	types.add(MD, "MD", MDRecord.class);
-	types.add(MF, "MF", MFRecord.class);
 	types.add(CNAME, "CNAME", CNAMERecord.class);
 	types.add(SOA, "SOA", SOARecord.class);
-	types.add(MB, "MB", MBRecord.class);
-	types.add(MG, "MG", MGRecord.class);
-	types.add(MR, "MR", MRRecord.class);
-	types.add(NULL, "NULL", NULLRecord.class);
-	types.add(WKS, "WKS", WKSRecord.class);
 	types.add(PTR, "PTR", PTRRecord.class);
-	types.add(HINFO, "HINFO", HINFORecord.class);
-	types.add(MINFO, "MINFO", MINFORecord.class);
 	types.add(MX, "MX", MXRecord.class);
 	types.add(TXT, "TXT", TXTRecord.class);
-	types.add(RP, "RP", RPRecord.class);
 	types.add(AFSDB, "AFSDB", AFSDBRecord.class);
-	types.add(X25, "X25", X25Record.class);
-	types.add(ISDN, "ISDN", ISDNRecord.class);
-	types.add(RT, "RT", RTRecord.class);
-	types.add(NSAP, "NSAP", NSAPRecord.class);
-	types.add(NSAP_PTR, "NSAP-PTR", NSAP_PTRRecord.class);
-	types.add(SIG, "SIG", SIGRecord.class);
-	types.add(KEY, "KEY", KEYRecord.class);
-	types.add(PX, "PX", PXRecord.class);
-	types.add(GPOS, "GPOS", GPOSRecord.class);
 	types.add(AAAA, "AAAA", AAAARecord.class);
 	types.add(LOC, "LOC", LOCRecord.class);
-	types.add(NXT, "NXT", NXTRecord.class);
-	types.add(EID, "EID");
-	types.add(NIMLOC, "NIMLOC");
 	types.add(SRV, "SRV", SRVRecord.class);
-	types.add(ATMA, "ATMA");
 	types.add(NAPTR, "NAPTR", NAPTRRecord.class);
 	types.add(KX, "KX", KXRecord.class);
 	types.add(CERT, "CERT", CERTRecord.class);
-	types.add(A6, "A6", A6Record.class);
 	types.add(DNAME, "DNAME", DNAMERecord.class);
 	types.add(OPT, "OPT", OPTRecord.class);
-	types.add(APL, "APL", APLRecord.class);
 	types.add(DS, "DS", DSRecord.class);
 	types.add(SSHFP, "SSHFP", SSHFPRecord.class);
 	types.add(IPSECKEY, "IPSECKEY", IPSECKEYRecord.class);
@@ -358,17 +333,48 @@ static {
 	types.add(TLSA, "TLSA", TLSARecord.class);
 	types.add(SMIMEA, "SMIMEA", SMIMEARecord.class);
 	types.add(OPENPGPKEY, "OPENPGPKEY", OPENPGPKEYRecord.class);
-	types.add(SPF, "SPF", SPFRecord.class);
 	types.add(TKEY, "TKEY", TKEYRecord.class);
 	types.add(TSIG, "TSIG", TSIGRecord.class);
 	types.add(IXFR, "IXFR");
 	types.add(AXFR, "AXFR");
-	types.add(MAILB, "MAILB");
-	types.add(MAILA, "MAILA");
 	types.add(ANY, "ANY");
 	types.add(URI, "URI", URIRecord.class);
 	types.add(CAA, "CAA", CAARecord.class);
 	types.add(DLV, "DLV", DLVRecord.class);
+
+	types.add(NULL, "NULL", NULLRecord.class);
+	types.add(EID, "EID");
+	types.add(NIMLOC, "NIMLOC");
+	types.add(ATMA, "ATMA");
+	types.add(MAILB, "MAILB");
+	types.add(MAILA, "MAILA");
+	addTypesWithDeprecatedClasses();
+}
+
+@SuppressWarnings("deprecation")	// cannot suppress warnings on a static initializer
+private static void addTypesWithDeprecatedClasses() {
+	types.add(MD, "MD", MDRecord.class);
+	types.add(MF, "MF", MFRecord.class);
+	types.add(MB, "MB", MBRecord.class);
+	types.add(MG, "MG", MGRecord.class);
+	types.add(MR, "MR", MRRecord.class);
+	types.add(WKS, "WKS", WKSRecord.class);
+	types.add(HINFO, "HINFO", HINFORecord.class);
+	types.add(MINFO, "MINFO", MINFORecord.class);
+	types.add(RP, "RP", RPRecord.class);
+	types.add(X25, "X25", X25Record.class);
+	types.add(ISDN, "ISDN", ISDNRecord.class);
+	types.add(RT, "RT", RTRecord.class);
+	types.add(NSAP, "NSAP", NSAPRecord.class);
+	types.add(NSAP_PTR, "NSAP-PTR", NSAP_PTRRecord.class);
+	types.add(SIG, "SIG", SIGRecord.class);
+	types.add(KEY, "KEY", KEYRecord.class);
+	types.add(PX, "PX", PXRecord.class);
+	types.add(GPOS, "GPOS", GPOSRecord.class);
+	types.add(NXT, "NXT", NXTRecord.class);
+	types.add(A6, "A6", A6Record.class);
+	types.add(APL, "APL", APLRecord.class);
+	types.add(SPF, "SPF", SPFRecord.class);
 }
 
 private

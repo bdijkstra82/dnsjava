@@ -58,7 +58,7 @@ private static final int MAXOFFSETS = 7;
 private static final DecimalFormat byteFormat = new DecimalFormat();
 
 /* Used to efficiently convert bytes to lowercase */
-private static final byte lowercase[] = new byte[256];
+private static final byte[] lowercase = new byte[256];
 
 /* Used in wildcard names. */
 private static final Name wild;
@@ -174,7 +174,7 @@ fromString(String s, Name origin) throws TextParseException {
 	int intval = 0;
 	boolean absolute = false;
 	for (int i = 0; i < s.length(); i++) {
-		byte b = (byte) s.charAt(i);
+		int b = s.charAt(i);
 		if (escaped) {
 			if (b >= '0' && b <= '9' && digits < 3) {
 				digits++;
@@ -183,14 +183,14 @@ fromString(String s, Name origin) throws TextParseException {
 					parseException(s, "bad escape");
 				if (digits < 3)
 					continue;
-				b = (byte) intval;
+				b = intval;
 			}
 			else if (digits > 0 && digits < 3)
 				parseException(s, "bad escape");
 			if (pos > MAXLABEL)
 				parseException(s, "label too long");
 			labelstart = pos;
-			label[pos++] = b;
+			label[pos++] = (byte) b;
 			escaped = false;
 		} else if (b == '\\') {
 			escaped = true;
@@ -203,12 +203,14 @@ fromString(String s, Name origin) throws TextParseException {
 			nb.appendFromString(s, label, 0, 1);
 			labelstart = -1;
 			pos = 1;
+		} else if (b > 255) {
+			parseException(s, "illegal characters");
 		} else {
 			if (labelstart == -1)
 				labelstart = i;
 			if (pos > MAXLABEL)
 				parseException(s, "label too long");
-			label[pos++] = b;
+			label[pos++] = (byte) b;
 		}
 	}
 	if (digits > 0 && digits < 3)

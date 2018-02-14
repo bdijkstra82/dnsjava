@@ -95,6 +95,7 @@ newUpdate(Name zone) {
 	return new Update(zone);
 }
 
+@SuppressWarnings("deprecation")	// Type.SIG and SIGRecord
 Message(DNSInput in) throws IOException {
 	this(new Header(in));
 	final boolean isUpdate = (header.getOpcode() == Opcode.UPDATE);

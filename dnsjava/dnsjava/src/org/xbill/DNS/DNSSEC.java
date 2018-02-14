@@ -349,7 +349,7 @@ private static byte []
 trimByteArray(byte [] array) {
 	final byte[] r;
 	if (array[0] == 0) {
-		final byte trimmedArray[] = new byte[array.length - 1];
+		final byte[] trimmedArray = new byte[array.length - 1];
 		System.arraycopy(array, 1, trimmedArray, 0, array.length - 1);
 		r = trimmedArray;
 	} else {

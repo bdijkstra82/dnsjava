@@ -46,9 +46,9 @@ private static int
 checkMaskLength(String field, int family, int val) {
 	final int max = Address.addressLength(family) * 8;
 	if (val < 0 || val > max)
-		throw new IllegalArgumentException("\"" + field + "\" " + val +
+		throw new IllegalArgumentException('"' + field + "\" " + val +
 						   " must be in the range " +
-						   "[0.." + max + "]");
+						   "[0.." + max + ']');
 	return val;
 }
 

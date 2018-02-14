@@ -675,7 +675,7 @@ help(String topic) {
 }
 
 public static void
-main(String args[]) {
+main(String[] args) {
 
 	InputStream in = null;
 	if (args.length >= 1) {

@@ -701,7 +701,7 @@ getAdditionalName() {
 static int
 checkU8(String field, int val) {
 	if (val < 0 || val > 0xFF)
-		throw new IllegalArgumentException("\"" + field + "\" " + val +
+		throw new IllegalArgumentException('"' + field + "\" " + val +
 						   " must be an unsigned 8 " +
 						   "bit value");
 	return val;
@@ -711,7 +711,7 @@ checkU8(String field, int val) {
 static int
 checkU16(String field, int val) {
 	if (val < 0 || val > 0xFFFF)
-		throw new IllegalArgumentException("\"" + field + "\" " + val +
+		throw new IllegalArgumentException('"' + field + "\" " + val +
 						   " must be an unsigned 16 " +
 						   "bit value");
 	return val;
@@ -721,7 +721,7 @@ checkU16(String field, int val) {
 static long
 checkU32(String field, long val) {
 	if (val < 0 || val > 0xFFFFFFFFL)
-		throw new IllegalArgumentException("\"" + field + "\" " + val +
+		throw new IllegalArgumentException('"' + field + "\" " + val +
 						   " must be an unsigned 32 " +
 						   "bit value");
 	return val;

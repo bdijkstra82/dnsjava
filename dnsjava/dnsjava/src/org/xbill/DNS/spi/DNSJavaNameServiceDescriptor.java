@@ -13,6 +13,7 @@ import sun.net.spi.nameservice.*;
  * @author Paul Cowan (pwc21@yahoo.com)
  */
 
+@SuppressWarnings("restriction")
 public class DNSJavaNameServiceDescriptor implements NameServiceDescriptor {
 
 private static final NameService nameService;
