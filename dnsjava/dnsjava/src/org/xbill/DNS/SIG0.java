@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Pasi Eronen
  * @author Brian Wellington
  */
-
+@Deprecated
 public class SIG0 {
 
 /**
@@ -36,7 +36,7 @@ signMessage(Message message, KEYRecord key, PrivateKey privkey,
 	    SIGRecord previous) throws DNSSEC.DNSSECException
 {
 
-	int validity = Options.intValue("sig0validity");
+	int validity = Options.intValue(Options.Standard.sig0validity);
 	if (validity < 0)
 		validity = VALIDITY;
 

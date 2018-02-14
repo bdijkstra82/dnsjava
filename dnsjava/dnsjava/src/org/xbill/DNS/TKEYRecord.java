@@ -122,30 +122,31 @@ String
 rrToString() {
 	final StringBuffer sb = new StringBuffer();
 	sb.append(alg);
-	sb.append(" ");
-	if (Options.check("multiline"))
+	sb.append(' ');
+	final boolean multiline = Options.check(Options.Standard.multiline);
+	if (multiline)
 		sb.append("(\n\t");
 	sb.append(FormattedTime.format(timeInception));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(FormattedTime.format(timeExpire));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(modeString());
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(Rcode.TSIGstring(error));
-	if (Options.check("multiline")) {
-		sb.append("\n");
+	if (multiline) {
+		sb.append('\n');
 		if (key != null) {
 			sb.append(base64.formatString(key, 64, "\t", false));
-			sb.append("\n");
+			sb.append('\n');
 		}
 		if (other != null)
 			sb.append(base64.formatString(other, 64, "\t", false));
 		sb.append(" )");
 	} else {
-		sb.append(" ");
+		sb.append(' ');
 		if (key != null) {
 			sb.append(base64.toString(key));
-			sb.append(" ");
+			sb.append(' ');
 		}
 		if (other != null)
 			sb.append(base64.toString(other));

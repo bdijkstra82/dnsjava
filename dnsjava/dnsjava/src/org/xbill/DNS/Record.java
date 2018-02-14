@@ -3,6 +3,7 @@
 package org.xbill.DNS;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.text.*;
 import java.util.*;
 import org.xbill.DNS.utils.*;
@@ -15,8 +16,6 @@ import org.xbill.DNS.utils.*;
  */
 
 public abstract class Record implements Cloneable, Comparable<Record>, Serializable {
-
-private static final long serialVersionUID = 2694906050116005466L;
 
 protected Name name;
 protected int type, dclass;
@@ -45,7 +44,7 @@ Record(Name name, int type, int dclass, long ttl) {
 }
 
 /**
- * Creates an empty record of the correct type; must be overriden
+ * Creates an empty record of the correct type; must be overridden
  */
 //XXX this is a factory method
 abstract Record
@@ -71,7 +70,7 @@ getEmptyRecord(Name name, int type, int dclass, long ttl, boolean hasData) {
 }
 
 /**
- * Converts the type-specific RR to wire format - must be overriden
+ * Converts the type-specific RR to wire format - must be overridden
  */
 // XXX factory method
 abstract void
@@ -307,23 +306,23 @@ toString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(name);
 	if (sb.length() < 8)
-		sb.append("\t");
+		sb.append('\t');
 	if (sb.length() < 16)
-		sb.append("\t");
-	sb.append("\t");
-	if (Options.check("BINDTTL"))
+		sb.append('\t');
+	sb.append('\t');
+	if (Options.check(Options.Standard.bindttl))
 		sb.append(TTL.format(ttl));
 	else
 		sb.append(ttl);
-	sb.append("\t");
-	if (dclass != DClass.IN || !Options.check("noPrintIN")) {
+	sb.append('\t');
+	if (dclass != DClass.IN || !Options.check(Options.Standard.noprintin)) {
 		sb.append(DClass.string(dclass));
-		sb.append("\t");
+		sb.append('\t');
 	}
 	sb.append(Type.string(type));
 	final String rdata = rrToString();
-	if (!rdata.equals("")) {
-		sb.append("\t");
+	if (rdata.length() != 0) {
+		sb.append('\t');
 		sb.append(rdata);
 	}
 	return sb.toString();
@@ -341,8 +340,7 @@ rdataFromString(Tokenizer st, Name origin) throws IOException;
  */
 protected static byte []
 byteArrayFromString(String s) throws TextParseException {
-	byte [] array = s.getBytes();
-	boolean escaped = false;
+	byte [] array = s.getBytes(Charset.forName("ISO-8859-1"));
 	boolean hasEscapes = false;
 
 	for (int i = 0; i < array.length; i++) {
@@ -358,12 +356,13 @@ byteArrayFromString(String s) throws TextParseException {
 		return array;
 	}
 
-	final ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final ByteArrayOutputStream os = new ByteArrayOutputStream(array.length);
 
+	boolean escaped = false;
 	int digits = 0;
 	int intval = 0;
 	for (int i = 0; i < array.length; i++) {
-		byte b = array[i];
+		int b = array[i] & 0xff;
 		if (escaped) {
 			if (b >= '0' && b <= '9' && digits < 3) {
 				digits++;
@@ -374,29 +373,29 @@ byteArrayFromString(String s) throws TextParseException {
 								("bad escape");
 				if (digits < 3)
 					continue;
-				b = (byte) intval;
+				b = intval;
 			}
 			else if (digits > 0 && digits < 3)
 				throw new TextParseException("bad escape");
 			os.write(b);
 			escaped = false;
 		}
-		else if (array[i] == '\\') {
+		else if (b == '\\') {
 			escaped = true;
 			digits = 0;
 			intval = 0;
 		}
 		else
-			os.write(array[i]);
+			os.write(b);
 	}
 	if (digits > 0 && digits < 3)
 		throw new TextParseException("bad escape");
-	array = os.toByteArray();
-	if (array.length > 255) {
+	if (os.size() > 255) {
 		throw new TextParseException("text string too long");
 	}
+	array = os.toByteArray();
 
-	return os.toByteArray();
+	return array;
 }
 
 /**
@@ -431,7 +430,7 @@ unknownToString(byte [] data) {
 	final StringBuilder sb = new StringBuilder();
 	sb.append("\\# ");
 	sb.append(data.length);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(base16.toString(data));
 	return sb.toString();
 }
@@ -579,14 +578,20 @@ sameRRset(Record rec) {
 @Override
 public boolean
 equals(Object arg) {
+	final boolean eq;
 	if (arg == null || !(arg instanceof Record))
-		return false;
-	final Record r = (Record) arg;
-	if (type != r.type || dclass != r.dclass || !name.equals(r.name))
-		return false;
-	final byte [] array1 = rdataToWireCanonical();
-	final byte [] array2 = r.rdataToWireCanonical();
-	return Arrays.equals(array1, array2);
+		eq = false;
+	else {
+		final Record r = (Record) arg;
+		if (type != r.type || dclass != r.dclass || !name.equals(r.name))
+			eq = false;
+		else {
+			final byte [] array1 = rdataToWireCanonical();
+			final byte [] array2 = r.rdataToWireCanonical();
+			eq = Arrays.equals(array1, array2);
+		}
+	}
+	return eq;
 }
 
 /**
@@ -655,26 +660,29 @@ setTTL(long ttl) {
  */
 public int
 compareTo(Record arg) {
+	int d;
 	if (this == arg)
-		return (0);
-
-	int n = name.compareTo(arg.name);
-	if (n != 0)
-		return (n);
-	n = dclass - arg.dclass;
-	if (n != 0)
-		return (n);
-	n = type - arg.type;
-	if (n != 0)
-		return (n);
-	final byte [] rdata1 = rdataToWireCanonical();
-	final byte [] rdata2 = arg.rdataToWireCanonical();
-	for (int i = 0; i < rdata1.length && i < rdata2.length; i++) {
-		n = (rdata1[i] & 0xFF) - (rdata2[i] & 0xFF);
-		if (n != 0)
-			return (n);
+		d = 0;
+	else {
+		d = name.compareTo(arg.name);
+		if (d == 0)
+			d = dclass - arg.dclass;
+		if (d == 0)
+			d = type - arg.type;
+		if (d == 0) {
+			final byte [] rdata1 = rdataToWireCanonical();
+			final byte [] rdata2 = arg.rdataToWireCanonical();
+			final int len1 = rdata1.length;
+			final int len2 = rdata2.length;
+			final int lenm = Math.min(len1, len2);
+			for (int i = 0; i < lenm && d == 0; i++) {
+				d = (rdata1[i] & 0xFF) - (rdata2[i] & 0xFF);
+			}
+			if (d == 0)
+				d = len1 - len2;
+		}
 	}
-	return (rdata1.length - rdata2.length);
+	return d;
 }
 
 /**

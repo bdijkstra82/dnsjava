@@ -4,6 +4,7 @@ package org.xbill.DNS;
 
 import java.io.*;
 import java.text.*;
+import java.util.Arrays;
 
 /**
  * A representation of a domain name.  It may either be absolute (fully
@@ -21,19 +22,19 @@ private static final int LABEL_COMPRESSION = 0xC0;
 private static final int LABEL_MASK = 0xC0;
 
 /* The name data */
-private byte [] name;
+private final byte[] name;
 
 /*
  * Effectively an 8 byte array, where the low order byte stores the number
  * of labels and the 7 higher order bytes store per-label offsets.
  */
-private long offsets;
+private final long offsets;
 
-/* Precomputed hashcode. */
+/* Lazily computed hashcode. */
 private int hashcode;
 
-private static final byte [] emptyLabel = new byte[] {(byte)0};
-private static final byte [] wildLabel = new byte[] {(byte)1, (byte)'*'};
+private static final byte [] emptyLabel = new byte[] {0};
+private static final byte [] wildLabel = new byte[] {1, '*'};
 
 /** The root name */
 public static final Name root;
@@ -44,7 +45,7 @@ public static final Name empty;
 /** The maximum length of a Name */
 private static final int MAXNAME = 255;
 
-/** The maximum length of a label a Name */
+/** The maximum length of a label in a Name */
 private static final int MAXLABEL = 63;
 
 /** The maximum number of labels in a Name */
@@ -64,31 +65,46 @@ private static final Name wild;
 
 static {
 	byteFormat.setMinimumIntegerDigits(3);
-	for (int i = 0; i < lowercase.length; i++) {
-		if (i < 'A' || i > 'Z')
-			lowercase[i] = (byte)i;
-		else
-			lowercase[i] = (byte)(i - 'A' + 'a');
+
+	for (int i = 0; i < 'A'; i++) {
+		lowercase[i] = (byte)i;
 	}
-	root = new Name();
-	root.appendSafe(emptyLabel, 0, 1);
-	empty = new Name();
-	empty.name = new byte[0];
-	wild = new Name();
-	wild.appendSafe(wildLabel, 0, 1);
+	for (int i = 'A'; i <= 'Z'; i++) {
+		lowercase[i] = (byte)(i - 'A' + 'a');
+	}
+	for (int i = 'Z' + 1; i < lowercase.length; i++) {
+		lowercase[i] = (byte)i;
+	}
+
+	NameBuilder nb;
+	nb = new NameBuilder();
+	nb.appendSafe(emptyLabel, 0, 1);
+	root = nb.toName();
+
+	empty = new Name(new byte[0], 0L);
+
+	nb = new NameBuilder();
+	nb.appendSafe(wildLabel, 0, 1);
+	wild = nb.toName();
 }
 
-private
-Name() {
+private static int lowercase(int b) {
+	return lowercase[b & 0xff] & 0xff;
 }
 
-private final void
-setoffset(int n, int offset) {
-	if (n >= MAXOFFSETS)
-		return;
-	final int shift = 8 * (7 - n);
-	offsets &= (~(0xFFL << shift));
-	offsets |= ((long)offset << shift);
+private Name(byte[] name, long offsets) {
+	this.name = name;
+	this.offsets = offsets;
+}
+
+private static final long
+setoffset(long offsets, int n, int offset) {
+	if (n < MAXOFFSETS) {
+		final int shift = 8 * (7 - n);
+		offsets &= (~(0xFFL << shift));
+		offsets |= ((long)offset << shift);
+	}
+	return offsets;
 }
 
 private final int
@@ -112,184 +128,21 @@ offset(int n) {
 	return r;
 }
 
-private final void
-setlabels(int labels) {
-	offsets &= ~(0xFF);
+private static final long
+setlabels(long offsets, int labels) {
+	offsets &= ~(0xFFL);
 	offsets |= labels;
+	return offsets;
 }
 
 private final int
 getlabels() {
-	return (int)(offsets & 0xFF);
+	return (int)offsets & 0xFF;
 }
 
-private static final void
-copy(Name src, Name dst) {
-	if (src.offset(0) == 0) {
-		dst.name = src.name;
-		dst.offsets = src.offsets;
-	} else {
-		final int offset0 = src.offset(0);
-		final int namelen = src.name.length - offset0;
-		final int labels = src.labels();
-		dst.name = new byte[namelen];
-		System.arraycopy(src.name, offset0, dst.name, 0, namelen);
-		for (int i = 0; i < labels && i < MAXOFFSETS; i++)
-			dst.setoffset(i, src.offset(i) - offset0);
-		dst.setlabels(labels);
-	}
-}
-
-private final void
-append(byte [] array, int start, int n) throws NameTooLongException {
-	final int length = (name == null ? 0 : (name.length - offset(0)));
-	int alength = 0;
-	for (int i = 0, pos = start; i < n; i++) {
-		int len = array[pos];
-		if (len > MAXLABEL)
-			throw new IllegalStateException("invalid label");
-		len++;
-		pos += len;
-		alength += len;
-	}
-	final int newlength = length + alength;
-	if (newlength > MAXNAME)
-		throw new NameTooLongException();
-	final int labels = getlabels();
-	final int newlabels = labels + n;
-	if (newlabels > MAXLABELS)
-		throw new IllegalStateException("too many labels");
-	final byte [] newname = new byte[newlength];
-	if (length != 0)
-		System.arraycopy(name, offset(0), newname, 0, length);
-	System.arraycopy(array, start, newname, length, alength);
-	name = newname;
-	for (int i = 0, pos = length; i < n; i++) {
-		setoffset(labels + i, pos);
-		pos += (newname[pos] + 1);
-	}
-	setlabels(newlabels);
-}
-
-private static TextParseException
-parseException(String str, String message) {
-	return new TextParseException("'" + str + "': " + message);
-}
-
-private final void
-appendFromString(String fullName, byte [] array, int start, int n)
-throws TextParseException
-{
-	try {
-		append(array, start, n);
-	}
-	catch (NameTooLongException e) {
-		throw parseException(fullName, "Name too long");
-	}
-}
-
-private final void
-appendSafe(byte [] array, int start, int n) {
-	try {
-		append(array, start, n);
-	}
-	catch (NameTooLongException e) {
-	}
-}
-
-/**
- * Create a new name from a string and an origin.  This does not automatically
- * make the name absolute; it will be absolute if it has a trailing dot or an
- * absolute origin is appended.
- * @param s The string to be converted
- * @param origin If the name is not absolute, the origin to be appended.
- * @throws TextParseException The name is invalid.
- */
-public
-Name(String s, Name origin) throws TextParseException {
-	if (s.equals(""))
-		throw parseException(s, "empty name");
-	else if (s.equals("@")) {
-		if (origin == null)
-			copy(empty, this);
-		else
-			copy(origin, this);
-		return;
-	} else if (s.equals(".")) {
-		copy(root, this);
-		return;
-	}
-	int labelstart = -1;
-	int pos = 1;
-	final byte [] label = new byte[MAXLABEL + 1];
-	boolean escaped = false;
-	int digits = 0;
-	int intval = 0;
-	boolean absolute = false;
-	for (int i = 0; i < s.length(); i++) {
-		byte b = (byte) s.charAt(i);
-		if (escaped) {
-			if (b >= '0' && b <= '9' && digits < 3) {
-				digits++;
-				intval *= 10;
-				intval += (b - '0');
-				if (intval > 255)
-					throw parseException(s, "bad escape");
-				if (digits < 3)
-					continue;
-				b = (byte) intval;
-			}
-			else if (digits > 0 && digits < 3)
-				throw parseException(s, "bad escape");
-			if (pos > MAXLABEL)
-				throw parseException(s, "label too long");
-			labelstart = pos;
-			label[pos++] = b;
-			escaped = false;
-		} else if (b == '\\') {
-			escaped = true;
-			digits = 0;
-			intval = 0;
-		} else if (b == '.') {
-			if (labelstart == -1)
-				throw parseException(s, "invalid empty label");
-			label[0] = (byte)(pos - 1);
-			appendFromString(s, label, 0, 1);
-			labelstart = -1;
-			pos = 1;
-		} else {
-			if (labelstart == -1)
-				labelstart = i;
-			if (pos > MAXLABEL)
-				throw parseException(s, "label too long");
-			label[pos++] = b;
-		}
-	}
-	if (digits > 0 && digits < 3)
-		throw parseException(s, "bad escape");
-	if (escaped)
-		throw parseException(s, "bad escape");
-	if (labelstart == -1) {
-		appendFromString(s, emptyLabel, 0, 1);
-		absolute = true;
-	} else {
-		label[0] = (byte)(pos - 1);
-		appendFromString(s, label, 0, 1);
-	}
-	if (origin != null && !absolute)
-		appendFromString(s, origin.name, origin.offset(0),
-				 origin.getlabels());
-}
-
-/**
- * Create a new name from a string.  This does not automatically make the name
- * absolute; it will be absolute if it has a trailing dot.
- * @param s The string to be converted
- * @throws TextParseException The name is invalid.
- */
-public
-Name(String s) throws TextParseException {
-	this(s, null);
+private static void
+parseException(String str, String message) throws TextParseException {
+	throw new TextParseException('\'' + str + "': " + message);
 }
 
 /**
@@ -303,12 +156,76 @@ Name(String s) throws TextParseException {
  */
 public static Name
 fromString(String s, Name origin) throws TextParseException {
-	if (s.equals("@") && origin != null)
+	if (s.length() == 0)
+		parseException(s, "empty name");
+	else if (s.equals("@")) {
+		if (origin == null)
+			return empty;
 		return origin;
-	else if (s.equals("."))
-		return (root);
-
-	return new Name(s, origin);
+	} else if (s.equals(".")) {
+		return root;
+	}
+	final NameBuilder nb = new NameBuilder();
+	int labelstart = -1;
+	int pos = 1;
+	final byte [] label = new byte[MAXLABEL + 1];
+	boolean escaped = false;
+	int digits = 0;
+	int intval = 0;
+	boolean absolute = false;
+	for (int i = 0; i < s.length(); i++) {
+		byte b = (byte) s.charAt(i);
+		if (escaped) {
+			if (b >= '0' && b <= '9' && digits < 3) {
+				digits++;
+				intval = intval * 10 + (b - '0');
+				if (intval > 255)
+					parseException(s, "bad escape");
+				if (digits < 3)
+					continue;
+				b = (byte) intval;
+			}
+			else if (digits > 0 && digits < 3)
+				parseException(s, "bad escape");
+			if (pos > MAXLABEL)
+				parseException(s, "label too long");
+			labelstart = pos;
+			label[pos++] = b;
+			escaped = false;
+		} else if (b == '\\') {
+			escaped = true;
+			digits = 0;
+			intval = 0;
+		} else if (b == '.') {
+			if (labelstart == -1)
+				parseException(s, "invalid empty label");
+			label[0] = (byte)(pos - 1);
+			nb.appendFromString(s, label, 0, 1);
+			labelstart = -1;
+			pos = 1;
+		} else {
+			if (labelstart == -1)
+				labelstart = i;
+			if (pos > MAXLABEL)
+				parseException(s, "label too long");
+			label[pos++] = b;
+		}
+	}
+	if (digits > 0 && digits < 3)
+		parseException(s, "bad escape");
+	if (escaped)
+		parseException(s, "bad escape");
+	if (labelstart == -1) {
+		nb.appendFromString(s, emptyLabel, 0, 1);
+		absolute = true;
+	} else {
+		label[0] = (byte)(pos - 1);
+		nb.appendFromString(s, label, 0, 1);
+	}
+	if (origin != null && !absolute)
+		nb.appendFromString(s, origin.name, origin.offset(0),
+				 origin.getlabels());
+	return nb.toName();
 }
 
 /**
@@ -336,7 +253,7 @@ fromConstantString(String s) {
 		return fromString(s, null);
 	}
 	catch (TextParseException e) {
-		throw new IllegalArgumentException("Invalid name '" + s + "'");
+		throw new IllegalArgumentException("Invalid name '" + s + '\'');
 	}
 }
 
@@ -349,8 +266,9 @@ public
 Name(DNSInput in) throws WireParseException {
 	int len, pos;
 	boolean done = false;
-	final byte [] label = new byte[MAXLABEL + 1];
+	final byte[] label = new byte[MAXLABEL + 1];
 	boolean savedState = false;
+	final NameBuilder nb = new NameBuilder();
 
 	while (!done) {
 		len = in.readU8();
@@ -359,18 +277,18 @@ Name(DNSInput in) throws WireParseException {
 			if (getlabels() >= MAXLABELS)
 				throw new WireParseException("too many labels");
 			if (len == 0) {
-				append(emptyLabel, 0, 1);
+				nb.append(emptyLabel, 0, 1);
 				done = true;
 			} else {
 				label[0] = (byte)len;
 				in.readByteArray(label, 1, len);
-				append(label, 0, 1);
+				nb.append(label, 0, 1);
 			}
 			break;
 		case LABEL_COMPRESSION:
 			pos = in.readU8();
 			pos += ((len & ~LABEL_MASK) << 8);
-			if (Options.check("verbosecompression"))
+			if (Options.check(Options.Standard.verbosecompression))
 				System.err.println("currently " + in.current() +
 						   ", pointer to " + pos);
 
@@ -381,7 +299,7 @@ Name(DNSInput in) throws WireParseException {
 				savedState = true;
 			}
 			in.jump(pos);
-			if (Options.check("verbosecompression"))
+			if (Options.check(Options.Standard.verbosecompression))
 				System.err.println("current name '" + this +
 						   "', seeking to " + pos);
 			break;
@@ -392,6 +310,8 @@ Name(DNSInput in) throws WireParseException {
 	if (savedState) {
 		in.restore();
 	}
+	name = nb.makeName();
+	offsets = nb.makeOffsets();
 }
 
 /**
@@ -415,9 +335,11 @@ Name(Name src, int n) {
 		throw new IllegalArgumentException("attempted to remove too " +
 						   "many labels");
 	name = src.name;
-	setlabels(slabels - n);
+	long offsets;
+	offsets = setlabels(0L, slabels - n);
 	for (int i = 0; i < MAXOFFSETS && i < slabels - n; i++)
-		setoffset(i, src.offset(i + n));
+		offsets = setoffset(offsets, i, src.offset(i + n));
+	this.offsets = offsets;
 }
 
 /**
@@ -431,10 +353,9 @@ public static Name
 concatenate(Name prefix, Name suffix) throws NameTooLongException {
 	if (prefix.isAbsolute())
 		return (prefix);
-	final Name newname = new Name();
-	copy(prefix, newname);
-	newname.append(suffix.name, suffix.offset(0), suffix.getlabels());
-	return newname;
+	final NameBuilder nb = new NameBuilder(prefix);
+	nb.append(suffix.name, suffix.offset(0), suffix.getlabels());
+	return nb.toName();
 }
 
 /**
@@ -447,14 +368,12 @@ public Name
 relativize(Name origin) {
 	if (origin == null || !subdomain(origin))
 		return this;
-	final Name newname = new Name();
-	copy(this, newname);
 	final int length = length() - origin.length();
-	final int labels = newname.labels() - origin.labels();
-	newname.setlabels(labels);
-	newname.name = new byte[length];
-	System.arraycopy(name, offset(0), newname.name, 0, length);
-	return newname;
+	final int labels = labels() - origin.labels();
+	final long offsets = setlabels(this.offsets, labels);
+	final byte[] name = new byte[length];
+	System.arraycopy(this.name, offset(0), name, 0, length);
+	return new Name(name, offsets);
 }
 
 /**
@@ -467,10 +386,9 @@ wild(int n) {
 		throw new IllegalArgumentException("must replace 1 or more " +
 						   "labels");
 	try {
-		final Name newname = new Name();
-		copy(wild, newname);
-		newname.append(name, offset(n), getlabels() - n);
-		return newname;
+		final NameBuilder nb = new NameBuilder(wild);
+		nb.append(name, offset(n), getlabels() - n);
+		return nb.toName();
 	}
 	catch (NameTooLongException e) {
 		throw new IllegalStateException
@@ -486,7 +404,8 @@ public Name
 canonicalize() {
 	boolean canonical = true;
 	for (int i = 0; i < name.length; i++) {
-		if (lowercase[name[i] & 0xFF] != name[i]) {
+		int b = name[i] & 0xff;
+		if (lowercase(b) != b) {
 			canonical = false;
 			break;
 		}
@@ -494,12 +413,13 @@ canonicalize() {
 	if (canonical)
 		return this;
 
-	final Name newname = new Name();
-	newname.appendSafe(name, offset(0), getlabels());
-	for (int i = 0; i < newname.name.length; i++)
-		newname.name[i] = lowercase[newname.name[i] & 0xFF];
+	final NameBuilder nb = new NameBuilder();
+	nb.appendSafe(name, offset(0), getlabels());
+	final byte[] arr = nb.name;
+	for (int i = 0; i < nb.length; i++)
+		arr[i] = (byte) lowercase(arr[i]);
 
-	return newname;
+	return nb.toName();
 }
 
 /**
@@ -525,17 +445,17 @@ fromDNAME(DNAMERecord dname) throws NameTooLongException {
 	if (plength + dlength > MAXNAME)
 		throw new NameTooLongException();
 
-	final Name newname = new Name();
-	newname.setlabels(plabels + dlabels);
-	newname.name = new byte[plength + dlength];
-	System.arraycopy(name, pstart, newname.name, 0, plength);
-	System.arraycopy(dnametarget.name, 0, newname.name, plength, dlength);
+	final NameBuilder nb = new NameBuilder();
+	nb.labels = plabels + dlabels;
+	nb.length = plength + dlength;
+	System.arraycopy(name, pstart, nb.name, 0, plength);
+	System.arraycopy(dnametarget.name, 0, nb.name, plength, dlength);
 
 	for (int i = 0, pos = 0; i < MAXOFFSETS && i < plabels + dlabels; i++) {
-		newname.setoffset(i, pos);
-		pos += (newname.name[pos] + 1);
+		nb.setOffset(i, pos);
+		pos += (nb.name[pos] + 1);
 	}
-	return newname;
+	return nb.toName();
 }
 
 /**
@@ -556,17 +476,17 @@ isAbsolute() {
 	final int nlabels = labels();
 	if (nlabels == 0)
 		return false;
-        return name[offset(nlabels - 1)] == 0;
+    return name[offset(nlabels - 1)] == 0;
 }
 
 /**
  * The length of the name.
  */
-public short
+public int
 length() {
 	if (getlabels() == 0)
 		return 0;
-	return (short)(name.length - offset(0));
+	return name.length - offset(0);
 }
 
 /**
@@ -601,8 +521,7 @@ byteString(byte [] array, int pos) {
 			sb.append('\\');
 			sb.append(byteFormat.format(b));
 		}
-		else if (b == '"' || b == '(' || b == ')' || b == '.' ||
-			 b == ';' || b == '\\' || b == '@' || b == '$')
+		else if ("\"().;\\@$".indexOf(b) != -1)
 		{
 			sb.append('\\');
 			sb.append((char)b);
@@ -661,8 +580,8 @@ toString() {
 public byte []
 getLabel(int n) {
 	final int pos = offset(n);
-	final byte len = (byte)(name[pos] + 1);
-	final byte [] label = new byte[len];
+	final int len = name[pos] + 1;
+	final byte[] label = new byte[len];
 	System.arraycopy(name, pos, label, 0, len);
 	return label;
 }
@@ -753,7 +672,7 @@ toWireCanonical() {
 			throw new IllegalStateException("invalid label");
 		b[dpos++] = name[spos++];
 		for (int j = 0; j < len; j++)
-			b[dpos++] = lowercase[(name[spos++] & 0xFF)];
+			b[dpos++] = (byte) lowercase(name[spos++]);
 	}
 	return b;
 }
@@ -785,8 +704,7 @@ equals(byte [] b, int bpos) {
 		if (len > MAXLABEL)
 			throw new IllegalStateException("invalid label");
 		for (int j = 0; j < len; j++)
-			if (lowercase[(name[pos++] & 0xFF)] !=
-			    lowercase[(b[bpos++] & 0xFF)])
+			if (lowercase(name[pos++]) != lowercase(b[bpos++]))
 				return false;
 	}
 	return true;
@@ -803,11 +721,7 @@ equals(Object arg) {
 	if (arg == null || !(arg instanceof Name))
 		return false;
 	final Name d = (Name) arg;
-	if (d.hashcode == 0)
-		d.hashCode();
-	if (hashcode == 0)
-		hashCode();
-	if (d.hashcode != hashcode)
+	if (d.hashCode() != hashCode())
 		return false;
 	if (d.labels() != labels())
 		return false;
@@ -820,13 +734,13 @@ equals(Object arg) {
 @Override
 public int
 hashCode() {
-	if (hashcode != 0)
-		return (hashcode);
-	int code = 0;
-	for (int i = offset(0); i < name.length; i++)
-		code += ((code << 3) + lowercase[(name[i] & 0xFF)]);
-	hashcode = code;
-	return hashcode;
+	int h = hashcode;
+	if (h == 0) {
+		for (int i = offset(0); i < name.length; i++)
+			h += ((h << 3) + lowercase(name[i]));
+		hashcode = h;
+	}
+	return h;
 }
 
 /**
@@ -853,8 +767,8 @@ compareTo(Name arg) {
 		int length = name[start];
 		int alength = arg.name[astart];
 		for (int j = 0; j < length && j < alength; j++) {
-			int n = lowercase[(name[j + start + 1]) & 0xFF] -
-				lowercase[(arg.name[j + astart + 1]) & 0xFF];
+			int n = lowercase(name[j + start + 1]) -
+				lowercase(arg.name[j + astart + 1]);
 			if (n != 0)
 				return (n);
 		}
@@ -864,4 +778,102 @@ compareTo(Name arg) {
 	return (labels - alabels);
 }
 
+private static class NameBuilder {
+	private final byte[] name;
+	private int labels;
+	private final byte[] offset;
+	private int length;
+
+	private NameBuilder() {
+		name = new byte[MAXNAME];
+		offset = new byte[MAXOFFSETS];
+	}
+
+	private NameBuilder(Name src) {
+		this();
+		if (src.name != null && src.name.length > 0 && src.length() > 0) {
+			try {
+				append(src.name, 0, src.getlabels());
+			} catch (NameTooLongException e) {
+				throw new AssertionError(e);
+			}
+		}
+	}
+
+	private int getOffset(int i) {
+		return offset[i] & 0xff;
+	}
+
+	private void setOffset(int i, int pos) {
+		offset[i] = (byte) pos;
+	}
+
+	private long makeOffsets() {
+		long offsets = Name.setlabels(0L, labels);
+		for (int i = 0; i < Name.MAXOFFSETS; i++) {
+			offsets = Name.setoffset(offsets, i, getOffset(i));
+		}
+		return offsets;
+	}
+
+	private byte[] makeName() {
+		return Arrays.copyOf(name, length);
+	}
+
+	private Name toName() {
+		return new Name(makeName(), makeOffsets());
+	}
+
+	private void
+	append(byte [] array, int start, int n) throws NameTooLongException {
+		final int length = this.length;
+		int alength = 0;
+		for (int i = 0, pos = start; i < n; i++) {
+			int len = array[pos];
+			if (len > MAXLABEL)
+				throw new IllegalStateException("invalid label");
+			len++;
+			pos += len;
+			alength += len;
+		}
+		final int newlength = length + alength;
+		if (newlength > MAXNAME)
+			throw new NameTooLongException();
+		final int labels = this.labels;
+		final int newlabels = labels + n;
+		if (newlabels > MAXLABELS)
+			throw new IllegalStateException("too many labels");
+		final byte[] name = this.name;
+		System.arraycopy(array, start, name, length, alength);
+		for (int i = 0, pos = length, j = labels; i < n && j < MAXOFFSETS; i++, j++) {
+			setOffset(j, pos);
+			pos += (name[pos] + 1);
+		}
+		this.labels = newlabels;
+		this.length = newlength;
+	}
+
+	private void
+	appendFromString(String fullName, byte[] array, int start, int n)
+	throws TextParseException
+	{
+		try {
+			append(array, start, n);
+		}
+		catch (NameTooLongException e) {
+			parseException(fullName, "Name too long");
+		}
+	}
+
+	private void
+	appendSafe(byte[] array, int start, int n) {
+		try {
+			append(array, start, n);
+		}
+		catch (NameTooLongException e) {
+			throw new AssertionError(e);
+		}
+	}
 }
+}
+

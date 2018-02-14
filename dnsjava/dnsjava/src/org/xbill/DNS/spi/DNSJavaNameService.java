@@ -8,8 +8,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 
-import org.xbill.DNS.AAAARecord;
-import org.xbill.DNS.ARecord;
+import org.xbill.DNS.AddressRecordBase;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
@@ -130,7 +129,7 @@ lookupAllHostAddr(String host) throws UnknownHostException {
 	Name name = null;
 
 	try {
-		name = new Name(host);
+		name = Name.fromString(host);
 	}
 	catch (TextParseException e) {
 		throw new UnknownHostException(host);
@@ -149,13 +148,7 @@ lookupAllHostAddr(String host) throws UnknownHostException {
 	final InetAddress[] array = new InetAddress[records.length];
 	for (int i = 0; i < records.length; i++) {
 		Record record = records[i];
-		if (record instanceof ARecord) {
-			ARecord a = (ARecord) record;
-			array[i] = a.getAddress();
-		} else {
-			AAAARecord aaaa = (AAAARecord) record;
-			array[i] = aaaa.getAddress();
-		}
+		array[i] = ((AddressRecordBase)record).getAddress();
 	}
 	return array;
 }

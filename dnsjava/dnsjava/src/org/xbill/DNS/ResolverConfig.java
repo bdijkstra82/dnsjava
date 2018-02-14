@@ -73,7 +73,7 @@ private static void
 addServer(String server, List<String> list) {
 	if (list.contains(server))
 		return;
-	if (Options.check("verbose"))
+	if (Options.check(Options.Standard.verbose))
 		System.out.println("adding server " + server);
 	list.add(server);
 }
@@ -81,7 +81,7 @@ addServer(String server, List<String> list) {
 private static void
 addSearch(String search, List<Name> list) {
 	final Name name;
-	if (Options.check("verbose"))
+	if (Options.check(Options.Standard.verbose))
 		System.out.println("adding search " + search);
 	try {
 		name = Name.fromString(search, Name.root);
@@ -100,7 +100,7 @@ parseNdots(String token) {
 	try {
 		final int ndots = Integer.parseInt(token);
 		if (ndots >= 0) {
-			if (Options.check("verbose"))
+			if (Options.check(Options.Standard.verbose))
 				System.out.println("setting ndots " + token);
 			return ndots;
 		}

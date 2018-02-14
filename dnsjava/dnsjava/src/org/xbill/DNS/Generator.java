@@ -2,8 +2,10 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * A representation of a $GENERATE statement in a master file.
@@ -96,7 +98,7 @@ Generator(long start, long end, long step, String namePattern,
 private static String
 substitute(String spec, long n) throws IOException {
 	boolean escaped = false;
-	final byte [] str = spec.getBytes();
+	final byte [] str = spec.getBytes("ISO-8859-1");
 	final StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < str.length; i++) {
@@ -249,16 +251,16 @@ public String
 toString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append("$GENERATE ");
-	sb.append(start + "-" + end);
+	sb.append(start).append('-').append(end);
 	if (step > 1)
-		sb.append("/" + step);
-	sb.append(" ");
-	sb.append(namePattern + " ");
-	sb.append(ttl + " ");
-	if (dclass != DClass.IN || !Options.check("noPrintIN"))
-		sb.append(DClass.string(dclass) + " ");
-	sb.append(Type.string(type) + " ");
-	sb.append(rdataPattern + " ");
+		sb.append('/').append(step);
+	sb.append(' ');
+	sb.append(namePattern).append(' ');
+	sb.append(ttl).append(' ');
+	if (dclass != DClass.IN || !Options.check(Options.Standard.noprintin))
+		sb.append(DClass.string(dclass)).append(' ');
+	sb.append(Type.string(type)).append(' ');
+	sb.append(rdataPattern).append(' ');
 	return sb.toString();
 }
 

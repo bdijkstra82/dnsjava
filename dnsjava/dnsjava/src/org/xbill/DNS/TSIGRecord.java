@@ -102,33 +102,34 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(alg);
-	sb.append(" ");
-	if (Options.check("multiline"))
+	sb.append(' ');
+	final boolean multiline = Options.check(Options.Standard.multiline);
+	if (multiline)
 		sb.append("(\n\t");
 
-	sb.append (timeSigned.getTime() / 1000);
-	sb.append (" ");
-	sb.append (fudge);
-	sb.append (" ");
-	sb.append (signature.length);
-	if (Options.check("multiline")) {
-		sb.append ("\n");
-		sb.append (base64.formatString(signature, 64, "\t", false));
+	sb.append(timeSigned.getTime() / 1000);
+	sb.append(' ');
+	sb.append(fudge);
+	sb.append(' ');
+	sb.append(signature.length);
+	if (multiline) {
+		sb.append('\n');
+		sb.append(base64.formatString(signature, 64, "\t", false));
 	} else {
-		sb.append (" ");
-		sb.append (base64.toString(signature));
+		sb.append(' ');
+		sb.append(base64.toString(signature));
 	}
-	sb.append (" ");
-	sb.append (Rcode.TSIGstring(error));
-	sb.append (" ");
+	sb.append(' ');
+	sb.append(Rcode.TSIGstring(error));
+	sb.append(' ');
 	if (other == null)
-		sb.append (0);
+		sb.append(0);
 	else {
-		sb.append (other.length);
-		if (Options.check("multiline"))
+		sb.append(other.length);
+		if (multiline)
 			sb.append("\n\n\n\t");
 		else
-			sb.append(" ");
+			sb.append(' ');
 		if (error == Rcode.BADTIME) {
 			if (other.length != 6) {
 				sb.append("<invalid BADTIME other data>");
@@ -141,15 +142,15 @@ rrToString() {
 					    ((other[5] & 0xFF)     );
 				sb.append("<server time: ");
 				sb.append(new Date(time * 1000));
-				sb.append(">");
+				sb.append('>');
 			}
 		} else {
-			sb.append("<");
+			sb.append('<');
 			sb.append(base64.toString(other));
-			sb.append(">");
+			sb.append('>');
 		}
 	}
-	if (Options.check("multiline"))
+	if (multiline)
 		sb.append(" )");
 	return sb.toString();
 }

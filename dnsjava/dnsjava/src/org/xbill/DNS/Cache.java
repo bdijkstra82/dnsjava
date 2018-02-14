@@ -119,21 +119,21 @@ private static class NegativeElement implements Element {
 	toString() {
 		final StringBuilder sb = new StringBuilder();
 		if (type == 0)
-			sb.append("NXDOMAIN " + name);
+			sb.append("NXDOMAIN ").append(name);
 		else
-			sb.append("NXRRSET " + name + " " + Type.string(type));
+			sb.append("NXRRSET ").append(name).append(' ').append(Type.string(type));
 		sb.append(" cl = ");
 		sb.append(credibility);
 		return sb.toString();
 	}
 }
 
-// value is either Element or List<Element>
+//XXX value is either Element or List<Element>
 private static class CacheMap extends LinkedHashMap<Name, Object> {
 	private int maxsize = -1;
 
 	CacheMap(int maxsize) {
-		super(16, (float) 0.75, true);
+		super(16, 0.75f, true);
 		this.maxsize = maxsize;
 	}
 
@@ -609,7 +609,7 @@ addMessage(Message in) {
 	boolean completed = false;
 	final RRset [] answers, auth, addl;
 	SetResponse response = null;
-	final boolean verbose = Options.check("verbosecache");
+	final boolean verbose = Options.check(Options.Standard.verbosecache);
 	final HashSet<Name> additionalNames;
 
 	if ((rcode != Rcode.NOERROR && rcode != Rcode.NXDOMAIN) ||
@@ -707,14 +707,15 @@ addMessage(Message in) {
 
 	addl = in.getSectionRRsets(Section.ADDITIONAL);
 	for (int i = 0; i < addl.length; i++) {
-		int type = addl[i].getType();
-		if (type != Type.A && type != Type.AAAA && type != Type.A6)
-			continue;
-		Name name = addl[i].getName();
-		if (!additionalNames.contains(name))
-			continue;
-		cred = getCred(Section.ADDITIONAL, isAuth);
-		addRRset(addl[i], cred);
+		RRset rrs = addl[i];
+		int type = rrs.getType();
+		if (type == Type.A || type == Type.AAAA || type == Type.A6) {
+			Name name = rrs.getName();
+			if (additionalNames.contains(name)) {
+				cred = getCred(Section.ADDITIONAL, isAuth);
+				addRRset(rrs, cred);
+			}
+		}
 	}
 	if (verbose)
 		System.out.println("addMessage: " + response);
@@ -836,7 +837,7 @@ toString() {
 			Element [] elements = allElements(it.next());
 			for (int i = 0; i < elements.length; i++) {
 				sb.append(elements[i]);
-				sb.append("\n");
+				sb.append('\n');
 			}
 		}
 	}

@@ -141,7 +141,7 @@ private static class Resolution implements ResolverListener {
 	 */
 	public void
 	receiveMessage(Object id, Message m) {
-		if (Options.check("verbose"))
+		if (Options.check(Options.Standard.verbose))
 			System.err.println("ExtendedResolver: " +
 					   "received message");
 		synchronized (this) {
@@ -163,7 +163,7 @@ private static class Resolution implements ResolverListener {
 	 */
 	public void
 	handleException(Object id, Exception e) {
-		if (Options.check("verbose"))
+		if (Options.check(Options.Standard.verbose))
 			System.err.println("ExtendedResolver: got " + e);
 		synchronized (this) {
 			outstanding--;

@@ -52,7 +52,7 @@ static protected void
 verboseLog(String prefix, SocketAddress local, SocketAddress remote,
            byte [] data)
 {
-	if (Options.check("verbosemsg"))
+	if (Options.check(Options.Standard.verbosemsg))
 		System.err.println(hexdump.dump(prefix, data));
 	if (packetLogger != null)
 		packetLogger.log(prefix, local, remote, data);

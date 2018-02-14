@@ -15,8 +15,6 @@ import org.xbill.DNS.utils.*;
 
 abstract class KEYBase extends Record {
 
-private static final long serialVersionUID = 3469321722693285454L;
-
 protected int flags, proto, alg;
 protected byte [] key;
 protected int footprint = -1;
@@ -52,18 +50,18 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(flags);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(proto);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(alg);
 	if (key != null) {
-		if (Options.check("multiline")) {
+		if (Options.check(Options.Standard.multiline)) {
 			sb.append(" (\n");
 			sb.append(base64.formatString(key, 64, "\t", true));
 			sb.append(" ; key_tag = ");
 			sb.append(getFootprint());
 		} else {
-			sb.append(" ");
+			sb.append(' ');
 			sb.append(base64.toString(key));
 		}
 	}

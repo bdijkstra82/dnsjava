@@ -26,7 +26,7 @@ private static class Entry {
 private static final int TABLE_SIZE = 17;
 private static final int MAX_POINTER = 0x3FFF;
 private final Entry [] table;
-private final boolean verbose = Options.check("verbosecompression");
+private final boolean verbose = Options.check(Options.Standard.verbosecompression);
 
 /**
  * Creates a new Compression object.
@@ -34,6 +34,11 @@ private final boolean verbose = Options.check("verbosecompression");
 public
 Compression() {
 	table = new Entry[TABLE_SIZE];
+}
+
+private static int getRow(Name name) {
+	final int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+	return row;
 }
 
 /**
@@ -45,7 +50,7 @@ public void
 add(int pos, Name name) {
 	if (pos > MAX_POINTER)
 		return;
-	final int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+	final int row = getRow(name);
 	final Entry entry = new Entry(name, pos, table[row]);
 	table[row] = entry;
 	if (verbose)
@@ -60,9 +65,9 @@ add(int pos, Name name) {
  */
 public int
 get(Name name) {
-	final int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+	final int row = getRow(name);
 	int pos = -1;
-	for (Entry entry = table[row]; entry != null; entry = entry.next) {
+	for (Entry entry = table[row]; pos == -1 && entry != null; entry = entry.next) {
 		if (entry.name.equals(name))
 			pos = entry.pos;
 	}

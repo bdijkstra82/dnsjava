@@ -183,7 +183,7 @@ parseMessage(byte [] b) throws WireParseException {
 		return (new Message(b));
 	}
 	catch (IOException e) {
-		if (Options.check("verbose"))
+		if (Options.check(Options.Standard.verbose))
 			e.printStackTrace();
 		if (!(e instanceof WireParseException))
 			e = new WireParseException("Error parsing message");
@@ -196,7 +196,7 @@ verifyTSIG(Message query, Message response, byte [] b, TSIG tsig) {
 	if (tsig == null)
 		return;
 	final int error = tsig.verify(response, b, query.getTSIG());
-	if (Options.check("verbose"))
+	if (Options.check(Options.Standard.verbose))
 		System.err.println("TSIG verify: " + Rcode.TSIGstring(error));
 }
 
@@ -227,7 +227,8 @@ maxUDPSize(Message query) {
  */
 public Message
 send(Message query) throws IOException {
-	if (Options.check("verbose"))
+	final boolean verbose = Options.check(Options.Standard.verbose);
+	if (verbose)
 		System.err.println("Sending to " +
 				   address.getAddress().getHostAddress() +
 				   ":" + address.getPort());
@@ -280,7 +281,7 @@ send(Message query) throws IOException {
 			if (tcp) {
 				throw new WireParseException(error);
 			}
-			if (Options.check("verbose")) {
+			if (verbose) {
 				System.err.println(error);
 			}
 			continue;
@@ -310,7 +311,7 @@ public Object
 sendAsync(final Message query, final ResolverListener listener) {
 	final Object id;
 	synchronized (this) {
-		id = new Integer(uniqueID++);
+		id = new Integer(uniqueID++);//XXX should be unique object or unique number, or both?
 	}
 	final Record question = query.getQuestion();
 	final String qname;
@@ -319,6 +320,7 @@ sendAsync(final Message query, final ResolverListener listener) {
 	else
 		qname = "(none)";
 	final String name = this.getClass() + ": " + qname;
+	//XXX this isn't really asynchronous
 	final Thread thread = new Thread(new ResolveJob(this, query, id, listener));
 	thread.setName(name);
 	thread.setDaemon(true);

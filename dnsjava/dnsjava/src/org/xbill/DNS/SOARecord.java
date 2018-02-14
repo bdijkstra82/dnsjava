@@ -81,9 +81,9 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(host);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(admin);
-	if (Options.check("multiline")) {
+	if (Options.check(Options.Standard.multiline)) {
 		sb.append(" (\n\t\t\t\t\t");
 		sb.append(serial);
 		sb.append("\t; serial\n\t\t\t\t\t");
@@ -96,15 +96,15 @@ rrToString() {
 		sb.append(minimum);
 		sb.append(" )\t; minimum");
 	} else {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(serial);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(refresh);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(retry);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(expire);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(minimum);
 	}
 	return sb.toString();

@@ -169,16 +169,16 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append (certType);
-	sb.append (" ");
+	sb.append (' ');
 	sb.append (keyTag);
-	sb.append (" ");
+	sb.append (' ');
 	sb.append (alg);
 	if (cert != null) {
-		if (Options.check("multiline")) {
+		if (Options.check(Options.Standard.multiline)) {
 			sb.append(" (\n");
 			sb.append(base64.formatString(cert, 64, "\t", true));
 		} else {
-			sb.append(" ");
+			sb.append(' ');
 			sb.append(base64.toString(cert));
 		}
 	}

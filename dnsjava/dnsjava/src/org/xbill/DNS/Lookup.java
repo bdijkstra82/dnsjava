@@ -241,7 +241,7 @@ Lookup(Name name, int type, int dclass) {
 		this.cache = getDefaultCache(dclass);
 	}
 	this.credibility = Credibility.NORMAL;
-	this.verbose = Options.check("verbose");
+	this.verbose = Options.check(Options.Standard.verbose);
 	this.result = -1;
 }
 

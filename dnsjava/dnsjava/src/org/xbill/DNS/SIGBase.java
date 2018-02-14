@@ -14,8 +14,6 @@ import org.xbill.DNS.utils.*;
 
 abstract class SIGBase extends Record {
 
-private static final long serialVersionUID = -3738444391533812369L;
-
 protected int covered;
 protected int alg, labels;
 protected long origttl;
@@ -87,29 +85,29 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
-	sb.append (Type.string(covered));
-	sb.append (" ");
-	sb.append (alg);
-	sb.append (" ");
-	sb.append (labels);
-	sb.append (" ");
-	sb.append (origttl);
-	sb.append (" ");
-	if (Options.check("multiline"))
+	sb.append(Type.string(covered));
+	sb.append(' ');
+	sb.append(alg);
+	sb.append(' ');
+	sb.append(labels);
+	sb.append(' ');
+	sb.append(origttl);
+	sb.append(' ');
+	final boolean multiline = Options.check(Options.Standard.multiline);
+	if (multiline)
 		sb.append ("(\n\t");
-	sb.append (FormattedTime.format(expire));
-	sb.append (" ");
-	sb.append (FormattedTime.format(timeSigned));
-	sb.append (" ");
-	sb.append (footprint);
-	sb.append (" ");
-	sb.append (signer);
-	if (Options.check("multiline")) {
-		sb.append("\n");
-		sb.append(base64.formatString(signature, 64, "\t",
-					      true));
+	sb.append(FormattedTime.format(expire));
+	sb.append(' ');
+	sb.append(FormattedTime.format(timeSigned));
+	sb.append(' ');
+	sb.append(footprint);
+	sb.append(' ');
+	sb.append(signer);
+	if (multiline) {
+		sb.append('\n');
+		sb.append(base64.formatString(signature, 64, "\t", true));
 	} else {
-		sb.append (" ");
+		sb.append(' ');
 		sb.append(base64.toString(signature));
 	}
 	return sb.toString();

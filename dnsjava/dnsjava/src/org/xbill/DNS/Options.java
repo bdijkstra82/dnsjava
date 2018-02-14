@@ -24,7 +24,21 @@ import java.util.*;
 
 public final class Options {
 
-private static Map<String, String> table;
+	/* internal functions should use this */
+	static enum Standard {
+		bindttl,
+		multiline,
+		noprintin,
+		verbose,
+		verbosemsg,
+		verbosecompression,
+		verbosesec,
+		verbosecache,
+		tsigfudge,
+		sig0validity
+	}
+
+private static Map<String, Object> table;
 
 static {
 	try {
@@ -62,44 +76,91 @@ clear() {
 	table = null;
 }
 
+private static String key(Standard option) {
+	return option.toString();
+}
+
+private static String key(String option) {
+	return option.toLowerCase(Locale.ENGLISH);
+}
+
+private static void put(String k, Object v) {
+	if (table == null)
+		table = new HashMap<String, Object>();
+	table.put(k, v);
+}
+
 /** Sets an option to "true" */
 public static void
 set(String option) {
-	if (table == null)
-		table = new HashMap<String, String>();
-	table.put(option.toLowerCase(Locale.ENGLISH), "true");
+	put(key(option), Boolean.TRUE);
 }
 
 /** Sets an option to the the supplied value */
 public static void
 set(String option, String value) {
-	if (table == null)
-		table = new HashMap<String, String>();
-	table.put(option.toLowerCase(Locale.ENGLISH), value.toLowerCase());
+	put(key(option), value.toLowerCase(Locale.ENGLISH));
 }
 
 /** Removes an option */
 public static void
 unset(String option) {
+	if (table != null)
+		table.remove(key(option));
+}
+
+private static Object getRef(String k) {
 	if (table == null)
-		return;
-	table.remove(option.toLowerCase(Locale.ENGLISH));
+		return null;
+	return table.get(k);
+}
+
+private static boolean getBoolean(String k) {
+	return getRef(k) != null;
 }
 
 /** Checks if an option is defined */
 public static boolean
 check(String option) {
-	if (table == null)
-		return false;
-	return (table.get(option.toLowerCase(Locale.ENGLISH)) != null);
+	return getBoolean(key(option));
+}
+
+static boolean
+check(Standard option) {
+	return getBoolean(key(option));
+}
+
+private static String getString(String k) {
+	final Object v = getRef(k);
+	return v == null ? null : v.toString();
 }
 
 /** Returns the value of an option */
 public static String
 value(String option) {
-	if (table == null)
-		return null;
-	return (table.get(option.toLowerCase(Locale.ENGLISH)));
+	return getString(key(option));
+}
+
+private static int
+getInt(String k) {
+	final Object v = getRef(k);
+	int val = -1;
+	if (v != null) {
+		if (v instanceof Number)
+			val = ((Number)v).intValue();
+		else {
+			try {
+				val = Integer.parseInt(v.toString());
+			}
+			catch (NumberFormatException e) {
+			}
+			if (val > 0)
+				put(k, Integer.valueOf(val));
+		}
+		if (val <= 0)
+			val = -1;
+	}
+	return val;
 }
 
 /**
@@ -107,17 +168,12 @@ value(String option) {
  */
 public static int
 intValue(String option) {
-	final String s = value(option);
-	if (s != null) {
-		try {
-			final int val = Integer.parseInt(s);
-			if (val > 0)
-				return (val);
-		}
-		catch (NumberFormatException e) {
-		}
-	}
-	return (-1);
+	return getInt(key(option));
+}
+
+static int
+intValue(Standard option) {
+	return getInt(key(option));
 }
 
 }

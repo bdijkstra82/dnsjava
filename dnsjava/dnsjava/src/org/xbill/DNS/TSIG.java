@@ -88,7 +88,7 @@ nameToAlgorithm(Name name)
 }
 
 /**
- * The default fudge value for outgoing packets.  Can be overriden by the
+ * The default fudge value for outgoing packets.  Can be overridden by the
  * tsigfudge option.
  */
 public static final short FUDGE		= 300;
@@ -295,7 +295,7 @@ generate(Message m, byte [] b, int error, TSIGRecord old) {
 		hmac.reset();
 	}
 
-	fudge = Options.intValue("tsigfudge");
+	fudge = Options.intValue(Options.Standard.tsigfudge);
 	if (fudge < 0 || fudge > 0x7FFF)
 		fudge = FUDGE;
 
@@ -391,7 +391,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
 	int fudge;
 	hmac.reset();
 
-	fudge = Options.intValue("tsigfudge");
+	fudge = Options.intValue(Options.Standard.tsigfudge);
 	if (fudge < 0 || fudge > 0x7FFF)
 		fudge = FUDGE;
 
@@ -445,8 +445,9 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 	if (tsig == null)
 		return Rcode.FORMERR;
 
+	final boolean verbose = Options.check(Options.Standard.verbose);
 	if (!tsig.getName().equals(name) || !tsig.getAlgorithm().equals(alg)) {
-		if (Options.check("verbose"))
+		if (verbose)
 			System.err.println("BADKEY failure");
 		return Rcode.BADKEY;
 	}
@@ -454,7 +455,7 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 	final long then = tsig.getTimeSigned().getTime();
 	final long fudge = tsig.getFudge();
 	if (Math.abs(now - then) > fudge * 1000) {
-		if (Options.check("verbose"))
+		if (verbose)
 			System.err.println("BADTIME failure");
 		return Rcode.BADTIME;
 	}
@@ -505,15 +506,15 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 		minDigestLength = digestLength / 2;
 
 	if (signature.length > digestLength) {
-		if (Options.check("verbose"))
+		if (verbose)
 			System.err.println("BADSIG: signature too long");
 		return Rcode.BADSIG;
 	} else if (signature.length < minDigestLength) {
-		if (Options.check("verbose"))
+		if (verbose)
 			System.err.println("BADSIG: signature too short");
 		return Rcode.BADSIG;
 	} else if (!verify(hmac, signature, true)) {
-		if (Options.check("verbose"))
+		if (verbose)
 			System.err.println("BADSIG: signature verification");
 		return Rcode.BADSIG;
 	}
@@ -636,7 +637,7 @@ public static class StreamVerifier {
 		if (!tsig.getName().equals(key.name) ||
 		    !tsig.getAlgorithm().equals(key.alg))
 		{
-			if (Options.check("verbose"))
+			if (Options.check(Options.Standard.verbose))
 				System.err.println("BADKEY failure");
 			m.tsigState = Message.TsigState.TSIG_FAILED;
 			return Rcode.BADKEY;
@@ -652,7 +653,7 @@ public static class StreamVerifier {
 		verifier.update(out.toByteArray());
 
 		if (TSIG.verify(verifier, tsig.getSignature()) == false) {
-			if (Options.check("verbose"))
+			if (Options.check(Options.Standard.verbose))
 				System.err.println("BADSIG failure");
 			m.tsigState = Message.TsigState.TSIG_FAILED;
 			return Rcode.BADSIG;

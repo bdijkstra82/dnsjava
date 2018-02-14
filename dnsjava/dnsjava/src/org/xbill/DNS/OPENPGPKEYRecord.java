@@ -58,7 +58,7 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	if (cert != null) {
-		if (Options.check("multiline")) {
+		if (Options.check(Options.Standard.multiline)) {
 			sb.append("(\n");
 			sb.append(base64.formatString(cert, 64, "\t", true));
 		} else {

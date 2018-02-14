@@ -18,10 +18,14 @@ public static final int A		= 1;
 /** Name server */
 public static final int NS		= 2;
 
-/** Mail destination */
+/** Mail destination
+ * @deprecated replaced by MX in RFC 973 */
+@Deprecated
 public static final int MD		= 3;
 
-/** Mail forwarder */
+/** Mail forwarder
+ * @deprecated replaced by MX in RFC 973 */
+@Deprecated
 public static final int MF		= 4;
 
 /** Canonical name (alias) */
@@ -30,28 +34,42 @@ public static final int CNAME		= 5;
 /** Start of authority */
 public static final int SOA		= 6;
 
-/** Mailbox domain name */
+/** Mailbox domain name
+ * @deprecated classified as experimental by RFC 1035 */
+@Deprecated
 public static final int MB		= 7;
 
-/** Mail group member */
+/** Mail group member
+ * @deprecated classified as experimental by RFC 1035 */
+@Deprecated
 public static final int MG		= 8;
 
-/** Mail rename name */
+/** Mail rename name
+ * @deprecated classified as experimental by RFC 1035 */
+@Deprecated
 public static final int MR		= 9;
 
-/** Null record */
+/** Null record
+ * @deprecated Obsoleted by RFC 1035 */
+@Deprecated
 public static final int NULL		= 10;
 
-/** Well known services */
+/** Well known services
+ * @deprecated not to be relied upon (RFC 1123, 1127) */
+@Deprecated
 public static final int WKS		= 11;
 
 /** Domain name pointer */
 public static final int PTR		= 12;
 
-/** Host information */
+/** Host information
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int HINFO		= 13;
 
-/** Mailbox information */
+/** Mailbox information
+ * @deprecated classified as experimental by RFC 1035 */
+@Deprecated
 public static final int MINFO		= 14;
 
 /** Mail routing information */
@@ -61,36 +79,55 @@ public static final int MX		= 15;
 public static final int TXT		= 16;
 
 /** Responsible person */
+@Deprecated
 public static final int RP		= 17;
 
 /** AFS cell database */
 public static final int AFSDB		= 18;
 
-/** X.25 calling address */
+/** X.25 calling address
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int X25		= 19;
 
-/** ISDN calling address */
+/** ISDN calling address
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int ISDN		= 20;
 
-/** Router */
+/** Router
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int RT		= 21;
 
-/** NSAP address */
+/** NSAP address
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int NSAP		= 22;
 
-/** Reverse NSAP address (deprecated) */
+/** Reverse NSAP address
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int NSAP_PTR	= 23;
 
-/** Signature */
+/** Signature
+ * @deprecated Obsoleted by DNSSEC updates (RFC 3755) */
+@Deprecated
 public static final int SIG		= 24;
 
-/** Key */
+/** Key
+ * @deprecated Obsoleted by DNSSEC updates (RFC 3755) */
+@Deprecated
 public static final int KEY		= 25;
 
-/** X.400 mail mapping */
+/** X.400 mail mapping
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int PX		= 26;
 
-/** Geographical position (withdrawn) */
+/** Geographical position
+ * @deprecated withdrawn, use LOC (29) */
+@Deprecated
 public static final int GPOS		= 27;
 
 /** IPv6 address */
@@ -99,19 +136,27 @@ public static final int AAAA		= 28;
 /** Location */
 public static final int LOC		= 29;
 
-/** Next valid name in zone */
+/** Next valid name in zone
+ * @deprecated Obsoleted by DNSSEC updates (RFC 3755) */
+@Deprecated
 public static final int NXT		= 30;
 
-/** Endpoint identifier */
+/** Endpoint identifier
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int EID		= 31;
 
-/** Nimrod locator */
+/** Nimrod locator
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int NIMLOC		= 32;
 
 /** Server selection */
 public static final int SRV		= 33;
 
-/** ATM address */
+/** ATM address
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int ATMA		= 34;
 
 /** Naming authority pointer */
@@ -123,7 +168,9 @@ public static final int KX		= 36;
 /** Certificate */
 public static final int CERT		= 37;
 
-/** IPv6 address (experimental) */
+/** IPv6 address
+ * @deprecated historic (RFC 6563) */
+@Deprecated
 public static final int A6		= 38;
 
 /** Non-terminal name redirection */
@@ -132,7 +179,9 @@ public static final int DNAME		= 39;
 /** Options - contains EDNS metadata */
 public static final int OPT		= 41;
 
-/** Address Prefix List */
+/** Address Prefix List
+ * @deprecated Not in current use by any notable application. */
+@Deprecated
 public static final int APL		= 42;
 
 /** Delegation Signer */
@@ -171,7 +220,9 @@ public static final int SMIMEA		= 53;
 /** OpenPGP Key, RFC 7929 */
 public static final int OPENPGPKEY	= 61;
 
-/** Sender Policy Framework (experimental) */
+/** Sender Policy Framework
+ * @Deprecated discontinued in RFC 7208 */
+@Deprecated
 public static final int SPF		= 99;
 
 /** Transaction key - used to compute a shared secret or exchange a key */
@@ -186,10 +237,14 @@ public static final int IXFR		= 251;
 /** Zone transfer */
 public static final int AXFR		= 252;
 
-/** Transfer mailbox records */
+/** Transfer mailbox records
+ * @deprecated classified as experimental by RFC 1035 */
+@Deprecated
 public static final int MAILB		= 253;
 
-/** Transfer mail agent records */
+/** Transfer mail agent records
+ * @Deprecated replaced by MX in RFC 973 */
+@Deprecated
 public static final int MAILA		= 254;
 
 /** Matches any type */
@@ -208,19 +263,19 @@ public static final int DLV		= 32769;
 
 
 private static class TypeMnemonic extends Mnemonic {
-	private final HashMap<Integer, Record> objects;
+	private final HashMap<Integer, Class<? extends Record>> classes;
 
 	public
 	TypeMnemonic() {
 		super("Type", CASE_UPPER);
 		setPrefix("TYPE");
-		objects = new HashMap<Integer, Record>();
+		classes = new HashMap<Integer, Class<? extends Record>>();
 	}
 
 	public void
-	add(int val, String str, Record proto) {
+	add(int val, String str, Class<? extends Record> cls) {
 		super.add(val, str);
-		objects.put(Integer.valueOf(val), proto);
+		classes.put(Integer.valueOf(val), cls);
 	}
 
 	@Override
@@ -232,77 +287,88 @@ private static class TypeMnemonic extends Mnemonic {
 	public Record
 	getProto(int val) {
 		check(val);
-		return objects.get(Integer.valueOf(val));
+		final Class<? extends Record> cls = classes.get(Integer.valueOf(val));
+		Record r = null;
+		if (cls != null) {
+			try {
+				r = cls.newInstance();
+			} catch (InstantiationException e) {
+				throw new AssertionError(e);
+			} catch (IllegalAccessException e) {
+				throw new AssertionError(e);
+			}
+		}
+		return r;
 	}
 }
 
 private static final TypeMnemonic types = new TypeMnemonic();
 
 static {
-	types.add(A, "A", new ARecord());
-	types.add(NS, "NS", new NSRecord());
-	types.add(MD, "MD", new MDRecord());
-	types.add(MF, "MF", new MFRecord());
-	types.add(CNAME, "CNAME", new CNAMERecord());
-	types.add(SOA, "SOA", new SOARecord());
-	types.add(MB, "MB", new MBRecord());
-	types.add(MG, "MG", new MGRecord());
-	types.add(MR, "MR", new MRRecord());
-	types.add(NULL, "NULL", new NULLRecord());
-	types.add(WKS, "WKS", new WKSRecord());
-	types.add(PTR, "PTR", new PTRRecord());
-	types.add(HINFO, "HINFO", new HINFORecord());
-	types.add(MINFO, "MINFO", new MINFORecord());
-	types.add(MX, "MX", new MXRecord());
-	types.add(TXT, "TXT", new TXTRecord());
-	types.add(RP, "RP", new RPRecord());
-	types.add(AFSDB, "AFSDB", new AFSDBRecord());
-	types.add(X25, "X25", new X25Record());
-	types.add(ISDN, "ISDN", new ISDNRecord());
-	types.add(RT, "RT", new RTRecord());
-	types.add(NSAP, "NSAP", new NSAPRecord());
-	types.add(NSAP_PTR, "NSAP-PTR", new NSAP_PTRRecord());
-	types.add(SIG, "SIG", new SIGRecord());
-	types.add(KEY, "KEY", new KEYRecord());
-	types.add(PX, "PX", new PXRecord());
-	types.add(GPOS, "GPOS", new GPOSRecord());
-	types.add(AAAA, "AAAA", new AAAARecord());
-	types.add(LOC, "LOC", new LOCRecord());
-	types.add(NXT, "NXT", new NXTRecord());
+	types.add(A, "A", ARecord.class);
+	types.add(NS, "NS", NSRecord.class);
+	types.add(MD, "MD", MDRecord.class);
+	types.add(MF, "MF", MFRecord.class);
+	types.add(CNAME, "CNAME", CNAMERecord.class);
+	types.add(SOA, "SOA", SOARecord.class);
+	types.add(MB, "MB", MBRecord.class);
+	types.add(MG, "MG", MGRecord.class);
+	types.add(MR, "MR", MRRecord.class);
+	types.add(NULL, "NULL", NULLRecord.class);
+	types.add(WKS, "WKS", WKSRecord.class);
+	types.add(PTR, "PTR", PTRRecord.class);
+	types.add(HINFO, "HINFO", HINFORecord.class);
+	types.add(MINFO, "MINFO", MINFORecord.class);
+	types.add(MX, "MX", MXRecord.class);
+	types.add(TXT, "TXT", TXTRecord.class);
+	types.add(RP, "RP", RPRecord.class);
+	types.add(AFSDB, "AFSDB", AFSDBRecord.class);
+	types.add(X25, "X25", X25Record.class);
+	types.add(ISDN, "ISDN", ISDNRecord.class);
+	types.add(RT, "RT", RTRecord.class);
+	types.add(NSAP, "NSAP", NSAPRecord.class);
+	types.add(NSAP_PTR, "NSAP-PTR", NSAP_PTRRecord.class);
+	types.add(SIG, "SIG", SIGRecord.class);
+	types.add(KEY, "KEY", KEYRecord.class);
+	types.add(PX, "PX", PXRecord.class);
+	types.add(GPOS, "GPOS", GPOSRecord.class);
+	types.add(AAAA, "AAAA", AAAARecord.class);
+	types.add(LOC, "LOC", LOCRecord.class);
+	types.add(NXT, "NXT", NXTRecord.class);
 	types.add(EID, "EID");
 	types.add(NIMLOC, "NIMLOC");
-	types.add(SRV, "SRV", new SRVRecord());
+	types.add(SRV, "SRV", SRVRecord.class);
 	types.add(ATMA, "ATMA");
-	types.add(NAPTR, "NAPTR", new NAPTRRecord());
-	types.add(KX, "KX", new KXRecord());
-	types.add(CERT, "CERT", new CERTRecord());
-	types.add(A6, "A6", new A6Record());
-	types.add(DNAME, "DNAME", new DNAMERecord());
-	types.add(OPT, "OPT", new OPTRecord());
-	types.add(APL, "APL", new APLRecord());
-	types.add(DS, "DS", new DSRecord());
-	types.add(SSHFP, "SSHFP", new SSHFPRecord());
-	types.add(IPSECKEY, "IPSECKEY", new IPSECKEYRecord());
-	types.add(RRSIG, "RRSIG", new RRSIGRecord());
-	types.add(NSEC, "NSEC", new NSECRecord());
-	types.add(DNSKEY, "DNSKEY", new DNSKEYRecord());
-	types.add(DHCID, "DHCID", new DHCIDRecord());
-	types.add(NSEC3, "NSEC3", new NSEC3Record());
-	types.add(NSEC3PARAM, "NSEC3PARAM", new NSEC3PARAMRecord());
-	types.add(TLSA, "TLSA", new TLSARecord());
-	types.add(SMIMEA, "SMIMEA", new SMIMEARecord());
-	types.add(OPENPGPKEY, "OPENPGPKEY", new OPENPGPKEYRecord());
-	types.add(SPF, "SPF", new SPFRecord());
-	types.add(TKEY, "TKEY", new TKEYRecord());
-	types.add(TSIG, "TSIG", new TSIGRecord());
+	types.add(NAPTR, "NAPTR", NAPTRRecord.class);
+	types.add(KX, "KX", KXRecord.class);
+	types.add(CERT, "CERT", CERTRecord.class);
+	types.add(A6, "A6", A6Record.class);
+	types.add(DNAME, "DNAME", DNAMERecord.class);
+	types.add(OPT, "OPT", OPTRecord.class);
+	types.add(APL, "APL", APLRecord.class);
+	types.add(DS, "DS", DSRecord.class);
+	types.add(SSHFP, "SSHFP", SSHFPRecord.class);
+	types.add(IPSECKEY, "IPSECKEY", IPSECKEYRecord.class);
+	types.add(RRSIG, "RRSIG", RRSIGRecord.class);
+	types.add(NSEC, "NSEC", NSECRecord.class);
+	types.add(DNSKEY, "DNSKEY", DNSKEYRecord.class);
+	types.add(DHCID, "DHCID", DHCIDRecord.class);
+	types.add(NSEC3, "NSEC3", NSEC3Record.class);
+	types.add(NSEC3PARAM, "NSEC3PARAM", NSEC3PARAMRecord.class);
+	types.add(TLSA, "TLSA", TLSARecord.class);
+	types.add(SMIMEA, "SMIMEA", SMIMEARecord.class);
+	types.add(OPENPGPKEY, "OPENPGPKEY", OPENPGPKEYRecord.class);
+	types.add(SPF, "SPF", SPFRecord.class);
+	types.add(TKEY, "TKEY", TKEYRecord.class);
+	types.add(TSIG, "TSIG", TSIGRecord.class);
 	types.add(IXFR, "IXFR");
 	types.add(AXFR, "AXFR");
 	types.add(MAILB, "MAILB");
 	types.add(MAILA, "MAILA");
 	types.add(ANY, "ANY");
-	types.add(URI, "URI", new URIRecord());
-	types.add(CAA, "CAA", new CAARecord());
-	types.add(DLV, "DLV", new DLVRecord());
+	types.add(URI, "URI", URIRecord.class);
+	types.add(CAA, "CAA", CAARecord.class);
+	types.add(DLV, "DLV", DLVRecord.class);
 }
 
 private

@@ -385,7 +385,7 @@ getSOASerial(Record rec) {
 
 private void
 logxfr(String s) {
-	if (Options.check("verbose"))
+	if (Options.check(Options.Standard.verbose))
 		System.out.println(zname + ": " + s);
 }
 
