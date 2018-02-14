@@ -111,7 +111,7 @@ rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	if (options != null) {
 		sb.append(options);
-		sb.append(" ");
+		sb.append(' ');
 	}
 	sb.append(" ; payload ");
 	sb.append(getPayloadSize());

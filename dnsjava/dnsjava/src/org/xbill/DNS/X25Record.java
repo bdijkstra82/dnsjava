@@ -11,6 +11,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class X25Record extends Record {
 
 private static final long serialVersionUID = 4267576252335579764L;
@@ -31,7 +32,7 @@ checkAndConvertAddress(String address) {
 	final byte [] out = new byte [length];
 	for (int i = 0; i < length; i++) {
 		char c = address.charAt(i);
-		if (!Character.isDigit(c))
+		if (c < '0' || c > '9')
 			return null;
 		out[i] = (byte) c;
 	}

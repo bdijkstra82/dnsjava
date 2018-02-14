@@ -12,7 +12,7 @@ final class UDPClient extends Client {
 
 private static final int EPHEMERAL_START = 1024;
 private static final int EPHEMERAL_STOP  = 65535;
-private static final int EPHEMERAL_RANGE  = EPHEMERAL_STOP - EPHEMERAL_START;
+private static final int EPHEMERAL_RANGE = EPHEMERAL_STOP - EPHEMERAL_START;
 
 private static final SecureRandom prng = new SecureRandom();
 private static volatile boolean prng_initializing = true;

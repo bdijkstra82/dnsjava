@@ -14,6 +14,7 @@ import java.util.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class NXTRecord extends Record {
 
 private static final long serialVersionUID = -8851454400765507520L;
@@ -79,9 +80,9 @@ rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(next);
 	final int length = bitmap.length();
-	for (short i = 0; i < length; i++)
+	for (int i = 0; i < length; i++)
 		if (bitmap.get(i)) {
-			sb.append(" ");
+			sb.append(' ');
 			sb.append(Type.string(i));
 		}
 	return sb.toString();

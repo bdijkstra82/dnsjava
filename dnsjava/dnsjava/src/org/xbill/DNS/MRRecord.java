@@ -8,6 +8,7 @@ package org.xbill.DNS;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class MRRecord extends SingleNameBase {
 
 private static final long serialVersionUID = -5617939094209927533L;

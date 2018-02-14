@@ -68,7 +68,7 @@ IPSECKEYRecord(Name name, int dclass, long ttl, int precedence,
 		this.gateway = null;
 		break;
 	case Gateway.IPv4:
-		if (!(gateway instanceof InetAddress))
+		if (!(gateway instanceof Inet4Address))
 			throw new IllegalArgumentException("\"gateway\" " +
 							   "must be an IPv4 " +
 							   "address");
@@ -155,14 +155,14 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(precedence);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(gatewayType);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(algorithmType);
-	sb.append(" ");
+	sb.append(' ');
 	switch (gatewayType) {
 	case Gateway.None:
-		sb.append(".");
+		sb.append('.');
 		break;
 	case Gateway.IPv4:
 	case Gateway.IPv6:
@@ -174,7 +174,7 @@ rrToString() {
 		break;
 	}
 	if (key != null) {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(base64.toString(key));
 	}
 	return sb.toString();

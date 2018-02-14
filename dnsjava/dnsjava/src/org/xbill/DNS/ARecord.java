@@ -11,7 +11,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
-public class ARecord extends Record {
+public class ARecord extends AddressRecordBase {
 
 private static final long serialVersionUID = -2172609200849142323L;
 
@@ -75,6 +75,7 @@ rrToString() {
 }
 
 /** Returns the Internet address */
+@Override
 public InetAddress
 getAddress() {
 	InetAddress r;

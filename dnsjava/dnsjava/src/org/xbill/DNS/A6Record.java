@@ -11,6 +11,7 @@ import java.net.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class A6Record extends Record {
 
 private static final long serialVersionUID = -8815026887337346789L;
@@ -87,11 +88,11 @@ rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(prefixBits);
 	if (suffix != null) {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(suffix.getHostAddress());
 	}
 	if (prefix != null) {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(prefix);
 	}
 	return sb.toString();

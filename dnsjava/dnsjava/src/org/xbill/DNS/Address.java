@@ -14,6 +14,8 @@ import java.net.Inet6Address;
 
 public final class Address {
 
+	public static enum Family {IPv4, IPv6}
+
 public static final int IPv4 = 1;
 public static final int IPv6 = 2;
 
@@ -262,11 +264,7 @@ lookupHostName(String name, boolean all) throws UnknownHostException {
 private static InetAddress
 addrFromRecord(String name, Record r) throws UnknownHostException {
 	final InetAddress addr;
-	if (r instanceof ARecord) {
-		addr = ((ARecord)r).getAddress();
-	} else {
-		addr = ((AAAARecord)r).getAddress();
-	}
+	addr = ((AddressRecordBase)r).getAddress();
 	return InetAddress.getByAddress(name, addr.getAddress());
 }
 

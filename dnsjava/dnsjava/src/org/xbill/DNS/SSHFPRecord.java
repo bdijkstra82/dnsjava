@@ -77,9 +77,9 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(alg);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(digestType);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(base16.toString(fingerprint));
 	return sb.toString();
 }

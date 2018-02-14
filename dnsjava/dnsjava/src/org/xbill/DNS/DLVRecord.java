@@ -79,12 +79,12 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(footprint);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(alg);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(digestid);
 	if (digest != null) {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(base16.toString(digest));
 	}
 

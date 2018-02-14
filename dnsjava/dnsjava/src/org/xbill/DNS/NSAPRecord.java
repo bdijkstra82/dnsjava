@@ -11,6 +11,7 @@ import org.xbill.DNS.utils.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class NSAPRecord extends Record {
 
 private static final long serialVersionUID = -1037209403185658593L;

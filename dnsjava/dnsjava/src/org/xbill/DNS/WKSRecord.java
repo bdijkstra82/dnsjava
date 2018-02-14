@@ -12,6 +12,7 @@ import java.util.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class WKSRecord extends Record {
 
 private static final long serialVersionUID = -9104259763909119805L;
@@ -671,10 +672,10 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(Address.toDottedQuad(address));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(protocol);
 	for (int i = 0; i < services.length; i++) {
-		sb.append(" " + services[i]);
+		sb.append(' ').append(services[i]);
 	}
 	return sb.toString();
 }

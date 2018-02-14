@@ -9,6 +9,7 @@ package org.xbill.DNS;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class NSAP_PTRRecord extends SingleNameBase {
 
 private static final long serialVersionUID = 2386284746382064904L;

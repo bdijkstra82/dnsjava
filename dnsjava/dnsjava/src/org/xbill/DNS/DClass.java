@@ -18,13 +18,13 @@ public static final int IN		= 1;
 public static final int CH		= 3;
 
 /** Chaos network (MIT, alternate name) */
-public static final int CHAOS		= 3;
+public static final int CHAOS		= CH;
 
 /** Hesiod name server (MIT) */
 public static final int HS		= 4;
 
 /** Hesiod name server (MIT, alternate name) */
-public static final int HESIOD		= 4;
+public static final int HESIOD		= HS;
 
 /** Special value used in dynamic update messages */
 public static final int NONE		= 254;
@@ -50,10 +50,8 @@ private static final Mnemonic classes = new DClassMnemonic();
 
 static {
 	classes.add(IN, "IN");
-	classes.add(CH, "CH");
-	classes.addAlias(CH, "CHAOS");
-	classes.add(HS, "HS");
-	classes.addAlias(HS, "HESIOD");
+	classes.add(CH, "CH", "CHAOS");
+	classes.add(HS, "HS", "HESIOD");
 	classes.add(NONE, "NONE");
 	classes.add(ANY, "ANY");
 }

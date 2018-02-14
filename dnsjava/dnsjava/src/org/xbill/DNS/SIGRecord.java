@@ -15,6 +15,7 @@ import java.util.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class SIGRecord extends SIGBase {
 
 private static final long serialVersionUID = 4963556060953589058L;

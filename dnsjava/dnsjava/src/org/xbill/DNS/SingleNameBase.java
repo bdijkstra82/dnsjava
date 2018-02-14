@@ -13,8 +13,6 @@ import java.io.*;
 
 abstract class SingleNameBase extends Record {
 
-private static final long serialVersionUID = -18595042501413L;
-
 protected Name singleName;
 
 protected

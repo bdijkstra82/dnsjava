@@ -182,7 +182,7 @@ renderFixedPoint(StringBuilder sb, NumberFormat formatter, long value,
 	sb.append(value / divisor);
 	value %= divisor;
 	if (value != 0) {
-		sb.append(".");
+		sb.append('.');
 		sb.append(formatter.format(value));
 	}
 }
@@ -201,14 +201,14 @@ positionToString(long value, char pos, char neg) {
 
 	sb.append(temp / (3600 * 1000)); /* degrees */
 	temp = temp % (3600 * 1000);
-	sb.append(" ");
+	sb.append(' ');
 
 	sb.append(temp / (60 * 1000)); /* minutes */
 	temp = temp % (60 * 1000);
-	sb.append(" ");
+	sb.append(' ');
 
 	renderFixedPoint(sb, w3, temp, 1000); /* seconds */
-	sb.append(" ");
+	sb.append(' ');
 
 	sb.append(direction);
 
@@ -224,11 +224,11 @@ rrToString() {
 
 	/* Latitude */
 	sb.append(positionToString(latitude, 'N', 'S'));
-	sb.append(" ");
+	sb.append(' ');
 
 	/* Latitude */
 	sb.append(positionToString(longitude, 'E', 'W'));
-	sb.append(" ");
+	sb.append(' ');
 
 	/* Altitude */
 	renderFixedPoint(sb, w2, altitude - 10000000, 100);
@@ -244,7 +244,7 @@ rrToString() {
 
 	/* Vertical precision */
 	renderFixedPoint(sb, w2, vPrecision, 100);
-	sb.append("m");
+	sb.append('m');
 
 	return sb.toString();
 }

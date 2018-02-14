@@ -47,12 +47,12 @@ parse(String s, boolean clamp) {
 			if (value < oldvalue)
 				throw new NumberFormatException();
 		} else {
-			switch (Character.toUpperCase(c)) {
-				case 'W': value *= 7;
-				case 'D': value *= 24;
-				case 'H': value *= 60;
-				case 'M': value *= 60;
-				case 'S': break;
+			switch (c) {
+				case 'W': case 'w': value *= 7;	/* fall-through */
+				case 'D': case 'd': value *= 24;	/* fall-through */
+				case 'H': case 'h': value *= 60;	/* fall-through */
+				case 'M': case 'm': value *= 60;	/* fall-through */
+				case 'S': case 's': break;
 				default:  throw new NumberFormatException();
 			}
 			ttl += value;
@@ -98,15 +98,15 @@ format(long ttl) {
 	ttl /= 7;
 	weeks = ttl;
 	if (weeks > 0)
-		sb.append(weeks + "W");
+		sb.append(weeks).append('W');
 	if (days > 0)
-		sb.append(days + "D");
+		sb.append(days).append('D');
 	if (hours > 0)
-		sb.append(hours + "H");
+		sb.append(hours).append('H');
 	if (mins > 0)
-		sb.append(mins + "M");
+		sb.append(mins).append('M');
 	if (secs > 0 || (weeks == 0 && days == 0 && hours == 0 && mins == 0))
-		sb.append(secs + "S");
+		sb.append(secs).append('S');
 	return sb.toString();
 }
 

@@ -10,6 +10,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class PXRecord extends Record {
 
 private static final long serialVersionUID = 1811540008806660667L;
@@ -65,9 +66,9 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(preference);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(map822);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(mapX400);
 	return sb.toString();
 }

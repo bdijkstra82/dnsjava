@@ -110,31 +110,24 @@ parseNumeric(String s) {
 }
 
 /**
- * Defines the text representation of a numeric value.
+ * Defines the text representation of a numeric value. Optionally also
+ * defines one or more additional text representations of the same numeric
+ * value.  These will be used by getValue(), but not getText().
  * @param val The numeric value
  * @param string The text string
+ * @param aliases Additional text strings
  */
 public void
-add(int val, String str) {
+add(int val, String str, String... aliases) {
 	check(val);
 	final Integer value = Integer.valueOf(val);
 	str = sanitize(str);
 	strings.put(str, value);
 	values.put(value, str);
-}
-
-/**
- * Defines an additional text representation of a numeric value.  This will
- * be used by getValue(), but not getText().
- * @param val The numeric value
- * @param string The text string
- */
-public void
-addAlias(int val, String str) {
-	check(val);
-	final Integer value = Integer.valueOf(val);
-	str = sanitize(str);
-	strings.put(str, value);
+	for (String a : aliases) {
+		a = sanitize(a);
+		strings.put(a, value);
+	}
 }
 
 /**

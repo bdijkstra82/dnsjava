@@ -25,16 +25,29 @@ base16() {}
  */
 public static String
 toString(byte [] b) {
-	final ByteArrayOutputStream os = new ByteArrayOutputStream();
+	final char[] ca = new char[b.length * 2];
 
-	for (int i = 0; i < b.length; i++) {
-		short value = (short) (b[i] & 0xFF);
-		byte high = (byte) (value >> 4);
-		byte low = (byte) (value & 0xF);
-		os.write(Base16.charAt(high));
-		os.write(Base16.charAt(low));
+	for (int i = 0, j = 0; i < b.length; i++) {
+		int value = b[i] & 0xFF;
+		int high = value >> 4;
+		int low = value & 0xF;
+		ca[j++] = Base16.charAt(high);
+		ca[j++] = Base16.charAt(low);
 	}
-	return new String(os.toByteArray());
+	return new String(ca);
+}
+
+private static int decode(char c) {
+	int v;
+	if (c >= '0' && c <= '9')
+		v = c - '0';
+	else if (c >= 'A' && c <= 'F')
+		v = c - 'A' + 10;
+	else if (c >= 'a' && c <= 'f')
+		v = c - 'a' + 10;
+	else
+		v = -1;
+	return v;
 }
 
 /**
@@ -44,30 +57,27 @@ toString(byte [] b) {
  */
 public static byte []
 fromString(String str) {
-	final ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	final byte [] raw = str.getBytes();
-	for (int i = 0; i < raw.length; i++) {
-		if (!Character.isWhitespace((char)raw[i]))
-			bs.write(raw[i]);
-	}
-	final byte [] in = bs.toByteArray();
-	if (in.length % 2 != 0) {
-		return null;
-	}
+	final ByteArrayOutputStream bs = new ByteArrayOutputStream(str.length() / 2);
 
-	bs.reset();
-	final DataOutputStream ds = new DataOutputStream(bs);
-
-	for (int i = 0; i < in.length; i += 2) {
-		byte high = (byte) Base16.indexOf(Character.toUpperCase((char)in[i]));
-		byte low = (byte) Base16.indexOf(Character.toUpperCase((char)in[i+1]));
-		try {
-			ds.writeByte((high << 4) + low);
-		}
-		catch (IOException e) {
+	int n = 0, high = -1, low;
+	for (int i = 0; i < str.length() && n >= 0; i++) {
+		char ch = str.charAt(i);
+		if (!Character.isWhitespace(ch)) {
+			int b = decode(ch);
+			if (b < 0)
+				n = -1;
+			else {
+				if (n == 0)
+					high = b;
+				else {
+					low = b;
+					bs.write((high << 4) | low);
+				}
+				n = 1 - n;
+			}
 		}
 	}
-	return bs.toByteArray();
+	return (n == 0) ? bs.toByteArray() : null;
 }
 
 }

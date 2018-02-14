@@ -3,6 +3,7 @@
 package org.xbill.DNS.utils;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * Routines for converting between Strings of base32-encoded data and arrays
@@ -135,7 +136,7 @@ toString(byte [] b) {
 		}
 	}
 
-    return new String(os.toByteArray());
+    return new String(os.toByteArray(), Charset.forName("ISO-8859-1"));
 }
 
 /**
@@ -147,10 +148,11 @@ toString(byte [] b) {
 public byte[]
 fromString(String str) {
 	final ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	final byte [] raw = str.getBytes();
-	for (int i = 0; i < raw.length; i++)
+	for (int i = 0; i < str.length(); i++)
 	{
-		char c = (char) raw[i];
+		char c = str.charAt(i);
+		if (c > '\u0080')
+			return null;
 		if (!Character.isWhitespace(c)) {
 			c = Character.toUpperCase(c);
 			bs.write((byte) c);

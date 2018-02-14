@@ -38,7 +38,7 @@ fromAddress(byte [] addr) {
 		for (int i = addr.length - 1; i >= 0; i--) {
 			sb.append(addr[i] & 0xFF);
 			if (i > 0)
-				sb.append(".");
+				sb.append('.');
 		}
 	} else {
 		final int [] nibbles = new int[2];
@@ -48,7 +48,7 @@ fromAddress(byte [] addr) {
 			for (int j = nibbles.length - 1; j >= 0; j--) {
 				sb.append(Integer.toHexString(nibbles[j]));
 				if (i > 0 || j > 0)
-					sb.append(".");
+					sb.append('.');
 			}
 		}
 	}

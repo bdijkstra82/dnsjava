@@ -14,8 +14,6 @@ import java.util.*;
 
 abstract class TXTBase extends Record {
 
-private static final long serialVersionUID = -4319510507246305931L;
-
 protected List<byte[]> strings;
 
 protected
@@ -88,7 +86,7 @@ rrToString() {
 		byte [] array = it.next();
 		sb.append(byteArrayToString(array, true));
 		if (it.hasNext())
-			sb.append(" ");
+			sb.append(' ');
 	}
 	return sb.toString();
 }

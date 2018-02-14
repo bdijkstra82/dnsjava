@@ -252,7 +252,7 @@ printFlags() {
 	for (int i = 0; i < 16; i++)
 		if (validFlag(i) && getFlag(i)) {
 			sb.append(Flags.string(i));
-			sb.append(" ");
+			sb.append(' ');
 		}
 	return sb.toString();
 }
@@ -262,15 +262,15 @@ toStringWithRcode(int newrcode) {
 	final StringBuilder sb = new StringBuilder();
 
 	sb.append(";; ->>HEADER<<- ");
-	sb.append("opcode: " + Opcode.string(getOpcode()));
-	sb.append(", status: " + Rcode.string(newrcode));
-	sb.append(", id: " + getID());
-	sb.append("\n");
+	sb.append("opcode: ").append(Opcode.string(getOpcode()));
+	sb.append(", status: ").append(Rcode.string(newrcode));
+	sb.append(", id: ").append(getID());
+	sb.append('\n');
 
-	sb.append(";; flags: " + printFlags());
+	sb.append(";; flags: ").append(printFlags());
 	sb.append("; ");
 	for (int i = 0; i < 4; i++)
-		sb.append(Section.string(i) + ": " + getCount(i) + " ");
+		sb.append(Section.string(i)).append(": ").append(getCount(i)).append(' ');
 	return sb.toString();
 }
 

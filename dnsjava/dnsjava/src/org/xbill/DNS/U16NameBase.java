@@ -13,8 +13,6 @@ import java.io.*;
 
 abstract class U16NameBase extends Record {
 
-private static final long serialVersionUID = -8315884183112502995L;
-
 protected int u16Field;
 protected Name nameField;
 
@@ -54,7 +52,7 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(u16Field);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(nameField);
 	return sb.toString();
 }

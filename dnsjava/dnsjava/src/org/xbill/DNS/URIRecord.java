@@ -78,8 +78,8 @@ rdataFromString(Tokenizer st, Name origin) throws IOException {
 String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
-	sb.append(priority + " ");
-	sb.append(weight + " ");
+	sb.append(priority).append(' ');
+	sb.append(weight).append(' ');
 	sb.append(byteArrayToString(target, true));
 	return sb.toString();
 }

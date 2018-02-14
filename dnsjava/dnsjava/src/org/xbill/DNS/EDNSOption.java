@@ -11,7 +11,7 @@ import java.util.Arrays;
  * @author Brian Wellington
  * @author Ming Zhou &lt;mizhou@bnivideo.com&gt;, Beaumaris Networks
  */
-public abstract class EDNSOption {
+public abstract class EDNSOption implements Serializable {
 
 public static class Code {
 	private Code() {}
@@ -70,11 +70,11 @@ public String
 toString() {
 	final StringBuilder sb = new StringBuilder();
 
-	sb.append("{");
+	sb.append('{');
 	sb.append(EDNSOption.Code.string(code));
 	sb.append(": ");
 	sb.append(optionToString());
-	sb.append("}");
+	sb.append('}');
 
 	return sb.toString();
 }

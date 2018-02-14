@@ -12,6 +12,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class RPRecord extends Record {
 
 private static final long serialVersionUID = 8124584364211337460L;
@@ -60,7 +61,7 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(mailbox);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(textDomain);
 	return sb.toString();
 }

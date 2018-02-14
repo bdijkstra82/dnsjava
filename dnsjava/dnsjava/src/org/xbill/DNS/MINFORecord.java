@@ -12,6 +12,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class MINFORecord extends Record {
 
 private static final long serialVersionUID = -3962147172340353796L;
@@ -65,7 +66,7 @@ String
 rrToString() {
 	final StringBuffer sb = new StringBuffer();
 	sb.append(responsibleAddress);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(errorAddress);
 	return sb.toString();
 }

@@ -446,9 +446,8 @@ generateReply(Message query, byte [] in, int length, Socket s)
 	addAdditional(response, flags);
 
 	if (queryOPT != null) {
-		int optflags = (flags == FLAG_DNSSECOK) ? ExtendedFlags.DO : 0;
-		OPTRecord opt = new OPTRecord((short)4096, rcode, (byte)0,
-					      optflags);
+		final int optflags = (flags == FLAG_DNSSECOK) ? ExtendedFlags.DO : 0;
+		final OPTRecord opt = new OPTRecord(4096, rcode, 0, optflags);
 		response.addRecord(opt, Section.ADDITIONAL);
 	}
 
@@ -566,7 +565,7 @@ serveUDP(InetAddress addr, int port) {
 	DatagramSocket sock = null;
 	try {
 		sock = new DatagramSocket(port, addr);
-		final short udpLength = 512;
+		final int udpLength = 512;
 		final byte [] in = new byte[udpLength];
 		final DatagramPacket indp = new DatagramPacket(in, in.length);
 		DatagramPacket outdp = null;

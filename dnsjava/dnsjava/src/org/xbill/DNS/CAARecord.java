@@ -78,9 +78,9 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(flags);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(tag, false));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(value, true));
 	return sb.toString();
 }

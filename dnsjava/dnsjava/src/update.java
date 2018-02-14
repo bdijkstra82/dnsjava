@@ -88,7 +88,10 @@ update(InputStream in) {
 				token = st.get();
 				if (token.isString()) {
 					String portstr = token.value;
-					res.setPort(Short.parseShort(portstr));
+					int port = Integer.parseInt(portstr);
+					if (port < 0 || port > 0xffff)
+						throw new NumberFormatException();
+					res.setPort(port);
 				}
 			}
 

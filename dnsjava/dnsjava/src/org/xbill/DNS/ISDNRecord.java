@@ -10,6 +10,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class ISDNRecord extends Record {
 
 private static final long serialVersionUID = -8730801385178968798L;
@@ -101,7 +102,7 @@ rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(byteArrayToString(address, true));
 	if (subAddress != null) {
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(byteArrayToString(subAddress, true));
 	}
 	return sb.toString();

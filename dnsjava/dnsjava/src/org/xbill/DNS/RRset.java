@@ -226,11 +226,11 @@ iteratorToString(Iterator<Record> it) {
 	final StringBuilder sb = new StringBuilder();
 	while (it.hasNext()) {
 		Record rr = it.next();
-		sb.append("[");
+		sb.append('[');
 		sb.append(rr.rdataToString());
-		sb.append("]");
+		sb.append(']');
 		if (it.hasNext())
-			sb.append(" ");
+			sb.append(' ');
 	}
 	return sb.toString();
 }

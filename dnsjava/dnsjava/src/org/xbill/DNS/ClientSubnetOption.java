@@ -2,7 +2,6 @@
 
 package org.xbill.DNS;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -30,7 +29,7 @@ import java.net.UnknownHostException;
  * @author Brian Wellington
  * @author Ming Zhou &lt;mizhou@bnivideo.com&gt;, Beaumaris Networks
  */
-public class ClientSubnetOption extends EDNSOption implements Serializable {
+public class ClientSubnetOption extends EDNSOption {
 
 private static final long serialVersionUID = -3868158449890266347L;
 
@@ -166,7 +165,7 @@ String
 optionToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(address.getHostAddress());
-	sb.append("/");
+	sb.append('/');
 	sb.append(sourceNetmask);
 	sb.append(", scope netmask ");
 	sb.append(scopeNetmask);

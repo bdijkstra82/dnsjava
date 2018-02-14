@@ -185,6 +185,7 @@ digestRRset(RRSIGRecord rrsig, RRset rrset) {
  * @param previous If this is a response, the signature from the query.
  * @return The data to be cryptographically signed.
  */
+@Deprecated
 public static byte []
 digestMessage(SIGRecord sig, Message msg, byte [] previous) {
 	final DNSOutput out = new DNSOutput();
@@ -1070,6 +1071,7 @@ sign(RRset rrset, DNSKEYRecord key, PrivateKey privkey,
 	return rrsig;
 }
 
+@Deprecated
 static SIGRecord
 signMessage(Message message, SIGRecord previous, KEYRecord key,
 	    PrivateKey privkey, Date inception, Date expiration)
@@ -1093,6 +1095,7 @@ signMessage(Message message, SIGRecord previous, KEYRecord key,
 	return sig;
 }
 
+@Deprecated
 static void
 verifyMessage(Message message, byte [] bytes, SIGRecord sig, SIGRecord previous,
 	      KEYRecord key) throws DNSSECException

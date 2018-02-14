@@ -91,15 +91,15 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(order);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(preference);
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(flags, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(service, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(regexp, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(replacement);
 	return sb.toString();
 }

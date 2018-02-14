@@ -11,8 +11,6 @@ package org.xbill.DNS;
 
 abstract class SingleCompressedNameBase extends SingleNameBase {
 
-private static final long serialVersionUID = -236435396815460677L;
-
 protected
 SingleCompressedNameBase() {}
 

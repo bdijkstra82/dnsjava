@@ -91,7 +91,7 @@ static final SetResponse success(Collection<? extends RRset> sets) {
 	return new SetResponse(Type.SUCCESSFUL, sets);
 }
 
-static final SetResponse success(RRset... sets) {
+static final SetResponse success(RRset[] sets) {
 	Collection<RRset> data = new ArrayList<RRset>();
 	for (RRset rrs : sets) {
 		data.add(rrs);

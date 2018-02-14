@@ -18,6 +18,7 @@ import org.xbill.DNS.utils.*;
  * this could change if more constants are defined for APL records.
  */
 
+@Deprecated
 public class APLRecord extends Record {
 
 public static class Element {
@@ -57,14 +58,14 @@ public static class Element {
 	toString() {
 		final StringBuilder sb = new StringBuilder();
 		if (negative)
-			sb.append("!");
+			sb.append('!');
 		sb.append(family);
-		sb.append(":");
+		sb.append(':');
 		if (family == Address.IPv4 || family == Address.IPv6)
 			sb.append(((InetAddress) address).getHostAddress());
 		else
 			sb.append(base16.toString((byte []) address));
-		sb.append("/");
+		sb.append('/');
 		sb.append(prefixLength);
 		return sb.toString();
 	}
@@ -244,7 +245,7 @@ rrToString() {
 		Element element = it.next();
 		sb.append(element);
 		if (it.hasNext())
-			sb.append(" ");
+			sb.append(' ');
 	}
 	return sb.toString();
 }

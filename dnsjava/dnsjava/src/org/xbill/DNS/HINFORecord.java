@@ -10,6 +10,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class HINFORecord extends Record {
 
 private static final long serialVersionUID = -4732870630947452112L;
@@ -92,7 +93,7 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(byteArrayToString(cpu, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(os, true));
 	return sb.toString();
 }

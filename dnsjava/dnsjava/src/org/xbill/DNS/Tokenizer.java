@@ -19,6 +19,7 @@ package org.xbill.DNS;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
 
 import org.xbill.DNS.utils.*;
 
@@ -164,7 +165,7 @@ Tokenizer(InputStream is) {
  */
 public
 Tokenizer(String s) {
-	this(new ByteArrayInputStream(s.getBytes()));
+	this(new ByteArrayInputStream(s.getBytes(Charset.forName("ISO-8859-1"))));
 }
 
 /**

@@ -2,8 +2,6 @@
 
 package org.xbill.DNS;
 
-import java.io.Serializable;
-
 /**
  * The Name Server Identifier Option, define in RFC 5001.
  *
@@ -11,7 +9,7 @@ import java.io.Serializable;
  *
  * @author Brian Wellington
  */
-public class NSIDOption extends GenericEDNSOption implements Serializable {
+public class NSIDOption extends GenericEDNSOption {
 
 private static final long serialVersionUID = 74739759292589056L;
 

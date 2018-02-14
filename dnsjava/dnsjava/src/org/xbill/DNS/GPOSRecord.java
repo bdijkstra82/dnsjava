@@ -2,7 +2,8 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Geographical Location - describes the physical location of a host.
@@ -10,6 +11,7 @@ import java.io.*;
  * @author Brian Wellington
  */
 
+@Deprecated
 public class GPOSRecord extends Record {
 
 private static final long serialVersionUID = -6349714958085750705L;
@@ -50,9 +52,10 @@ GPOSRecord(Name name, int dclass, long ttl, double longitude, double latitude,
 {
 	super(name, Type.GPOS, dclass, ttl);
 	validate(longitude, latitude);
-	this.longitude = Double.toString(longitude).getBytes();
-	this.latitude = Double.toString(latitude).getBytes();
-	this.altitude = Double.toString(altitude).getBytes();
+	final Charset cs = Charset.forName("US-ASCII");
+	this.longitude = Double.toString(longitude).getBytes(cs);
+	this.latitude = Double.toString(latitude).getBytes(cs);
+	this.altitude = Double.toString(altitude).getBytes(cs);
 }
 
 /**
@@ -117,9 +120,9 @@ String
 rrToString() {
 	final StringBuilder sb = new StringBuilder();
 	sb.append(byteArrayToString(longitude, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(latitude, true));
-	sb.append(" ");
+	sb.append(' ');
 	sb.append(byteArrayToString(altitude, true));
 	return sb.toString();
 }

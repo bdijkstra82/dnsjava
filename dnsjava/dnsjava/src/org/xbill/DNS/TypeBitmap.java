@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Routines for deal with the lists of types found in NSEC/NSEC3 records.
+ * Routines for dealing with the lists of types found in NSEC/NSEC3 records.
  *
  * @author Brian Wellington
  */
