@@ -8,85 +8,86 @@ package org.xbill.DNS;
  * @author Brian Wellington
  */
 
-public final class Section {
+public enum Section {
+
+	qd("QUESTIONS",			"ZONE"),
+	an("ANSWERS",			"PREREQUISITES"),
+	au("AUTHORITY RECORDS", "UPDATE RECORDS"),
+	ad("ADDITIONAL RECORDS");
+
+	public static final Section
+		QUESTION   = qd,
+		ANSWER     = an,
+		AUTHORITY  = au,
+		ADDITIONAL = ad;
+
+	public static final Section
+		ZONE   = qd,
+		PREREQ = an,
+		UPDATE = au;
 
 /** The question (first) section */
-public static final int QUESTION	= 0;
+public static final int QUESTION_INDEX	= 0;
 
 /** The answer (second) section */
-public static final int ANSWER		= 1;
+public static final int ANSWER_INDEX	= 1;
 
 /** The authority (third) section */
-public static final int AUTHORITY	= 2;
+public static final int AUTHORITY_INDEX	= 2;
 
 /** The additional (fourth) section */
-public static final int ADDITIONAL	= 3;
+public static final int ADDITIONAL_INDEX = 3;
 
 /* Aliases for dynamic update */
 /** The zone (first) section of a dynamic update message */
-public static final int ZONE		= 0;
+public static final int ZONE_INDEX		= 0;
 
 /** The prerequisite (second) section of a dynamic update message */
-public static final int PREREQ		= 1;
+public static final int PREREQ_INDEX	= 1;
 
 /** The update (third) section of a dynamic update message */
-public static final int UPDATE		= 2;
+public static final int UPDATE_INDEX	= 2;
 
-private static final Mnemonic sections = new Mnemonic("Message Section",
-						Mnemonic.CASE_LOWER);
-private static final String [] longSections = new String[4];
-private static final String [] updateSections = new String[4];
-
-static {
-	sections.setMaximum(3);
-	sections.setNumericAllowed(true);
-
-	sections.add(QUESTION, "qd");
-	sections.add(ANSWER, "an");
-	sections.add(AUTHORITY, "au");
-	sections.add(ADDITIONAL, "ad");
-
-	longSections[QUESTION]		= "QUESTIONS";
-	longSections[ANSWER]		= "ANSWERS";
-	longSections[AUTHORITY]		= "AUTHORITY RECORDS";
-	longSections[ADDITIONAL]	= "ADDITIONAL RECORDS";
-
-	updateSections[ZONE]		= "ZONE";
-	updateSections[PREREQ]		= "PREREQUISITES";
-	updateSections[UPDATE]		= "UPDATE RECORDS";
-	updateSections[ADDITIONAL]	= "ADDITIONAL RECORDS";
-}
+private final String longString, updString;
 
 private
-Section() {}
-
-/** Converts a numeric Section into an abbreviation String */
-public static String
-string(int i) {
-	return sections.getText(i);
+Section(String longString, String updString) {
+	this.longString = longString;
+	this.updString = updString;
+}
+private
+Section(String longString) {
+	this(longString, longString);
 }
 
 /** Converts a numeric Section into a full description String */
-public static String
-longString(int i) {
-	sections.check(i);
-	return longSections[i];
+public String
+longString() {
+	return longString;
 }
 
 /**
  * Converts a numeric Section into a full description String for an update
  * Message.
  */
-public static String
-updString(int i) {
-	sections.check(i);
-	return updateSections[i];
+public String
+updString() {
+	return updString;
 }
 
 /** Converts a String representation of a Section into its numeric value */
-public static int
+public static Section
 value(String s) {
-	return sections.getValue(s);
+	Section r = null;
+	for (Section i : values())
+		if (i.name().equalsIgnoreCase(s)) {
+			r = i;
+			break;
+		}
+	return r;
+}
+public static Section valueOf(int s) {
+	return values()[s];
 }
 
 }

@@ -475,7 +475,7 @@ doAssert(Tokenizer st) throws IOException {
 	final String expected = st.getString();
 	String value = null;
 	boolean flag = true;
-	final int section;
+	final Section section;
 
 	if (response == null) {
 		print("No response has been received");
@@ -513,7 +513,7 @@ doAssert(Tokenizer st) throws IOException {
 		if (!value.equalsIgnoreCase(expected))
 			flag = false;
 	}
-	else if ((section = Section.value(field)) >= 0) {
+	else if ((section = Section.value(field)) != null) {
 		final int count = response.getHeader().getCount(section);
 		if (count != Integer.parseInt(expected)) {
 			value = Integer.toString(count);

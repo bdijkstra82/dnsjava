@@ -101,15 +101,16 @@ Message(DNSInput in) throws IOException {
 	final boolean isUpdate = (header.getOpcode() == Opcode.UPDATE);
 	final boolean truncated = header.getFlag(Flags.TC);
 	try {
-		for (int i = 0; i < 4; i++) {
-			int count = header.getCount(i);
+		for (Section s : Section.values()) {
+			int count = header.getCount(s);
+			int i = s.ordinal();
 			if (count > 0)
 				sections[i] = new ArrayList<Record>(count);
 			for (int j = 0; j < count; j++) {
 				int pos = in.current();
-				Record rec = Record.fromWire(in, i, isUpdate);
+				Record rec = Record.fromWire(in, s, isUpdate);
 				sections[i].add(rec);
-				if (i == Section.ADDITIONAL) {
+				if (s == Section.ADDITIONAL) {
 					if (rec.getType() == Type.TSIG)
 						tsigstart = pos;
 					if (rec.getType() == Type.SIG) {
@@ -169,11 +170,12 @@ getHeader() {
  * @see Section
  */
 public void
-addRecord(Record r, int section) {
-	if (sections[section] == null)
-		sections[section] = new LinkedList<Record>();
-	header.incCount(section);
-	sections[section].add(r);
+addRecord(Record r, Section section) {
+	final int sectionIndex = section.ordinal();
+	if (sections[sectionIndex] == null)
+		sections[sectionIndex] = new LinkedList<Record>();
+	header.incCount(sectionIndex);
+	sections[sectionIndex].add(r);
 }
 
 /**
@@ -182,10 +184,11 @@ addRecord(Record r, int section) {
  * @see Section
  */
 public boolean
-removeRecord(Record r, int section) {
+removeRecord(Record r, Section section) {
+	final int sectionIndex = section.ordinal();
 	final boolean b;
-	if (sections[section] != null && sections[section].remove(r)) {
-		header.decCount(section);
+	if (sections[sectionIndex] != null && sections[sectionIndex].remove(r)) {
+		header.decCount(sectionIndex);
 		b = true;
 	}
 	else
@@ -199,9 +202,10 @@ removeRecord(Record r, int section) {
  * @see Section
  */
 public void
-removeAllRecords(int section) {
-	sections[section] = null;
-	header.setCount(section, 0);
+removeAllRecords(Section section) {
+	final int sectionIndex = section.ordinal();
+	sections[sectionIndex] = null;
+	header.setCount(sectionIndex, 0);
 }
 
 /**
@@ -210,8 +214,9 @@ removeAllRecords(int section) {
  * @see Section
  */
 public boolean
-findRecord(Record r, int section) {
-	return (sections[section] != null && sections[section].contains(r));
+findRecord(Record r, Section section) {
+	final int sectionIndex = section.ordinal();
+	return (sections[sectionIndex] != null && sections[sectionIndex].contains(r));
 }
 
 /**
@@ -221,7 +226,7 @@ findRecord(Record r, int section) {
  */
 public boolean
 findRecord(Record r) {
-	for (int i = Section.ANSWER; i <= Section.ADDITIONAL; i++)
+	for (int i = Section.ANSWER_INDEX; i <= Section.ADDITIONAL_INDEX; i++)
 		if (sections[i] != null && sections[i].contains(r))
 			return true;
 	return false;
@@ -234,11 +239,12 @@ findRecord(Record r) {
  * @see Section
  */
 public boolean
-findRRset(Name name, int type, int section) {
-	if (sections[section] == null)
+findRRset(Name name, int type, Section section) {
+	final int sectionIndex = section.ordinal();
+	if (sections[sectionIndex] == null)
 		return false;
-	for (int i = 0; i < sections[section].size(); i++) {
-		Record r = sections[section].get(i);
+	for (int i = 0; i < sections[sectionIndex].size(); i++) {
+		Record r = sections[sectionIndex].get(i);
 		if (r.getType() == type && name.equals(r.getName()))
 			return true;
 	}
@@ -265,7 +271,7 @@ findRRset(Name name, int type) {
  */
 public Record
 getQuestion() {
-	final List<Record> l = sections[Section.QUESTION];
+	final List<Record> l = sections[Section.QUESTION_INDEX];
 	if (l == null || l.size() == 0)
 		return null;
 	return l.get(0);
@@ -282,7 +288,7 @@ getTSIG() {
 	final int count = header.getCount(Section.ADDITIONAL);
 	if (count == 0)
 		return null;
-	final List<Record> l = sections[Section.ADDITIONAL];
+	final List<Record> l = sections[Section.ADDITIONAL_INDEX];
 	final Record rec = l.get(count - 1);
 	if (rec.type != Type.TSIG)
 		return null;
@@ -343,10 +349,11 @@ getRcode() {
  * @see Section
  */
 public Record []
-getSectionArray(int section) {
-	if (sections[section] == null)
+getSectionArray(Section section) {
+	final int sectionIndex = section.ordinal();
+	if (sections[sectionIndex] == null)
 		return emptyRecordArray;
-	final List<Record> l = sections[section];
+	final List<Record> l = sections[sectionIndex];
 	return l.toArray(new Record[l.size()]);
 }
 
@@ -364,8 +371,9 @@ sameSet(Record r1, Record r2) {
  * @see Section
  */
 public RRset []
-getSectionRRsets(int section) {
-	if (sections[section] == null)
+getSectionRRsets(Section section) {
+	int sectionIndex = section.ordinal();
+	if (sections[sectionIndex] == null)
 		return emptyRRsetArray;
 	final List<RRset> sets = new LinkedList<RRset>();
 	final Record [] recs = getSectionArray(section);
@@ -422,7 +430,7 @@ sectionToWire(DNSOutput out, int section, Compression c,
 
 	for (int i = 0; i < n; i++) {
 		Record rec = sections[section].get(i);
-		if (section == Section.ADDITIONAL && rec instanceof OPTRecord) {
+		if (section == Section.ADDITIONAL_INDEX && rec instanceof OPTRecord) {
 			skipped++;
 			continue;
 		}
@@ -463,21 +471,22 @@ toWire(DNSOutput out, int maxLength) {
 	final Compression c = new Compression();
 	int flags = header.getFlagsByte();
 	int additionalCount = 0;
-	for (int i = 0; i < 4; i++) {
+	for (Section s : Section.values()) {
 		int skipped;
+		int i = s.ordinal();
 		if (sections[i] == null)
 			continue;
 		skipped = sectionToWire(out, i, c, tempMaxLength);
-		if (skipped != 0 && i != Section.ADDITIONAL) {
+		if (skipped != 0 && s != Section.ADDITIONAL) {
 			flags = Header.setFlag(flags, Flags.TC, true);
-			out.writeU16At(header.getCount(i) - skipped,
+			out.writeU16At(header.getCount(s) - skipped,
 				       startpos + 4 + 2 * i);
-			for (int j = i + 1; j < Section.ADDITIONAL; j++)
+			for (int j = i + 1; j < Section.ADDITIONAL_INDEX; j++)
 				out.writeU16At(0, startpos + 4 + 2 * j);
 			break;
 		}
-		if (i == Section.ADDITIONAL)
-			additionalCount = header.getCount(i) - skipped;
+		if (s == Section.ADDITIONAL)
+			additionalCount = header.getCount(s) - skipped;
 	}
 
 	if (optBytes != null) {
@@ -495,7 +504,7 @@ toWire(DNSOutput out, int maxLength) {
 		TSIGRecord tsigrec = tsigkey.generate(this, out.toByteArray(),
 						      tsigerror, querytsig);
 
-		tsigrec.toWire(out, Section.ADDITIONAL, c);
+		tsigrec.toWire(out, Section.ADDITIONAL_INDEX, c);
 		out.writeU16At(additionalCount + 1, startpos + 10);
 	}
 
@@ -561,10 +570,7 @@ numBytes() {
  * @see Section
  */
 public String
-sectionToString(int i) {
-	if (i > 3)
-		return null;
-
+sectionToString(Section i) {
 	final StringBuilder sb = new StringBuilder();
 
 	final Record [] records = getSectionArray(i);
@@ -602,11 +608,11 @@ toString() {
 			sb.append("invalid");
 		sb.append('\n');
 	}
-	for (int i = 0; i < 4; i++) {
+	for (Section i : Section.values()) {
 		if (header.getOpcode() != Opcode.UPDATE)
-			sb.append(";; ").append(Section.longString(i)).append(":\n");
+			sb.append(";; ").append(i.longString()).append(":\n");
 		else
-			sb.append(";; ").append(Section.updString(i)).append(":\n");
+			sb.append(";; ").append(i.updString()).append(":\n");
 		sb.append(sectionToString(i)).append('\n');
 	}
 	sb.append(";; Message size: ").append(numBytes()).append(" bytes");

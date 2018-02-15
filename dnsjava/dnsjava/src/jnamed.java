@@ -9,12 +9,12 @@ import org.xbill.DNS.*;
 
 public class jnamed {
 
-static final int FLAG_DNSSECOK = 1;
-static final int FLAG_SIGONLY = 2;
+private static final int FLAG_DNSSECOK = 1;
+private static final int FLAG_SIGONLY = 2;
 
-final Map<Integer, Cache> caches;
-final Map<Name, Zone> znames;
-final Map<Name, TSIG> TSIGs;
+private final Map<Integer, Cache> caches;
+private final Map<Name, Zone> znames;
+private final Map<Name, TSIG> TSIGs;
 
 private static String
 addrport(InetAddress addr, int port) {
@@ -178,10 +178,11 @@ findExactMatch(Name name, int type, int dclass, boolean glue) {
 	return r;
 }
 
-void
-addRRset(Name name, Message response, RRset rrset, int section, int flags) {
-	for (int s = 1; s <= section; s++)
-		if (response.findRRset(name, rrset.getType(), s))
+static void
+addRRset(Name name, Message response, RRset rrset, Section section, int flags) {
+	final int sectionIndex = section.ordinal();
+	for (int s = 1; s <= sectionIndex; s++)
+		if (response.findRRset(name, rrset.getType(), Section.valueOf(s)))
 			return;
 	if ((flags & FLAG_SIGONLY) == 0) {
 		final Iterator<Record> it = rrset.rrs();
@@ -208,7 +209,7 @@ addSOA(Message response, Zone zone) {
 	response.addRecord(zone.getSOA(), Section.AUTHORITY);
 }
 
-private final void
+private final static void
 addNS(Message response, Zone zone, int flags) {
 	final RRset nsRecords = zone.getNS();
 	addRRset(nsRecords.getName(), response, nsRecords,
@@ -237,7 +238,7 @@ addGlue(Message response, Name name, int flags) {
 }
 
 private void
-addAdditional2(Message response, int section, int flags) {
+addAdditional2(Message response, Section section, int flags) {
 	final Record [] records = response.getSectionArray(section);
 	for (int i = 0; i < records.length; i++) {
 		Record r = records[i];
@@ -460,7 +461,7 @@ byte []
 buildErrorMessage(Header header, int rcode, Record question) {
 	final Message response = new Message();
 	response.setHeader(header);
-	for (int i = 0; i < 4; i++)
+	for (Section i : Section.values())
 		response.removeAllRecords(i);
 	if (rcode == Rcode.SERVFAIL)
 		response.addRecord(question, Section.QUESTION);

@@ -437,7 +437,7 @@ applyStream(Message m, TSIGRecord old, boolean first) {
  * @return The result of the verification (as an Rcode)
  * @see Rcode
  */
-public byte
+public int
 verify(Message m, byte [] b, int length, TSIGRecord old) {
 	m.tsigState = Message.TsigState.TSIG_FAILED;
 	final TSIGRecord tsig = m.getTSIG();
@@ -468,9 +468,9 @@ verify(Message m, byte [] b, int length, TSIGRecord old) {
 		hmac.update(out.toByteArray());
 		hmac.update(old.getSignature());
 	}
-	m.getHeader().decCount(Section.ADDITIONAL);
+	m.getHeader().decCount(Section.ADDITIONAL_INDEX);
 	final byte [] header = m.getHeader().toWire();
-	m.getHeader().incCount(Section.ADDITIONAL);
+	m.getHeader().incCount(Section.ADDITIONAL_INDEX);
 	hmac.update(header);
 
 	final int len = m.tsigstart - header.length;
@@ -607,10 +607,10 @@ public static class StreamVerifier {
 		}
 
 		if (tsig != null)
-			m.getHeader().decCount(Section.ADDITIONAL);
+			m.getHeader().decCount(Section.ADDITIONAL_INDEX);
 		final byte [] header = m.getHeader().toWire();
 		if (tsig != null)
-			m.getHeader().incCount(Section.ADDITIONAL);
+			m.getHeader().incCount(Section.ADDITIONAL_INDEX);
 		verifier.update(header);
 
 		final int len;

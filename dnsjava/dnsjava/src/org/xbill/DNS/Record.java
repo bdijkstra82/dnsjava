@@ -175,7 +175,7 @@ newRecord(Name name, int type, int dclass) {
 }
 
 static Record
-fromWire(DNSInput in, int section, boolean isUpdate) throws IOException {
+fromWire(DNSInput in, Section section, boolean isUpdate) throws IOException {
 	final int type, dclass;
 	final long ttl;
 	final int length;
@@ -199,7 +199,7 @@ fromWire(DNSInput in, int section, boolean isUpdate) throws IOException {
 }
 
 static Record
-fromWire(DNSInput in, int section) throws IOException {
+fromWire(DNSInput in, Section section) throws IOException {
 	return fromWire(in, section, false);
 }
 
@@ -207,12 +207,16 @@ fromWire(DNSInput in, int section) throws IOException {
  * Builds a Record from DNS uncompressed wire format.
  */
 public static Record
-fromWire(byte [] b, int section) throws IOException {
+fromWire(byte [] b, Section section) throws IOException {
 	return fromWire(new DNSInput(b), section, false);
 }
 
 void
 toWire(DNSOutput out, int section, Compression c) {
+	toWire(out, Section.valueOf(section), c);
+}
+void
+toWire(DNSOutput out, Section section, Compression c) {
 	name.toWire(out, c);
 	out.writeU16(type);
 	out.writeU16(dclass);
@@ -230,7 +234,7 @@ toWire(DNSOutput out, int section, Compression c) {
  * Converts a Record into DNS uncompressed wire format.
  */
 public byte []
-toWire(int section) {
+toWire(Section section) {
 	final DNSOutput out = new DNSOutput();
 	toWire(out, section, null);
 	return out.toByteArray();

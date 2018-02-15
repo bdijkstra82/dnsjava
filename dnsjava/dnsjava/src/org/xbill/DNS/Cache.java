@@ -551,7 +551,7 @@ findAnyRecords(Name name, int type) {
 }
 
 private final static Credibility
-getCred(int section, boolean isAuth) {
+getCred(Section section, boolean isAuth) {
 	final Credibility r;
 	if (section == Section.ANSWER) {
 		if (isAuth)

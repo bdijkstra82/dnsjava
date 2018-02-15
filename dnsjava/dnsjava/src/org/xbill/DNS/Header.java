@@ -235,8 +235,8 @@ decCount(int field) {
  * @see Section
  */
 public int
-getCount(int field) {
-	return counts[field];
+getCount(Section field) {
+	return counts[field.ordinal()];
 }
 
 int
@@ -269,8 +269,8 @@ toStringWithRcode(int newrcode) {
 
 	sb.append(";; flags: ").append(printFlags());
 	sb.append("; ");
-	for (int i = 0; i < 4; i++)
-		sb.append(Section.string(i)).append(": ").append(getCount(i)).append(' ');
+	for (Section i : Section.values())
+		sb.append(i).append(": ").append(getCount(i)).append(' ');
 	return sb.toString();
 }
 
