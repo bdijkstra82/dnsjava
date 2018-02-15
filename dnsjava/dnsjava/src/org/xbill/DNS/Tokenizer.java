@@ -35,23 +35,20 @@ public class Tokenizer {
 private static final String delim = " \t\n;()\"";
 private static final String quotes = "\"";
 
-/** End of file */
-public static final int EOF		= 0;
-
-/** End of line */
-public static final int EOL		= 1;
-
-/** Whitespace; only returned when wantWhitespace is set */
-public static final int WHITESPACE	= 2;
-
-/** An identifier (unquoted string) */
-public static final int IDENTIFIER	= 3;
-
-/** A quoted string */
-public static final int QUOTED_STRING	= 4;
-
-/** A comment; only returned when wantComment is set */
-public static final int COMMENT		= 5;
+public static enum TokenType {
+	/** End of file */
+	EOF,
+	/** End of line */
+	EOL,
+	/** Whitespace; only returned when wantWhitespace is set */
+	WHITESPACE,
+	/** An identifier (unquoted string) */
+	IDENTIFIER,
+	/** A quoted string */
+	QUOTED_STRING,
+	/** A comment; only returned when wantComment is set */
+	COMMENT;
+}
 
 private final PushbackInputStream is;
 private boolean ungottenToken;
@@ -67,20 +64,20 @@ private int line;
 
 public static class Token {
 	/** The type of token. */
-	public int type;
+	public TokenType type;
 
 	/** The value of the token, or null for tokens without values. */
 	public String value;
 
 	private
 	Token() {
-		type = -1;
+		type = null;
 		value = null;
 	}
 
 	private Token
-	set(int type, StringBuilder value) {
-		if (type < 0)
+	set(TokenType type, StringBuilder value) {
+		if (type == null)
 			throw new IllegalArgumentException();
 		this.type = type;
 		this.value = value == null ? null : value.toString();
@@ -115,13 +112,13 @@ public static class Token {
 	/** Indicates whether this token contains a string. */
 	public boolean
 	isString() {
-		return (type == IDENTIFIER || type == QUOTED_STRING);
+		return (type == TokenType.IDENTIFIER || type == TokenType.QUOTED_STRING);
 	}
 
 	/** Indicates whether this token contains an EOL or EOF. */
 	public boolean
 	isEOL() {
-		return (type == EOL || type == EOF);
+		return (type == TokenType.EOL || type == TokenType.EOF);
 	}
 }
 
@@ -234,27 +231,27 @@ checkUnbalancedParens() throws TextParseException {
  */
 public Token
 get(boolean wantWhitespace, boolean wantComment) throws IOException {
-	int type;
+	TokenType type;
 	int c;
 
 	if (ungottenToken) {
 		ungottenToken = false;
-		if (current.type == WHITESPACE) {
+		if (current.type == TokenType.WHITESPACE) {
 			if (wantWhitespace)
 				return current;
-		} else if (current.type == COMMENT) {
+		} else if (current.type == TokenType.COMMENT) {
 			if (wantComment)
 				return current;
 		} else {
-			if (current.type == EOL)
+			if (current.type == TokenType.EOL)
 				line++;
 			return current;
 		}
 	}
 	final int skipped = skipWhitespace();
 	if (skipped > 0 && wantWhitespace)
-		return current.set(WHITESPACE, null);
-	type = IDENTIFIER;
+		return current.set(TokenType.WHITESPACE, null);
+	type = TokenType.IDENTIFIER;
 	sb.setLength(0);
 	while (true) {
 		c = getChar();
@@ -264,11 +261,11 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 					throw exception("EOF in " +
 							"quoted string");
 				else if (sb.length() == 0)
-					return current.set(EOF, null);
+					return current.set(TokenType.EOF, null);
 				else
 					return current.set(type, sb);
 			}
-			if (sb.length() == 0 && type != QUOTED_STRING) {
+			if (sb.length() == 0 && type != TokenType.QUOTED_STRING) {
 				if (c == '(') {
 					multiline++;
 					skipWhitespace();
@@ -285,7 +282,7 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 					if (!quoting) {
 						quoting = true;
 						delimiters = quotes;
-						type = QUOTED_STRING;
+						type = TokenType.QUOTED_STRING;
 					} else {
 						quoting = false;
 						delimiters = delim;
@@ -293,7 +290,7 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 					}
 					continue;
 				} else if (c == '\n') {
-					return current.set(EOL, null);
+					return current.set(TokenType.EOL, null);
 				} else if (c == ';') {
 					while (true) {
 						c = getChar();
@@ -303,18 +300,18 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 					}
 					if (wantComment) {
 						ungetChar(c);
-						return current.set(COMMENT, sb);
+						return current.set(TokenType.COMMENT, sb);
 					} else if (c == -1 &&
-						   type != QUOTED_STRING)
+						   type != TokenType.QUOTED_STRING)
 					{
 						checkUnbalancedParens();
-						return current.set(EOF, null);
+						return current.set(TokenType.EOF, null);
 					} else if (multiline > 0) {
 						skipWhitespace();
 						sb.setLength(0);
 						continue;
 					} else
-						return current.set(EOL, null);
+						return current.set(TokenType.EOL, null);
 				} else
 					throw new IllegalStateException();
 			}
@@ -330,9 +327,9 @@ get(boolean wantWhitespace, boolean wantComment) throws IOException {
 		}
 		sb.append((char)c);
 	}
-	if (sb.length() == 0 && type != QUOTED_STRING) {
+	if (sb.length() == 0 && type != TokenType.QUOTED_STRING) {
 		checkUnbalancedParens();
-		return current.set(EOF, null);
+		return current.set(TokenType.EOF, null);
 	}
 	return current.set(type, sb);
 }
@@ -358,7 +355,7 @@ unget() {
 	if (ungottenToken)
 		throw new IllegalStateException
 				("Cannot unget multiple tokens");
-	if (current.type == EOL)
+	if (current.type == TokenType.EOL)
 		line--;
 	ungottenToken = true;
 }
@@ -381,7 +378,7 @@ getString() throws IOException {
 private String
 _getIdentifier(String expected) throws IOException {
 	final Token next = get();
-	if (next.type != IDENTIFIER)
+	if (next.type != TokenType.IDENTIFIER)
 		throw exception("expected " + expected);
 	return next.value;
 }
@@ -570,7 +567,7 @@ getAddress(int family) throws IOException {
 public void
 getEOL() throws IOException {
 	final Token next = get();
-	if (next.type != EOL && next.type != EOF) {
+	if (next.type != TokenType.EOL && next.type != TokenType.EOF) {
 		throw exception("expected EOL or EOF");
 	}
 }

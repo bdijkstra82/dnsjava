@@ -2,11 +2,15 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.text.*;
-import java.util.*;
-import org.xbill.DNS.utils.*;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Locale;
+
+import org.xbill.DNS.utils.base16;
 
 /**
  * A generic DNS resource record.  The specific record types extend this class.
@@ -463,7 +467,7 @@ throws IOException
 	TTL.check(ttl);
 
 	Tokenizer.Token t = st.get();
-	if (t.type == Tokenizer.IDENTIFIER && t.value.equals("\\#")) {
+	if (t.type == Tokenizer.TokenType.IDENTIFIER && t.value.equals("\\#")) {
 		final int length = st.getUInt16();
 		byte [] data = st.getHex();
 		if (data == null) {
@@ -479,7 +483,7 @@ throws IOException
 	rec = getEmptyRecord(name, type, dclass, ttl, true);
 	rec.rdataFromString(st, origin);
 	t = st.get();
-	if (t.type != Tokenizer.EOL && t.type != Tokenizer.EOF) {
+	if (t.type != Tokenizer.TokenType.EOL && t.type != Tokenizer.TokenType.EOF) {
 		throw st.exception("unexpected tokens at end of record");
 	}
 	return rec;

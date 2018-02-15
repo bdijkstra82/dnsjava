@@ -2,8 +2,13 @@
 
 package org.xbill.DNS;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A DNS master file parser.  This incrementally parses the file, returning
@@ -290,11 +295,11 @@ _nextRecord() throws IOException {
 		Name name;
 
 		token = st.get(true, false);
-		if (token.type == Tokenizer.WHITESPACE) {
+		if (token.type == Tokenizer.TokenType.WHITESPACE) {
 			Tokenizer.Token next = st.get();
-			if (next.type == Tokenizer.EOL)
+			if (next.type == Tokenizer.TokenType.EOL)
 				continue;
-			else if (next.type == Tokenizer.EOF)
+			else if (next.type == Tokenizer.TokenType.EOF)
 				return null;
 			else
 				st.unget();
@@ -302,9 +307,9 @@ _nextRecord() throws IOException {
 				throw st.exception("no owner");
 			name = last.getName();
 		}
-		else if (token.type == Tokenizer.EOL)
+		else if (token.type == Tokenizer.TokenType.EOL)
 			continue;
-		else if (token.type == Tokenizer.EOF)
+		else if (token.type == Tokenizer.TokenType.EOF)
 			return null;
 		else if (token.value.charAt(0) == '$') {
 			s = token.value;
