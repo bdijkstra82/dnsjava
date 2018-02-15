@@ -11,7 +11,7 @@ package org.xbill.DNS;
 public final class Flags {
 
 private static final Mnemonic flags = new Mnemonic("DNS Header Flag",
-					     Mnemonic.CASE_LOWER);
+					     Mnemonic.CASE_LOWER, "FLAG", 0xF, true);
 
 /** query/response */
 public static final byte QR		= 0;
@@ -38,10 +38,6 @@ public static final byte CD		= 11;
 public static final int DO		= ExtendedFlags.DO;
 
 static {
-	flags.setMaximum(0xF);
-	flags.setPrefix("FLAG");
-	flags.setNumericAllowed(true);
-
 	flags.add(QR, "qr");
 	flags.add(AA, "aa");
 	flags.add(TC, "tc");

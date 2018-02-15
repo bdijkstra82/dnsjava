@@ -11,10 +11,10 @@ package org.xbill.DNS;
 public final class Rcode {
 
 private static final Mnemonic rcodes = new Mnemonic("DNS Rcode",
-					      Mnemonic.CASE_UPPER);
+					      Mnemonic.CASE_UPPER, "RESERVED", 0xFFF, true);
 
 private static final Mnemonic tsigrcodes = new Mnemonic("TSIG rcode",
-						  Mnemonic.CASE_UPPER);
+						  Mnemonic.CASE_UPPER, "RESERVED", 0xFFFF, true);
 
 /** No error */
 public static final int NOERROR		= 0;
@@ -70,10 +70,6 @@ public static final int BADTIME		= 18;
 public static final int BADMODE		= 19;
 
 static {
-	rcodes.setMaximum(0xFFF);
-	rcodes.setPrefix("RESERVED");
-	rcodes.setNumericAllowed(true);
-
 	rcodes.add(NOERROR, "NOERROR");
 	rcodes.add(FORMERR, "FORMERR");
 	rcodes.add(SERVFAIL, "SERVFAIL");
@@ -87,11 +83,7 @@ static {
 	rcodes.add(NOTZONE, "NOTZONE");
 	rcodes.add(BADVERS, "BADVERS");
 
-	tsigrcodes.setMaximum(0xFFFF);
-	tsigrcodes.setPrefix("RESERVED");
-	tsigrcodes.setNumericAllowed(true);
 	tsigrcodes.addAll(rcodes);
-
 	tsigrcodes.add(BADSIG, "BADSIG");
 	tsigrcodes.add(BADKEY, "BADKEY");
 	tsigrcodes.add(BADTIME, "BADTIME");

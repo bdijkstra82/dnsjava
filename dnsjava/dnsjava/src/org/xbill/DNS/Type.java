@@ -267,8 +267,7 @@ private static class TypeMnemonic extends Mnemonic {
 
 	public
 	TypeMnemonic() {
-		super("Type", CASE_UPPER);
-		setPrefix("TYPE");
+		super("Type", CASE_UPPER, "TYPE", 0xFFFF, false);
 		classes = new HashMap<Integer, Class<? extends Record>>();
 	}
 

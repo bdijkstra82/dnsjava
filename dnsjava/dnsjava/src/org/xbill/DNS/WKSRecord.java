@@ -151,12 +151,9 @@ public static class Protocol {
 	public static final int WB_EXPAK = 79;
 
 	private static final Mnemonic protocols = new Mnemonic("IP protocol",
-							 Mnemonic.CASE_LOWER);
+							 Mnemonic.CASE_LOWER, 0xFF, true);
 
 	static {
-		protocols.setMaximum(0xFF);
-		protocols.setNumericAllowed(true);
-
 		protocols.add(ICMP, "icmp");
 		protocols.add(IGMP, "igmp");
 		protocols.add(GGP, "ggp");
@@ -468,12 +465,9 @@ public static class Service {
 	public static final int LINK = 245;
 
 	private static final Mnemonic services = new Mnemonic("TCP/UDP service",
-							Mnemonic.CASE_LOWER);
+							Mnemonic.CASE_LOWER, 0xFFFF, true);
 
 	static {
-		services.setMaximum(0xFFFF);
-		services.setNumericAllowed(true);
-
 		services.add(RJE, "rje");
 		services.add(ECHO, "echo");
 		services.add(DISCARD, "discard");

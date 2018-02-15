@@ -35,8 +35,7 @@ public static final int ANY		= 255;
 private static class DClassMnemonic extends Mnemonic {
 	public
 	DClassMnemonic() {
-		super("DClass", CASE_UPPER);
-		setPrefix("CLASS");
+		super("DClass", CASE_UPPER, "CLASS", 0xFFFF, false);
 	}
 
 	@Override

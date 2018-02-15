@@ -71,12 +71,9 @@ public static class Algorithm {
 	public static final int PRIVATEOID = 254;
 
 	private static final Mnemonic algs = new Mnemonic("DNSSEC algorithm",
-						    Mnemonic.CASE_UPPER);
+						    Mnemonic.CASE_UPPER, 0xFF, true);
 
 	static {
-		algs.setMaximum(0xFF);
-		algs.setNumericAllowed(true);
-
 		algs.add(RSAMD5, "RSAMD5");
 		algs.add(DH, "DH");
 		algs.add(DSA, "DSA");
@@ -1120,7 +1117,7 @@ verifyMessage(Message message, byte [] bytes, SIGRecord sig, SIGRecord previous,
 		out.writeByteArray(previous.getSignature());
 
 	final Header header = (Header) message.getHeader().clone();
-	header.decCount(Section.ADDITIONAL);
+	header.decCount(Section.ADDITIONAL_INDEX);
 	out.writeByteArray(header.toWire());
 
 	out.writeByteArray(bytes, Header.LENGTH,

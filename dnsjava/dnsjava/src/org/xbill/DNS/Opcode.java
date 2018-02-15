@@ -28,13 +28,9 @@ public static final int NOTIFY		= 4;
 public static final int UPDATE		= 5;
 
 private static final Mnemonic opcodes = new Mnemonic("DNS Opcode",
-					       Mnemonic.CASE_UPPER);
+					       Mnemonic.CASE_UPPER, "RESERVED", 0xF, true);
 
 static {
-	opcodes.setMaximum(0xF);
-	opcodes.setPrefix("RESERVED");
-	opcodes.setNumericAllowed(true);
-
 	opcodes.add(QUERY, "QUERY");
 	opcodes.add(IQUERY, "IQUERY");
 	opcodes.add(STATUS, "STATUS");

@@ -11,16 +11,12 @@ package org.xbill.DNS;
 public final class ExtendedFlags {
 
 private static final Mnemonic extflags = new Mnemonic("EDNS Flag",
-						Mnemonic.CASE_LOWER);
+						Mnemonic.CASE_LOWER, "FLAG", 0xFFFF, true);
 
 /** dnssec ok */
 public static final int DO		= 0x8000;
 
 static {
-	extflags.setMaximum(0xFFFF);
-	extflags.setPrefix("FLAG");
-	extflags.setNumericAllowed(true);
-
 	extflags.add(DO, "do");
 }
 

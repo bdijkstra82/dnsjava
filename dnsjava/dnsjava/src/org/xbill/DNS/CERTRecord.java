@@ -51,12 +51,9 @@ public static class CertificateType {
 	public static final int OID = 254;
 
 	private static final Mnemonic types = new Mnemonic("Certificate type",
-						     Mnemonic.CASE_UPPER);
+						     Mnemonic.CASE_UPPER, 0xFFFF, true);
 
 	static {
-		types.setMaximum(0xFFFF);
-		types.setNumericAllowed(true);
-
 		types.add(PKIX, "PKIX");
 		types.add(SPKI, "SPKI");
 		types.add(PGP, "PGP");

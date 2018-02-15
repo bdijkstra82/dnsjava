@@ -23,13 +23,9 @@ public static class Code {
 	public final static int CLIENT_SUBNET = 8;
 
 	private static final Mnemonic codes = new Mnemonic("EDNS Option Codes",
-						     Mnemonic.CASE_UPPER);
+						     Mnemonic.CASE_UPPER, "CODE", 0xFFFF, true);
 
 	static {
-		codes.setMaximum(0xFFFF);
-		codes.setPrefix("CODE");
-		codes.setNumericAllowed(true);
-
 		codes.add(NSID, "NSID");
 		codes.add(CLIENT_SUBNET, "CLIENT_SUBNET");
 	}

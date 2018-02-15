@@ -45,12 +45,9 @@ public static class Protocol {
 	public static final int ANY = 255;
 
 	private static final Mnemonic protocols = new Mnemonic("KEY protocol",
-							 Mnemonic.CASE_UPPER);
+							 Mnemonic.CASE_UPPER, 0xFF, true);
 
 	static {
-		protocols.setMaximum(0xFF);
-		protocols.setNumericAllowed(true);
-
 		protocols.add(NONE, "NONE");
 		protocols.add(TLS, "TLS");
 		protocols.add(EMAIL, "EMAIL");
@@ -186,12 +183,9 @@ public static class Flags {
 	public static final int SIG15 = 15;
 
 	private static final Mnemonic flags = new Mnemonic("KEY flags",
-						      Mnemonic.CASE_UPPER);
+						      Mnemonic.CASE_UPPER, 0xFFFF, false);
 
 	static {
-		flags.setMaximum(0xFFFF);
-		flags.setNumericAllowed(false);
-
 		flags.add(NOCONF, "NOCONF");
 		flags.add(NOAUTH, "NOAUTH");
 		flags.add(NOKEY, "NOKEY");

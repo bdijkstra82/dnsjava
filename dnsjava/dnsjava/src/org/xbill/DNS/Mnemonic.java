@@ -15,7 +15,7 @@ import java.util.Locale;
 class Mnemonic {
 
 public static enum Wordcase {
-	SENSITIVE,
+	SENSITIVE,	/* not used */
 	UPPER,
 	LOWER
 }
@@ -33,9 +33,9 @@ private final HashMap<String, Integer> strings;
 private final HashMap<Integer, String> values;
 private final String description;
 private final Wordcase wordcase;
-private String prefix;
-private int max;
-private boolean numericok;
+private final String prefix;
+private final int max;
+private final boolean numericok;
 
 /**
  * Creates a new Mnemonic table.
@@ -45,35 +45,19 @@ private boolean numericok;
  * throwing exceptions.
  */
 public
-Mnemonic(String description, Wordcase wordcase) {
+Mnemonic(String description, Wordcase wordcase, String prefix, int max, boolean numericAllowed) {
 	this.description = description;
 	this.wordcase = wordcase;
 	strings = new HashMap<String, Integer>();
 	values = new HashMap<Integer, String>();
-	max = Integer.MAX_VALUE;
-}
-
-/** Sets the maximum numeric value */
-public void
-setMaximum(int max) {
+	this.prefix = prefix != null ? sanitize(prefix) : null;
 	this.max = max;
+	numericok = numericAllowed;
 }
 
-/**
- * Sets the prefix to use when converting to and from values that don't
- * have mnemonics.
- */
-public void
-setPrefix(String prefix) {
-	this.prefix = sanitize(prefix);
-}
-
-/**
- * Sets whether numeric values stored in strings are acceptable.
- */
-public void
-setNumericAllowed(boolean numeric) {
-	this.numericok = numeric;
+public
+Mnemonic(String description, Wordcase wordcase, int max, boolean numericAllowed) {
+	this(description, wordcase, null, max, numericAllowed);
 }
 
 /**
