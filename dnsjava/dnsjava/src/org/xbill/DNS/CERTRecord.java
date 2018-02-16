@@ -57,11 +57,11 @@ public static class CertificateType {
 		types.add(PKIX, "PKIX");
 		types.add(SPKI, "SPKI");
 		types.add(PGP, "PGP");
-		types.add(PKIX, "IPKIX");
-		types.add(SPKI, "ISPKI");
-		types.add(PGP, "IPGP");
-		types.add(PGP, "ACPKIX");
-		types.add(PGP, "IACPKIX");
+		types.add(IPKIX, "IPKIX");
+		types.add(ISPKI, "ISPKI");
+		types.add(IPGP, "IPGP");
+		types.add(ACPKIX, "ACPKIX");
+		types.add(IACPKIX, "IACPKIX");
 		types.add(URI, "URI");
 		types.add(OID, "OID");
 	}
