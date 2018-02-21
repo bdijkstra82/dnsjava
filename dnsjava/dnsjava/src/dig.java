@@ -8,9 +8,6 @@ import org.xbill.DNS.*;
 
 public class dig {
 
-static Name name = null;
-static int type = Type.A, dclass = DClass.IN;
-
 static void
 usage() {
 	System.out.println("Usage: dig [@server] name [<type>] [<class>] " +
@@ -26,7 +23,7 @@ doQuery(Message response, long ms) {
 }
 
 static void
-doAXFR(Message response) {
+doAXFR(Message response, Name name) {
 	System.out.println("; java dig 0.0 <> " + name + " axfr");
 	if (response.isSigned()) {
 		System.out.print(";; TSIG ");
@@ -66,6 +63,9 @@ main(String[] argv) throws IOException {
 		usage();
 	}
 
+	Name name = null;
+	int type = Type.A;
+	int dclass = DClass.IN;
 	try {
 		arg = 0;
 		if (argv[arg].startsWith("@"))
@@ -197,7 +197,7 @@ main(String[] argv) throws IOException {
 	endTime = System.currentTimeMillis();
 
 	if (type == Type.AXFR)
-		doAXFR(response);
+		doAXFR(response, name);
 	else
 		doQuery(response, endTime - startTime);
 }

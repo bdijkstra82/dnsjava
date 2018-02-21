@@ -19,6 +19,7 @@ private static final long serialVersionUID = -7257019940971525644L;
 
 private static final int LABEL_NORMAL = 0;
 private static final int LABEL_COMPRESSION = 0xC0;
+private static final int LABEL_EXTENDED = 0x40;
 private static final int LABEL_MASK = 0xC0;
 
 /* The name data */
@@ -305,6 +306,8 @@ Name(DNSInput in) throws WireParseException {
 				System.err.println("current name '" + this +
 						   "', seeking to " + pos);
 			break;
+		case LABEL_EXTENDED:
+			throw new WireParseException("unsupported label type");
 		default:
 			throw new WireParseException("bad label type");
 		}
@@ -356,7 +359,7 @@ concatenate(Name prefix, Name suffix) throws NameTooLongException {
 	if (prefix.isAbsolute())
 		return (prefix);
 	final NameBuilder nb = new NameBuilder(prefix);
-	nb.append(suffix.name, suffix.offset(0), suffix.getlabels());
+	nb.append(suffix);
 	return nb.toName();
 }
 
@@ -795,7 +798,7 @@ private static class NameBuilder {
 		this();
 		if (src.name != null && src.name.length > 0 && src.length() > 0) {
 			try {
-				append(src.name, 0, src.getlabels());
+				append(src);
 			} catch (NameTooLongException e) {
 				throw new AssertionError(e);
 			}
@@ -853,6 +856,10 @@ private static class NameBuilder {
 		}
 		this.labels = newlabels;
 		this.length = newlength;
+	}
+
+	private void append(Name src) throws NameTooLongException {
+		append(src.name, src.offset(0), src.getlabels());
 	}
 
 	private void

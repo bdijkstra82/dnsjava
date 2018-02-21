@@ -35,6 +35,7 @@ public final class Options {
 		verbosesec,
 		verbosecache,
 		tsigfudge,
+		@Deprecated
 		sig0validity
 	}
 
@@ -93,6 +94,11 @@ private static void put(String k, Object v) {
 /** Sets an option to "true" */
 public static void
 set(String option) {
+	put(key(option), Boolean.TRUE);
+}
+
+public static void
+set(Standard option) {
 	put(key(option), Boolean.TRUE);
 }
 

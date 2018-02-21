@@ -30,15 +30,15 @@ private TSIGRecord querytsig;
 private int tsigerror;
 
 static enum TsigState {
-	/* The message was not signed */
+	/** The message was not signed */
 	TSIG_UNSIGNED,
-	/* The message was signed and verification succeeded */
+	/** The message was signed and verification succeeded */
 	TSIG_VERIFIED,
-	/* The message was an unsigned message in multiple-message response */
+	/** The message was an unsigned message in multiple-message response */
 	TSIG_INTERMEDIATE,
-	/* The message was signed and no verification was attempted.  */
+	/** The message was signed and no verification was attempted.  */
 	TSIG_SIGNED,
-	/*
+	/**
 	 * The message was signed and verification failed, or was not signed
 	 * when it should have been.
 	 */
@@ -47,6 +47,7 @@ static enum TsigState {
 
 int tsigstart;
 TsigState tsigState = TsigState.TSIG_UNSIGNED;
+@Deprecated
 int sig0start;
 
 private static final Record [] emptyRecordArray = new Record[0];
@@ -348,13 +349,17 @@ getRcode() {
  * @see Record
  * @see Section
  */
-public Record []
+public Record[]
 getSectionArray(Section section) {
+	final Record[] ra;
 	final int sectionIndex = section.ordinal();
 	if (sections[sectionIndex] == null)
-		return emptyRecordArray;
-	final List<Record> l = sections[sectionIndex];
-	return l.toArray(new Record[l.size()]);
+		ra = emptyRecordArray;
+	else {
+		final List<Record> l = sections[sectionIndex];
+		ra = l.toArray(new Record[l.size()]);
+	}
+	return ra;
 }
 
 private static boolean

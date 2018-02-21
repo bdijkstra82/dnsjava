@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,21 +69,24 @@ static {
 public static Name
 algorithmToName(String alg)
 {
-	final Iterator<Entry<Name, String>> it = algMap.entrySet().iterator();
-	while (it.hasNext()) {
-		Entry<Name, String> entry = it.next();
-		if (alg.equalsIgnoreCase(entry.getValue()))
-			return entry.getKey();
+	Name n = null;
+	for (Entry<Name, String> entry : algMap.entrySet()) {
+		if (alg.equalsIgnoreCase(entry.getValue())) {
+			n = entry.getKey();
+			break;
+		}
 	}
-	throw new IllegalArgumentException("Unknown algorithm");
+	if (n == null)
+		throw new IllegalArgumentException("Unknown algorithm");
+	return n;
 }
 public static String
 nameToAlgorithm(Name name)
 {
 	final String alg = algMap.get(name);
-	if (alg != null)
-		return alg;
-	throw new IllegalArgumentException("Unknown algorithm");
+	if (alg == null)
+		throw new IllegalArgumentException("Unknown algorithm");
+	return alg;
 }
 
 /**

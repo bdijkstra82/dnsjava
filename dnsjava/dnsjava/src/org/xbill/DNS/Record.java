@@ -339,7 +339,7 @@ toString() {
 /**
  * Converts the text format of an RR to the internal format - must be overridden
  */
-//XXX this is a factory method
+//XXX this is more like a constructor
 abstract void
 rdataFromString(Tokenizer st, Name origin) throws IOException;
 

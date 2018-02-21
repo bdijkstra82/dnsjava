@@ -142,13 +142,14 @@ getFlags() {
  */
 public int
 getID() {
-	if (id >= 0)
-		return id;
-	synchronized (this) {
-		if (id < 0)
+	int id = this.id;
+	if (id < 0) {
+		synchronized (this) {
 			id = random.nextInt(0xffff);
-		return id;
+			this.id = id;
+		}
 	}
+	return id;
 }
 
 /**

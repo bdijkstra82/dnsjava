@@ -33,32 +33,27 @@ fromAddress(byte [] addr) {
 		throw new IllegalArgumentException("array must contain " +
 						   "4 or 16 elements");
 
-	final StringBuilder sb = new StringBuilder();
+	final Name suffix = addr.length == 4 ? inaddr4 : inaddr6;
+	final StringBuilder sb = new StringBuilder(addr.length * 4 + 16);
 	if (addr.length == 4) {
 		for (int i = addr.length - 1; i >= 0; i--) {
 			sb.append(addr[i] & 0xFF);
-			if (i > 0)
-				sb.append('.');
+			sb.append('.');
 		}
 	} else {
-		final int [] nibbles = new int[2];
 		for (int i = addr.length - 1; i >= 0; i--) {
-			nibbles[0] = (addr[i] & 0xFF) >> 4;
-			nibbles[1] = (addr[i] & 0xFF) & 0xF;
-			for (int j = nibbles.length - 1; j >= 0; j--) {
-				sb.append(Integer.toHexString(nibbles[j]));
-				if (i > 0 || j > 0)
-					sb.append('.');
-			}
+			int n0 = (addr[i] >> 4) & 0xF;
+			int n1 = addr[i] & 0xF;
+			sb.append(Integer.toHexString(n1));
+			sb.append('.');
+			sb.append(Integer.toHexString(n0));
+			sb.append('.');
 		}
 	}
+	final String s = sb.substring(0, sb.length() - 1);	// remove final dot
 
 	try {
-		final Name r;
-		if (addr.length == 4)
-			r = Name.fromString(sb.toString(), inaddr4);
-		else
-			r = Name.fromString(sb.toString(), inaddr6);
+		final Name r = Name.fromString(s, suffix);
 		return r;
 	}
 	catch (TextParseException e) {
