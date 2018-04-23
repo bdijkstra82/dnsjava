@@ -2,9 +2,19 @@
 
 package org.xbill.DNS;
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * An implementation of Resolver that sends one query to one server.
@@ -33,17 +43,20 @@ private OPTRecord queryOPT;
 private TSIG tsig;
 private long timeoutValue = 10 * 1000;
 
+private final ScheduledExecutorService threadPool;
+private final int sendInterval;	/* ms */
+private long nextTime = 0L;
+
 private static final short DEFAULT_UDPSIZE = 512;
 
 private static String defaultResolver = "localhost";
-private static int uniqueID = 0;
 
 /**
  * Creates a SimpleResolver that will query the specified host
  * @exception UnknownHostException Failure occurred while finding the host
  */
 public
-SimpleResolver(String hostname) throws UnknownHostException {
+SimpleResolver(String hostname, int sendInterval) throws UnknownHostException {
 	if (hostname == null) {
 		hostname = ResolverConfig.getCurrentConfig().server();
 		if (hostname == null)
@@ -55,6 +68,19 @@ SimpleResolver(String hostname) throws UnknownHostException {
 	else
 		addr = InetAddress.getByName(hostname);
 	address = new InetSocketAddress(addr, DEFAULT_PORT);
+
+	final ScheduledThreadPoolExecutor tp;
+	// it starts with 0 threads, so it's OK to create it now
+	tp = new ScheduledThreadPoolExecutor(10, new DaemonThreadFactory());
+	tp.setKeepAliveTime(60, TimeUnit.SECONDS);
+	tp.allowCoreThreadTimeOut(true);
+	threadPool = tp;
+	this.sendInterval = sendInterval;
+}
+
+public
+SimpleResolver(String hostname) throws UnknownHostException {
+	this(hostname, 1);
 }
 
 /**
@@ -65,7 +91,7 @@ SimpleResolver(String hostname) throws UnknownHostException {
  */
 public
 SimpleResolver() throws UnknownHostException {
-	this(null);
+	this(null, 1);
 }
 
 /**
@@ -309,22 +335,22 @@ send(Message query) throws IOException {
  */
 public Object
 sendAsync(final Message query, final ResolverListener listener) {
-	final Object id;
-	synchronized (this) {
-		id = new Integer(uniqueID++);//XXX should be unique object or unique number, or both?
+	final long delay;
+	if (sendInterval == 0) {
+		delay = 0L;
+	} else {
+		synchronized (this) {
+			long now = System.currentTimeMillis();
+			delay = Math.max(nextTime - now, 0L);
+			nextTime = now + delay + sendInterval;
+		}
 	}
-	final Record question = query.getQuestion();
-	final String qname;
-	if (question != null)
-		qname = question.getName().toString();
+	final Object id = new Object();
+	final Runnable command = new ResolveJob(this, query, id, listener);
+	if (delay > 0)
+		threadPool.schedule(command, delay, TimeUnit.MILLISECONDS);
 	else
-		qname = "(none)";
-	final String name = this.getClass() + ": " + qname;
-	//XXX this isn't really asynchronous
-	final Thread thread = new Thread(new ResolveJob(this, query, id, listener));
-	thread.setName(name);
-	thread.setDaemon(true);
-	thread.start();
+		threadPool.execute(command);
 	return id;
 }
 
@@ -351,4 +377,14 @@ sendAXFR(Message query) throws IOException {
 	return response;
 }
 
+}
+
+class DaemonThreadFactory implements ThreadFactory {
+	private final ThreadFactory delegate = Executors.defaultThreadFactory();
+
+	public Thread newThread(Runnable r) {
+		final Thread t = delegate.newThread(r);
+		t.setDaemon(true);
+		return t;
+	}
 }
