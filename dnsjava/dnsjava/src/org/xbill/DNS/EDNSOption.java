@@ -19,15 +19,41 @@ public static class Code {
 	/** Name Server Identifier, RFC 5001 */
 	public final static int NSID = 3;
 
+	/** DNSSEC Algorithm Understood, RFC6975 */
+	public final static int DAU = 5;
+	/** DS Hash Understood, RFC6975 */
+	public final static int DHU = 6;
+	/** NSEC3 Hash Understood, RFC6975 */
+	public final static int N3U = 7;
+
 	/** Client Subnet, defined in draft-vandergaast-edns-client-subnet-02 */
 	public final static int CLIENT_SUBNET = 8;
+
+	/** RFC7873 */
+	public final static int COOKIE = 10;
+
+	/** RFC7828 */
+	public final static int TCP_KEEPALIVE = 11;
+
+	/** RFC7830 */
+	public final static int PADDING = 12;
+
+	/** RFC7901 */
+	public final static int CHAIN = 13;
 
 	private static final Mnemonic codes = new Mnemonic("EDNS Option Codes",
 						     Mnemonic.CASE_UPPER, "CODE", 0xFFFF, true);
 
 	static {
 		codes.add(NSID, "NSID");
+		codes.add(DAU, "DAU");
+		codes.add(DHU, "DHU");
+		codes.add(N3U, "N3U");
 		codes.add(CLIENT_SUBNET, "CLIENT_SUBNET");
+		codes.add(COOKIE, "COOKIE");
+		codes.add(TCP_KEEPALIVE, "TCP_KEEPALIVE");
+		codes.add(PADDING, "PADDING");
+		codes.add(CHAIN, "CHAIN");
 	}
 
 	/**
